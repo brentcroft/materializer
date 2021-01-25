@@ -21,7 +21,9 @@ public class ExtPascalVocReader
     public enum RootTag implements Tag.FlatTag< Detections >
     {
         ROOT( DetectionsTag.DETECTIONS );
-        private final String tag = "/";
+
+        // must be an empty string: @see TagHandler.getPath().
+        private final String tag = "";
         private final FlatTag< Detections > self = this;
         private final List< Tag< ?, ? > > children;
 

@@ -75,6 +75,7 @@ public class TagHandler extends DefaultHandler
             }
         }
 
+        // risk of ClassCastException
         Object rootItem = tag.upcastItem( rootItemStack.peek() );
 
         if ( isNull( rootItem ) )
@@ -92,15 +93,19 @@ public class TagHandler extends DefaultHandler
 
     public void endElement( String uri, String localName, String qName )
     {
-        lastSibling = tagStack.pop();
-        tagStackIterator.pop();
-        Object rootItem = rootItemStack.pop();
+        lastSibling = tagStack.peek();
+        Object rootItem = rootItemStack.peek();
 
         if ( nonNull( lastSibling ) )
         {
+            // stacks identify state if exception thrown
             lastSibling.close( rootItem, characters.toString().trim() );
         }
 
+        // pop the stacks
+        rootItemStack.pop();
+        tagStackIterator.pop();
+        tagStack.pop();
         characters.setLength( 0 );
     }
 
