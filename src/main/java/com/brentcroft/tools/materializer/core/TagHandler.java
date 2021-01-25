@@ -9,11 +9,11 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import java.util.Iterator;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static java.util.Optional.ofNullable;
 
 @Getter
 public class TagHandler extends DefaultHandler
@@ -33,8 +33,12 @@ public class TagHandler extends DefaultHandler
         tagStackIterator.push( rootTag.getIterator() );
     }
 
-    public void startDocument()
+    public String getPath()
     {
+        return tagStack
+                .stream()
+                .map( Tag::getTag )
+                .collect( Collectors.joining( "/" ) );
     }
 
     public void startElement( String uri, String localName, String qName, Attributes attributes )
@@ -71,9 +75,9 @@ public class TagHandler extends DefaultHandler
             }
         }
 
-        Object rootItem = tag.upcastItem( rootItemStack.peek() ) ;
+        Object rootItem = tag.upcastItem( rootItemStack.peek() );
 
-        if (isNull(rootItem))
+        if ( isNull( rootItem ) )
         {
             throw new TagHandlerException( this, format( "No item obtained for tag: <%s>", tag.getTag() ) );
         }
