@@ -3,6 +3,7 @@ package com.brentcroft.tools.materializer;
 
 import com.brentcroft.tools.materializer.core.Tag;
 import com.brentcroft.tools.materializer.core.TagHandler;
+import com.brentcroft.tools.materializer.core.ValidationException;
 import lombok.Getter;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -101,6 +102,10 @@ public class Materializer< R > implements Function< InputSource, R >
         catch ( IOException e )
         {
             throw new TagParseException( tagHandler, e );
+        }
+        catch ( ValidationException e )
+        {
+            throw new TagValidationException( tagHandler, e );
         }
         catch ( TagException e )
         {
