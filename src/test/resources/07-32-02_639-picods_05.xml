@@ -1,0 +1,76 @@
+<annotation>
+    <!-- -->
+    <date>2020-10-09</date>
+    <time>07:32:03.815</time>
+    <folder>/home/pi/cam-ram/CAM-05/2020-10-09</folder>
+    <filename>07-32-02_639-picods_05.jpg</filename>
+    <path/>
+    <size>
+        <width>1920</width>
+        <height>1080</height>
+        <depth>3</depth>
+    </size>
+    <object>
+        <name>mouse</name>
+        <score>0.780855</score>
+        <weight>0.6</weight>
+        <bndbox>
+            <xmin>941</xmin>
+            <ymin>243</ymin>
+            <xmax>1211</xmax>
+            <ymax>800</ymax>
+        </bndbox>
+        <attributes>
+            <attribute key="cardinality">2</attribute>
+            <attribute key="consensus">0.333333</attribute>
+            <attribute key="box-score">0.780855</attribute>
+            <attribute key="box-iou">0.918322</attribute>
+            <attribute key="box-weight">0.620604</attribute>
+            <attribute key="weight-bin">6</attribute>
+        </attributes>
+    </object>
+    <object>
+        <name>great tit</name>
+        <score>0.296</score>
+        <weight>0.4</weight>
+        <bndbox>
+            <xmin>941</xmin>
+            <ymin>243</ymin>
+            <xmax>1211</xmax>
+            <ymax>800</ymax>
+        </bndbox>
+        <attributes>
+            <attribute key="cardinality">1</attribute>
+            <attribute key="consensus">0.166667</attribute>
+            <attribute key="box-score">0.296</attribute>
+            <attribute key="box-iou">0.959277</attribute>
+            <attribute key="box-weight">0.361711</attribute>
+            <attribute key="weight-bin">4</attribute>
+        </attributes>
+    </object>
+    <object>
+        <name>mouse</name>
+        <score>0.2539</score>
+        <weight>0.3</weight>
+        <bndbox>
+            <xmin>950</xmin>
+            <ymin>297</ymin>
+            <xmax>1144</xmax>
+            <ymax>758</ymax>
+        </bndbox>
+        <attributes>
+            <attribute key="cardinality">1</attribute>
+            <attribute key="consensus">0.166667</attribute>
+            <attribute key="box-score">0.2539</attribute>
+            <attribute key="box-iou">0.960261</attribute>
+            <attribute key="box-weight">0.343796</attribute>
+            <attribute key="weight-bin">3</attribute>
+        </attributes>
+    </object>
+    <attributes>
+        <attribute key="graph">eb_v18_512x288_fw_mdet01_ppn_narrow_adam_a_800k</attribute>
+        <attribute key="frame">[453, 475, 2373, 1555]</attribute>
+        <attribute key="light_level">45</attribute>
+        <attribute key="harvest">2020-10-17 22-06-48_035: group=(raw), source=CAM-05</attribute>
+    </attributes>
+</annotation>
