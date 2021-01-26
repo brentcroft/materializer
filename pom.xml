@@ -38,8 +38,6 @@
 	</scm>
 
 	<properties>
-		<juel.version>2.2.7</juel.version>
-		<!-- -->
 		<junit.version>RELEASE</junit.version>
 		<lombok.version>RELEASE</lombok.version>
 		<!-- -->
@@ -83,30 +81,6 @@
 				<artifactId>maven-resources-plugin</artifactId>
 				<version>3.1.0</version>
 			</plugin>
-
-			<!--
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<version>3.1.1</version>
-				<executions>
-					<execution>
-						<id>copy-dependencies</id>
-						<phase>package</phase>
-						<goals>
-							<goal>copy-dependencies</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${project.build.directory}</outputDirectory>
-							<includeScope>runtime</includeScope>
-							<overWriteReleases>false</overWriteReleases>
-							<overWriteSnapshots>false</overWriteSnapshots>
-							<overWriteIfNewer>true</overWriteIfNewer>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			-->
 
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>

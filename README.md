@@ -1,17 +1,35 @@
 # materializer
-Materialize an object from an XML InputSource during a SAX parse.
-
 [![Maven Central](https://img.shields.io/maven-central/v/com.brentcroft.tools/materializer.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.brentcroft.tools%22%20AND%20a:%22materializer%22)
 
+Materialize and validate objects from an XML InputSource during SAX parsing.
+
+Example:
+
+    Schema schema = Materializer.getSchemas( "src/test/resources/detections.xsd" );
+
+    Materializer< Detections > materializer = new Materializer<>(
+            schema,
+            0, () -> RootTag.ROOT,
+            Detections::new
+    );
+
+    Detections detections = materializer
+            .apply(
+                    new InputSource(
+                            new FileInputStream( "src/test/resources/07-32-02_639-picods_05.xml" ) ) );
 
 Provides:
-1. Materializer to provide a functional interface, orchestrating a TagHandler and a pool of SAXParsers.
-2. FlatTag to implement enums whose cases that adorn the current item.
-3. StepTag to implement enums that step into a member of the current item.
+1. Materializer to provide a functional interface that orchestrates a TagHandler and a pool of SAXParsers.
+2. Implement FlatTag enums for cases that build and validate the current item.
+3. Implement StepTag enums for cases that build and validate a child of the current item.
 
-You must create domain specific enums that implement one of the Tag interfaces.
+These enums inherit default methods from the Tag interfaces 
+so enum constructors only have to implement sufficient and necessary features (NB: always the tag text).
 
-For example:
+Schema validation is only applied if a non-null schema object is assigned to the Materializer.
+Additional validation can be declared on enums as required. 
+
+Review the tests for a fully worked example:
 
     @Getter
     enum SizeTag implements StepTag< Detections, Size >
@@ -47,4 +65,3 @@ For example:
         }
     }
 
-Review the tests for more examples.
