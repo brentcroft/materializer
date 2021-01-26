@@ -73,14 +73,12 @@ enum BoxTag implements StepTag< Boxed, Box >
 
     private final String tag;
     private final StepTag< Boxed, Box > self = this;
-    private final List< Tag< ?, ? > > children;
     private final BiConsumer< Box, String > closer;
 
-    BoxTag( String tag, BiConsumer< Box, String > closer, Tag< ?, ? >... children )
+    BoxTag( String tag, BiConsumer< Box, String > closer )
     {
         this.tag = tag;
         this.closer = closer;
-        this.children = Tag.fromArray( children );
     }
 
     @Override

@@ -6,6 +6,10 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 
+/**
+ * A TagParseException is raised by TagHandler
+ * and captures one of: ParserConfigurationException, SAXException, IOException.
+ */
 public class TagParseException extends TagException
 {
     public TagParseException( TagHandler tagHandler, ParserConfigurationException e )

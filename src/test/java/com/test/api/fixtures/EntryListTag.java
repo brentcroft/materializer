@@ -32,7 +32,6 @@ public enum EntryListTag implements StepTag< Attributed, List< Entry > >
     {
         return attributed.getAttributes();
     }
-
 }
 
 @Getter
@@ -45,17 +44,15 @@ enum EntryTag implements StepTag< List< Entry >, Entry >
 
     private final String tag;
     private final StepTag< List< Entry >, Entry > self = this;
-    private final List< Tag< ?, ? > > children;
     private final BiConsumer< Entry, Attributes > opener;
     private final BiConsumer< Entry, String > closer;
     private final boolean multiple = true;
 
-    EntryTag( String tag, BiConsumer< Entry, Attributes > opener, BiConsumer< Entry, String > closer, Tag< ?, ? >... children )
+    EntryTag( String tag, BiConsumer< Entry, Attributes > opener, BiConsumer< Entry, String > closer )
     {
         this.tag = tag;
         this.opener = opener;
         this.closer = closer;
-        this.children = Tag.fromArray( children );
     }
 
     @Override

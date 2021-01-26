@@ -5,6 +5,11 @@ import lombok.Getter;
 
 import static java.util.Objects.isNull;
 
+/**
+ * A TagException is raised by TagHandler
+ * and captures the state of the invoking TagHandler
+ * (e.g.: current path and stacks).
+ */
 @Getter
 public class TagException extends RuntimeException
 {

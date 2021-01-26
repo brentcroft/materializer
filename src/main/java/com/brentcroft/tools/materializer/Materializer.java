@@ -27,6 +27,12 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 import static java.util.Objects.nonNull;
 
+/**
+ * A Materializer provides a function to build an object
+ * during the SAX parsing of an XML InputSource using a specialized TagHandler.
+ *
+ * @param <R>
+ */
 @Getter
 public class Materializer< R > implements Function< InputSource, R >
 {

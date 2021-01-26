@@ -13,7 +13,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-import static com.test.api.fixtures.DetectionTag.*;
 
 @Getter
 public enum DetectionsTag implements FlatTag< Detections >
@@ -105,10 +104,10 @@ enum DetectionListTag implements StepTag< Detections, Detection >
     DETECTION(
             "object",
             ( detection, attributes ) -> detection.setAttributes( new LinkedList<>() ),
-            NAME,
-            SCORE,
-            WEIGHT,
-            BOX,
+            DetectionTag.NAME,
+            DetectionTag.SCORE,
+            DetectionTag.WEIGHT,
+            DetectionTag.BOX,
             EntryListTag.ENTRY_LIST );
 
     private final String tag;
