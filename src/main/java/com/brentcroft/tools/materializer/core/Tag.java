@@ -18,34 +18,11 @@ public interface Tag< T, R >
 
     Tag< T, R > getSelf();
 
-    interface FlatTag< T > extends Tag< T, T >
-    {
-        default T getItem( T t )
-        {
-            return t;
-        }
-    }
-
     static List< Tag< ?, ? > > fromArray( Tag< ?, ? >... tags )
     {
         return ofNullable( tags )
                 .map( Arrays::asList )
                 .orElse( null );
-    }
-
-    default T upcast( Object o )
-    {
-        return ( T ) o;
-    }
-
-    default R sidecast( Object o )
-    {
-        return ( R ) o;
-    }
-
-    default R upcastItem( Object o )
-    {
-        return getItem( upcast( o ) );
     }
 
     default List< Tag< ?, ? > > getChildren()
@@ -78,24 +55,9 @@ public interface Tag< T, R >
         return null;
     }
 
-    default void open( Object o, Attributes attributes )
-    {
-        R r = sidecast( o );
+    void open( Object o, Attributes attributes );
 
-        ofNullable( getOpener() )
-                .ifPresent( opener -> opener.accept( r, attributes ) );
-    }
-
-    default void close( Object o, String text )
-    {
-        R r = sidecast( o );
-
-        ofNullable( getCloser() )
-                .ifPresent( closer -> closer.accept( r, text ) );
-
-        ofNullable( getValidator() )
-                .ifPresent( validator -> validator.accept( getSelf(), r ) );
-    }
+    void close( Object o, String text );
 
     default Iterator< Tag< ?, ? > > getIterator()
     {

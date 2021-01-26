@@ -1,7 +1,10 @@
 package com.test.api.fixtures;
 
+import com.brentcroft.tools.materializer.core.FlatTag;
+import com.brentcroft.tools.materializer.core.StepTag;
 import com.brentcroft.tools.materializer.core.Tag;
 import com.test.api.model.Box;
+import com.test.api.model.Boxed;
 import com.test.api.model.Detection;
 import lombok.Getter;
 import org.xml.sax.Attributes;
@@ -10,7 +13,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 @Getter
-public enum DetectionTag implements Tag.FlatTag< Detection >
+public enum DetectionTag implements FlatTag< Detection >
 {
     NAME(
             "name",
@@ -38,7 +41,7 @@ public enum DetectionTag implements Tag.FlatTag< Detection >
             BoxTag.YMAX );
 
     private final String tag;
-    private final Tag.FlatTag< Detection > self = this;
+    private final FlatTag< Detection > self = this;
     private final BiConsumer< Detection, Attributes > opener;
     private final BiConsumer< Detection, String > closer;
     private final List< Tag< ?, ? > > children;
@@ -59,3 +62,31 @@ public enum DetectionTag implements Tag.FlatTag< Detection >
         return detection;
     }
 }
+
+@Getter
+enum BoxTag implements StepTag< Boxed, Box >
+{
+    XMIN( "xmin", ( box, value ) -> box.setXmin( Integer.parseInt( value ) ) ),
+    YMIN( "ymin", ( box, value ) -> box.setYmin( Integer.parseInt( value ) ) ),
+    XMAX( "xmax", ( box, value ) -> box.setXmax( Integer.parseInt( value ) ) ),
+    YMAX( "ymax", ( box, value ) -> box.setYmax( Integer.parseInt( value ) ) );
+
+    private final String tag;
+    private final StepTag< Boxed, Box > self = this;
+    private final List< Tag< ?, ? > > children;
+    private final BiConsumer< Box, String > closer;
+
+    BoxTag( String tag, BiConsumer< Box, String > closer, Tag< ?, ? >... children )
+    {
+        this.tag = tag;
+        this.closer = closer;
+        this.children = Tag.fromArray( children );
+    }
+
+    @Override
+    public Box getItem( Boxed boxed )
+    {
+        return boxed.getBox();
+    }
+}
+

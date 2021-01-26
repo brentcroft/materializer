@@ -1,6 +1,7 @@
 package com.test.api;
 
 import com.brentcroft.tools.materializer.Materializer;
+import com.brentcroft.tools.materializer.core.FlatTag;
 import com.brentcroft.tools.materializer.core.Tag;
 import com.test.api.model.Detections;
 import com.test.api.fixtures.DetectionsTag;
@@ -18,7 +19,7 @@ public class ExtPascalVocReader
 {
     @Getter
     @RequiredArgsConstructor
-    public enum RootTag implements Tag.FlatTag< Detections >
+    public enum RootTag implements FlatTag< Detections >
     {
         ROOT( DetectionsTag.DETECTIONS );
 

@@ -1,7 +1,7 @@
 package com.brentcroft.tools.materializer;
 
 
-import com.brentcroft.tools.materializer.core.Tag;
+import com.brentcroft.tools.materializer.core.FlatTag;
 import com.brentcroft.tools.materializer.core.TagHandler;
 import com.brentcroft.tools.materializer.core.ValidationException;
 import lombok.Getter;
@@ -34,10 +34,10 @@ public class Materializer< R > implements Function< InputSource, R >
     private final SAXParserFactory saxParserFactory;
     private final List< SAXParser > parsers = new LinkedList<>();
 
-    private final Supplier< Tag.FlatTag< ? > > rootTagSupplier;
+    private final Supplier< FlatTag< ? > > rootTagSupplier;
     private final Supplier< R > rootItemSupplier;
 
-    public Materializer( Schema schema, int initialPoolSize, Supplier< Tag.FlatTag< ? > > rootTagSupplier, Supplier< R > rootItemSupplier )
+    public Materializer( Schema schema, int initialPoolSize, Supplier< FlatTag< ? > > rootTagSupplier, Supplier< R > rootItemSupplier )
     {
         this.schema = schema;
         this.saxParserFactory = SAXParserFactory.newInstance();

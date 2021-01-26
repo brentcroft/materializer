@@ -23,7 +23,7 @@ public class TagHandler extends DefaultHandler
     private final Stack< Tag< ?, ? > > tagStack = new Stack<>();
     private final Stack< Iterator< Tag< ?, ? > > > tagStackIterator = new Stack<>();
     private final StringBuilder characters = new StringBuilder();
-    private Tag< ?, ? > lastSibling;
+    private Tag< ?, ? > lastTag;
 
 
     public TagHandler( Tag< ?, ? > rootTag, Object rootItem )
@@ -45,11 +45,11 @@ public class TagHandler extends DefaultHandler
     {
         characters.setLength( 0 );
 
-        Tag< ?, ? > tag = ( nonNull( lastSibling ) && lastSibling.getTag().equals( localName ) && lastSibling.isMultiple() )
-                          ? lastSibling
+        Tag< ?, ? > tag = ( nonNull( lastTag ) && lastTag.getTag().equals( localName ) && lastTag.isMultiple() )
+                          ? lastTag
                           : null;
 
-        lastSibling = null;
+        lastTag = null;
 
         if ( isNull( tag ) )
         {
@@ -75,35 +75,50 @@ public class TagHandler extends DefaultHandler
             }
         }
 
-        // risk of ClassCastException
-        Object rootItem = tag.upcastItem( rootItemStack.peek() );
 
-        if ( isNull( rootItem ) )
+        Object item = rootItemStack.peek();
+
+        //System.out.printf( "tag=%s, item=%s %n", tag, item.getClass().getSimpleName() );
+
+        if ( tag instanceof StepTag )
+        {
+            // risk of ClassCastException
+            item = ((StepTag<?,?>)tag).step( item );
+
+            rootItemStack.push( item );
+        }
+
+        if ( isNull( item ) )
         {
             throw new TagHandlerException( this, format( "No item obtained for tag: <%s>", tag.getTag() ) );
         }
 
-        rootItemStack.push( rootItem );
-
         tagStack.push( tag );
         tagStackIterator.push( tag.getIterator() );
 
-        tag.open( rootItem, attributes );
+        tag.open( item, attributes );
     }
 
     public void endElement( String uri, String localName, String qName )
     {
-        lastSibling = tagStack.peek();
-        Object rootItem = rootItemStack.peek();
+        Tag< ?, ? > tag =  tagStack.peek();
 
-        if ( nonNull( lastSibling ) )
+        if ( nonNull( tag ) )
         {
+            Object item = rootItemStack.peek();
+
             // stacks identify state if exception thrown
-            lastSibling.close( rootItem, characters.toString().trim() );
+            tag.close( item, characters.toString().trim() );
+
+            if ( tag instanceof StepTag )
+            {
+                rootItemStack.pop();
+            }
         }
 
+        lastTag = tag;
+
         // pop the stacks
-        rootItemStack.pop();
         tagStackIterator.pop();
         tagStack.pop();
         characters.setLength( 0 );
