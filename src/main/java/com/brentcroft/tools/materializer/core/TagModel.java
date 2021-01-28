@@ -6,18 +6,18 @@ import org.xml.sax.Attributes;
 
 @Getter
 @RequiredArgsConstructor
-public class TagModel
+public class TagModel< R >
 {
     private final boolean choice;
-    private final Tag< ?, ? >[] children;
+    private final Tag< ? super R, ? >[] children;
 
     private int index = - 1;
 
-    public Tag< ?, ? > getTag( String uri, String localName, String qName, Attributes attributes )
+    public Tag< ? super R, ? > getTag( String uri, String localName, String qName, Attributes attributes )
     {
         if ( index > - 1 )
         {
-            Tag< ?, ? > tag = children[ index ];
+            Tag< ? super R, ? > tag = children[ index ];
 
             if ( ( tag.getTag().equals( "*" ) || tag.getTag().equals( localName ) ) && tag.isMultiple() )
             {
@@ -27,7 +27,7 @@ public class TagModel
 
         if ( choice )
         {
-            for ( Tag< ?, ? > tag : children )
+            for ( Tag< ? super R, ? > tag : children )
             {
                 if ( ( tag.getTag().equals( "*" ) || tag.getTag().equals( localName ) ) )
                 {
@@ -36,21 +36,24 @@ public class TagModel
             }
         }
 
-        // increment
         index++;
 
-        if ( index >= children.length )
+        while ( index < children.length )
         {
-            throw new IllegalArgumentException( "Unexpected child: no more children: " + localName );
+            final Tag< ? super R, ? > tag = children[ index ];
+
+            if ( ( tag.getTag().equals( "*" ) || tag.getTag().equals( localName ) ) )
+            {
+                return tag;
+            }
+            else if ( ! tag.isOptional() )
+            {
+                throw new IllegalArgumentException( "Unexpected tag: unrecognised: " + localName );
+            }
+
+            index++;
         }
 
-        Tag< ?, ? > tag = children[ index ];
-
-        if ( ( tag.getTag().equals( "*" ) || tag.getTag().equals( localName ) ) )
-        {
-            return tag;
-        }
-
-        throw new IllegalArgumentException( "Unexpected child: unrecognised tag: " + localName );
+        throw new IllegalArgumentException( "Unexpected tag: no more children: " + localName );
     }
 }

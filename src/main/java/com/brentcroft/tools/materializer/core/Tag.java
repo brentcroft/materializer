@@ -2,12 +2,9 @@ package com.brentcroft.tools.materializer.core;
 
 import org.xml.sax.Attributes;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.function.BiConsumer;
 
 import static java.util.Objects.isNull;
-import static java.util.Optional.ofNullable;
 
 public interface Tag< T, R >
 {
@@ -22,14 +19,7 @@ public interface Tag< T, R >
         return false;
     }
 
-    static List< Tag< ?, ? > > fromArray( Tag< ?, ? >... tags )
-    {
-        return ofNullable( tags )
-                .map( Arrays::asList )
-                .orElse( null );
-    }
-
-    default Tag< ?, ? >[] getChildren()
+    default Tag< ? super R, ? >[] getChildren()
     {
         return null;
     }
@@ -63,10 +53,10 @@ public interface Tag< T, R >
 
     void close( Object o, String text );
 
-    default TagModel getTagModel()
+    default TagModel< ? super R > getTagModel()
     {
         return isNull( getChildren() )
                ? null
-               : new TagModel( isChoice(), getChildren() );
+               : new TagModel<>( isChoice(), getChildren() );
     }
 }

@@ -40,10 +40,10 @@ public class Materializer< R > implements Function< InputSource, R >
     private final SAXParserFactory saxParserFactory;
     private final List< SAXParser > parsers = new LinkedList<>();
 
-    private final Supplier< FlatTag< ? > > rootTagSupplier;
+    private final Supplier< FlatTag< R > > rootTagSupplier;
     private final Supplier< R > rootItemSupplier;
 
-    public Materializer( Schema schema, int initialPoolSize, Supplier< FlatTag< ? > > rootTagSupplier, Supplier< R > rootItemSupplier )
+    public Materializer( Schema schema, int initialPoolSize, Supplier< FlatTag< R > > rootTagSupplier, Supplier< R > rootItemSupplier )
     {
         this.schema = schema;
         this.saxParserFactory = SAXParserFactory.newInstance();

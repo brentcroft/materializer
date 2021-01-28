@@ -50,11 +50,12 @@ public enum DetectionsTag implements FlatTag< Detections >
 
     private final String tag;
     private final FlatTag< Detections > self = this;
-    private final Tag< ?, ? >[] children;
+    private final Tag< ? super Detections, ? >[] children;
     private final BiConsumer< Detections, Attributes > opener;
     private final BiConsumer< Detections, String > closer;
 
-    DetectionsTag( String tag, BiConsumer< Detections, Attributes > opener, BiConsumer< Detections, String > closer, Tag< ?, ? >... children )
+    @SafeVarargs
+    DetectionsTag( String tag, BiConsumer< Detections, Attributes > opener, BiConsumer< Detections, String > closer, Tag< ? super Detections, ? >... children )
     {
         this.tag = tag;
         this.opener = opener;
@@ -81,13 +82,11 @@ enum SizeTag implements StepTag< Detections, Size >
     private final String tag;
     private final StepTag< Detections, Size > self = this;
     private final BiConsumer< Size, String > closer;
-    private final Tag< ?, ? >[] children;
 
-    SizeTag( String tag, BiConsumer< Size, String > closer, Tag< ?, ? >... children )
+    SizeTag( String tag, BiConsumer< Size, String > closer )
     {
         this.tag = tag;
         this.closer = closer;
-        this.children = children;
     }
 
     @Override
@@ -111,11 +110,12 @@ enum DetectionListTag implements StepTag< Detections, Detection >
 
     private final String tag;
     private final StepTag< Detections, Detection > self = this;
-    private final Tag< ?, ? >[] children;
+    private final Tag< ? super Detection, ? >[] children;
     private final boolean multiple = true;
     private final BiConsumer< Detection, Attributes > opener;
 
-    DetectionListTag( String tag, BiConsumer< Detection, Attributes > opener, Tag< ?, ? >... children )
+    @SafeVarargs
+    DetectionListTag( String tag, BiConsumer< Detection, Attributes > opener, Tag< ? super Detection, ? >... children )
     {
         this.tag = tag;
         this.opener = opener;

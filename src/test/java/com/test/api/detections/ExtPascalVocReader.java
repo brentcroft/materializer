@@ -40,9 +40,9 @@ public class ExtPascalVocReader
         // must be an empty string: @see TagHandler.getPath().
         private final String tag = "";
         private final FlatTag< Detections > self = this;
-        private final Tag< ?, ? >[] children;
+        private final Tag< ? super Detections, ? >[] children;
 
-        RootTag( Tag< ?, ? >... children )
+        RootTag( Tag< ? super Detections, ? >... children )
         {
             this.children = children;
         }

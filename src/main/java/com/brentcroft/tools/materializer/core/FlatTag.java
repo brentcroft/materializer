@@ -29,5 +29,4 @@ public interface FlatTag< T > extends Tag< T, T >
         ofNullable( getValidator() )
                 .ifPresent( validator -> validator.accept( getSelf(), r ) );
     }
-
 }

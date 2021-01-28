@@ -43,10 +43,11 @@ public enum DetectionTag implements FlatTag< Detection >
     private final FlatTag< Detection > self = this;
     private final BiConsumer< Detection, Attributes > opener;
     private final BiConsumer< Detection, String > closer;
-    private final Tag< ?, ? >[] children;
+    private final Tag< ? super Detection, ? >[] children;
     private final boolean multiple;
 
-    DetectionTag( String tag, final boolean multiple, BiConsumer< Detection, Attributes > opener, BiConsumer< Detection, String > closer, Tag< ?, ? >... children )
+    @SafeVarargs
+    DetectionTag( String tag, final boolean multiple, BiConsumer< Detection, Attributes > opener, BiConsumer< Detection, String > closer, Tag< ? super Detection, ? >... children )
     {
         this.tag = tag;
         this.multiple = multiple;

@@ -19,9 +19,10 @@ public enum EntryListTag implements StepTag< Attributed, List< Entry > >
 
     private final String tag;
     private final StepTag< Attributed, List< Entry > > self = this;
-    private final Tag< ?, ? >[] children;
+    private final Tag< ? super List< Entry >, ? >[] children;
 
-    EntryListTag( String tag, Tag< ?, ? >... children )
+    @SafeVarargs
+    EntryListTag( String tag, Tag< ? super List< Entry >, ? >... children )
     {
         this.tag = tag;
         this.children = children;

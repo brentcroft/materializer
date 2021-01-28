@@ -15,19 +15,16 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 @Getter
-public class TagHandler extends DefaultHandler
+public class TagHandler< R > extends DefaultHandler
 {
-    private final Stack< Object > rootItemStack = new Stack<>();
-
+    private final Stack< Object > itemStack = new Stack<>();
     private final Stack< Tag< ?, ? > > tagStack = new Stack<>();
-    private final Stack< TagModel > tagModelStack = new Stack<>();
+    private final Stack< TagModel< ? > > tagModelStack = new Stack<>();
     private final StringBuilder characters = new StringBuilder();
-    private Tag< ?, ? > lastTag;
 
-
-    public TagHandler( Tag< ?, ? > rootTag, Object rootItem )
+    public TagHandler( FlatTag< R > rootTag, R rootItem )
     {
-        rootItemStack.push( rootItem );
+        itemStack.push( rootItem );
         tagStack.push( rootTag );
         tagModelStack.push( rootTag.getTagModel() );
     }
@@ -52,7 +49,7 @@ public class TagHandler extends DefaultHandler
         Tag< ?, ? > tag = tagModelStack.peek().getTag( uri, localName, qName, attributes );
 
 
-        Object item = rootItemStack.peek();
+        Object item = itemStack.peek();
 
         //System.out.printf( "key=%s, tag=%s, item=%s %n", localName, tag, item.getClass().getSimpleName() );
 
@@ -61,7 +58,7 @@ public class TagHandler extends DefaultHandler
             // risk of ClassCastException
             item = ( ( StepTag< ?, ? > ) tag ).step( item );
 
-            rootItemStack.push( item );
+            itemStack.push( item );
         }
 
         if ( isNull( item ) )
@@ -81,18 +78,16 @@ public class TagHandler extends DefaultHandler
 
         if ( nonNull( tag ) )
         {
-            Object item = rootItemStack.peek();
+            Object item = itemStack.peek();
 
             // stacks identify state if exception thrown
             tag.close( item, characters.toString().trim() );
 
             if ( tag instanceof StepTag )
             {
-                rootItemStack.pop();
+                itemStack.pop();
             }
         }
-
-        lastTag = tag;
 
         // pop the stacks
         tagModelStack.pop();
@@ -109,7 +104,6 @@ public class TagHandler extends DefaultHandler
     {
         throw spe;
     }
-
 
     public void fatalError( SAXParseException spe ) throws SAXException
     {
