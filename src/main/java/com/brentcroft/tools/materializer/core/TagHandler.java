@@ -22,7 +22,7 @@ public class TagHandler< R > extends DefaultHandler
     private final Stack< TagModel< ? > > tagModelStack = new Stack<>();
     private final StringBuilder characters = new StringBuilder();
 
-    public TagHandler( FlatTag< R > rootTag, R rootItem )
+    public TagHandler( FlatTag< ? super R > rootTag, R rootItem )
     {
         itemStack.push( rootItem );
         tagStack.push( rootTag );
