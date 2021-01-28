@@ -1,9 +1,9 @@
-package com.test.api.fixtures;
+package com.test.api.detections.fixtures;
 
 import com.brentcroft.tools.materializer.core.StepTag;
 import com.brentcroft.tools.materializer.core.Tag;
-import com.test.api.model.Attributed;
-import com.test.api.model.Entry;
+import com.test.api.detections.model.Attributed;
+import com.test.api.detections.model.Entry;
 import lombok.Getter;
 import org.xml.sax.Attributes;
 
@@ -19,12 +19,12 @@ public enum EntryListTag implements StepTag< Attributed, List< Entry > >
 
     private final String tag;
     private final StepTag< Attributed, List< Entry > > self = this;
-    private final List< Tag< ?, ? > > children;
+    private final Tag< ?, ? >[] children;
 
     EntryListTag( String tag, Tag< ?, ? >... children )
     {
         this.tag = tag;
-        this.children = Tag.fromArray( children );
+        this.children = children;
     }
 
     @Override

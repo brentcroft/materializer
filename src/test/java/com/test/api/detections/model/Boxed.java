@@ -1,4 +1,4 @@
-package com.test.api.model;
+package com.test.api.detections.model;
 
 public interface Boxed
 {

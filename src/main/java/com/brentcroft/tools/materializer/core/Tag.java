@@ -3,11 +3,10 @@ package com.brentcroft.tools.materializer.core;
 import org.xml.sax.Attributes;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-import static java.util.Collections.emptyList;
+import static java.util.Objects.isNull;
 import static java.util.Optional.ofNullable;
 
 public interface Tag< T, R >
@@ -18,6 +17,11 @@ public interface Tag< T, R >
 
     Tag< T, R > getSelf();
 
+    default boolean isChoice()
+    {
+        return false;
+    }
+
     static List< Tag< ?, ? > > fromArray( Tag< ?, ? >... tags )
     {
         return ofNullable( tags )
@@ -25,7 +29,7 @@ public interface Tag< T, R >
                 .orElse( null );
     }
 
-    default List< Tag< ?, ? > > getChildren()
+    default Tag< ?, ? >[] getChildren()
     {
         return null;
     }
@@ -59,10 +63,10 @@ public interface Tag< T, R >
 
     void close( Object o, String text );
 
-    default Iterator< Tag< ?, ? > > getIterator()
+    default TagModel getTagModel()
     {
-        return ofNullable( getChildren() )
-                .orElse( emptyList() )
-                .iterator();
+        return isNull( getChildren() )
+               ? null
+               : new TagModel( isChoice(), getChildren() );
     }
 }

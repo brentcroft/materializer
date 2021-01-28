@@ -7,7 +7,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import java.util.Iterator;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
@@ -21,7 +20,7 @@ public class TagHandler extends DefaultHandler
     private final Stack< Object > rootItemStack = new Stack<>();
 
     private final Stack< Tag< ?, ? > > tagStack = new Stack<>();
-    private final Stack< Iterator< Tag< ?, ? > > > tagStackIterator = new Stack<>();
+    private final Stack< TagModel > tagModelStack = new Stack<>();
     private final StringBuilder characters = new StringBuilder();
     private Tag< ?, ? > lastTag;
 
@@ -30,7 +29,7 @@ public class TagHandler extends DefaultHandler
     {
         rootItemStack.push( rootItem );
         tagStack.push( rootTag );
-        tagStackIterator.push( rootTag.getIterator() );
+        tagModelStack.push( rootTag.getTagModel() );
     }
 
     public String getPath()
@@ -45,45 +44,22 @@ public class TagHandler extends DefaultHandler
     {
         characters.setLength( 0 );
 
-        Tag< ?, ? > tag = ( nonNull( lastTag ) && lastTag.getTag().equals( localName ) && lastTag.isMultiple() )
-                          ? lastTag
-                          : null;
-
-        lastTag = null;
-
-        if ( isNull( tag ) )
+        if ( isNull( tagModelStack.peek() ) )
         {
-            tag = tagStackIterator.peek().hasNext()
-                  ? tagStackIterator.peek().next()
-                  : null;
-
-            if ( isNull( tag ) )
-            {
-                throw new TagHandlerException( this, format( "No element expected: <%s>; %s", localName, tag ) );
-            }
-            else
-            {
-                while ( ! tag.getTag().equals( localName ) && tag.isOptional() )
-                {
-                    tag = tagStackIterator.peek().next();
-                }
-            }
-
-            if ( ! tag.getTag().equals( localName ) )
-            {
-                throw new TagHandlerException( this, format( "Unexpected element: <%s>; expected: <%s>", localName, tag.getTag() ) );
-            }
+            throw new TagHandlerException( this, format( "No model on stack for tag: <%s>", localName ) );
         }
+
+        Tag< ?, ? > tag = tagModelStack.peek().getTag( uri, localName, qName, attributes );
 
 
         Object item = rootItemStack.peek();
 
-        //System.out.printf( "tag=%s, item=%s %n", tag, item.getClass().getSimpleName() );
+        //System.out.printf( "key=%s, tag=%s, item=%s %n", localName, tag, item.getClass().getSimpleName() );
 
         if ( tag instanceof StepTag )
         {
             // risk of ClassCastException
-            item = ((StepTag<?,?>)tag).step( item );
+            item = ( ( StepTag< ?, ? > ) tag ).step( item );
 
             rootItemStack.push( item );
         }
@@ -94,14 +70,14 @@ public class TagHandler extends DefaultHandler
         }
 
         tagStack.push( tag );
-        tagStackIterator.push( tag.getIterator() );
+        tagModelStack.push( tag.getTagModel() );
 
         tag.open( item, attributes );
     }
 
     public void endElement( String uri, String localName, String qName )
     {
-        Tag< ?, ? > tag =  tagStack.peek();
+        Tag< ?, ? > tag = tagStack.peek();
 
         if ( nonNull( tag ) )
         {
@@ -119,7 +95,7 @@ public class TagHandler extends DefaultHandler
         lastTag = tag;
 
         // pop the stacks
-        tagStackIterator.pop();
+        tagModelStack.pop();
         tagStack.pop();
         characters.setLength( 0 );
     }

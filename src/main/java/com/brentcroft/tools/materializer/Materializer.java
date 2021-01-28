@@ -31,7 +31,7 @@ import static java.util.Objects.nonNull;
  * A Materializer provides a function to build an object
  * during the SAX parsing of an XML InputSource using a specialized TagHandler.
  *
- * @param <R>
+ * @param <R> the type of object to materialize.
  */
 @Getter
 public class Materializer< R > implements Function< InputSource, R >

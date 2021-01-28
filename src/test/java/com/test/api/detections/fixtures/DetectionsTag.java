@@ -1,16 +1,15 @@
-package com.test.api.fixtures;
+package com.test.api.detections.fixtures;
 
 import com.brentcroft.tools.materializer.core.FlatTag;
 import com.brentcroft.tools.materializer.core.StepTag;
 import com.brentcroft.tools.materializer.core.Tag;
-import com.test.api.model.Detection;
-import com.test.api.model.Detections;
-import com.test.api.model.Size;
+import com.test.api.detections.model.Detection;
+import com.test.api.detections.model.Detections;
+import com.test.api.detections.model.Size;
 import lombok.Getter;
 import org.xml.sax.Attributes;
 
 import java.util.LinkedList;
-import java.util.List;
 import java.util.function.BiConsumer;
 
 
@@ -51,7 +50,7 @@ public enum DetectionsTag implements FlatTag< Detections >
 
     private final String tag;
     private final FlatTag< Detections > self = this;
-    private final List< Tag< ?, ? > > children;
+    private final Tag< ?, ? >[] children;
     private final BiConsumer< Detections, Attributes > opener;
     private final BiConsumer< Detections, String > closer;
 
@@ -60,7 +59,7 @@ public enum DetectionsTag implements FlatTag< Detections >
         this.tag = tag;
         this.opener = opener;
         this.closer = closer;
-        this.children = Tag.fromArray( children );
+        this.children = children;
     }
 }
 
@@ -81,14 +80,14 @@ enum SizeTag implements StepTag< Detections, Size >
 
     private final String tag;
     private final StepTag< Detections, Size > self = this;
-    private final List< Tag< ?, ? > > children;
     private final BiConsumer< Size, String > closer;
+    private final Tag< ?, ? >[] children;
 
     SizeTag( String tag, BiConsumer< Size, String > closer, Tag< ?, ? >... children )
     {
         this.tag = tag;
         this.closer = closer;
-        this.children = Tag.fromArray( children );
+        this.children = children;
     }
 
     @Override
@@ -112,7 +111,7 @@ enum DetectionListTag implements StepTag< Detections, Detection >
 
     private final String tag;
     private final StepTag< Detections, Detection > self = this;
-    private final List< Tag< ?, ? > > children;
+    private final Tag< ?, ? >[] children;
     private final boolean multiple = true;
     private final BiConsumer< Detection, Attributes > opener;
 
@@ -120,7 +119,7 @@ enum DetectionListTag implements StepTag< Detections, Detection >
     {
         this.tag = tag;
         this.opener = opener;
-        this.children = Tag.fromArray( children );
+        this.children = children;
     }
 
     @Override

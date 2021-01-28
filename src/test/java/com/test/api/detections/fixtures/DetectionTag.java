@@ -1,15 +1,14 @@
-package com.test.api.fixtures;
+package com.test.api.detections.fixtures;
 
 import com.brentcroft.tools.materializer.core.FlatTag;
 import com.brentcroft.tools.materializer.core.StepTag;
 import com.brentcroft.tools.materializer.core.Tag;
-import com.test.api.model.Box;
-import com.test.api.model.Boxed;
-import com.test.api.model.Detection;
+import com.test.api.detections.model.Box;
+import com.test.api.detections.model.Boxed;
+import com.test.api.detections.model.Detection;
 import lombok.Getter;
 import org.xml.sax.Attributes;
 
-import java.util.List;
 import java.util.function.BiConsumer;
 
 @Getter
@@ -44,7 +43,7 @@ public enum DetectionTag implements FlatTag< Detection >
     private final FlatTag< Detection > self = this;
     private final BiConsumer< Detection, Attributes > opener;
     private final BiConsumer< Detection, String > closer;
-    private final List< Tag< ?, ? > > children;
+    private final Tag< ?, ? >[] children;
     private final boolean multiple;
 
     DetectionTag( String tag, final boolean multiple, BiConsumer< Detection, Attributes > opener, BiConsumer< Detection, String > closer, Tag< ?, ? >... children )
@@ -53,7 +52,7 @@ public enum DetectionTag implements FlatTag< Detection >
         this.multiple = multiple;
         this.opener = opener;
         this.closer = closer;
-        this.children = Tag.fromArray( children );
+        this.children = children;
     }
 
     @Override

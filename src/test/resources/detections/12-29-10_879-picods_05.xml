@@ -1,0 +1,94 @@
+<annotation>
+  <date>2020-12-16</date>
+  <time>12:29:11.966</time>
+  <folder>/home/pi/cam-ram/CAM-05/2020-12-16</folder>
+  <filename>12-29-10_879-picods_05.jpg</filename>
+  <path/>
+  <size>
+    <width>1920</width>
+    <height>1080</height>
+    <depth>3</depth>
+  </size>
+  <object>
+    <name>coal tit</name>
+    <score>0.0</score>
+    <weight>0.0</weight>
+    <bndbox>
+      <xmin>939</xmin>
+      <ymin>239</ymin>
+      <xmax>1336</xmax>
+      <ymax>847</ymax>
+    </bndbox>
+    <attributes>
+      <attribute key="cardinality">0</attribute>
+      <attribute key="consensus">0.0</attribute>
+      <attribute key="box-score">0.0</attribute>
+      <attribute key="box-iou">0.0</attribute>
+      <attribute key="box-weight">0.0</attribute>
+      <attribute key="weight-bin">0</attribute>
+    </attributes>
+  </object>
+  <object>
+    <name>sparrow</name>
+    <score>0.9113</score>
+    <weight>0.5</weight>
+    <bndbox>
+      <xmin>939</xmin>
+      <ymin>239</ymin>
+      <xmax>1336</xmax>
+      <ymax>847</ymax>
+    </bndbox>
+    <attributes>
+      <attribute key="cardinality">1</attribute>
+      <attribute key="consensus">0.166667</attribute>
+      <attribute key="box-score">0.9113</attribute>
+      <attribute key="box-iou">0.94428</attribute>
+      <attribute key="box-weight">0.523444</attribute>
+      <attribute key="weight-bin">5</attribute>
+    </attributes>
+  </object>
+  <object>
+    <name>robin</name>
+    <score>0.0</score>
+    <weight>0.0</weight>
+    <bndbox>
+      <xmin>939</xmin>
+      <ymin>239</ymin>
+      <xmax>1336</xmax>
+      <ymax>847</ymax>
+    </bndbox>
+    <attributes>
+      <attribute key="cardinality">0</attribute>
+      <attribute key="consensus">0.0</attribute>
+      <attribute key="box-score">0.0</attribute>
+      <attribute key="box-iou">0.0</attribute>
+      <attribute key="box-weight">0.0</attribute>
+      <attribute key="weight-bin">0</attribute>
+    </attributes>
+  </object>
+  <object>
+    <name>mouse</name>
+    <score>0.0</score>
+    <weight>0.0</weight>
+    <bndbox>
+      <xmin>939</xmin>
+      <ymin>239</ymin>
+      <xmax>1336</xmax>
+      <ymax>847</ymax>
+    </bndbox>
+    <attributes>
+      <attribute key="cardinality">0</attribute>
+      <attribute key="consensus">0.0</attribute>
+      <attribute key="box-score">0.0</attribute>
+      <attribute key="box-iou">0.0</attribute>
+      <attribute key="box-weight">0.0</attribute>
+      <attribute key="weight-bin">0</attribute>
+    </attributes>
+  </object>
+  <attributes>
+    <attribute key="graph">eb_v18_512x288_fw_mdet01_ppn_narrow_adam_a_800k</attribute>
+    <attribute key="frame">[1231, 462, 3151, 1542]</attribute>
+    <attribute key="light_level">48</attribute>
+    <attribute key="harvest">2021-01-01 18-13-00_597: group=(raw-unclassified), source=CAM-05</attribute>
+  </attributes>
+</annotation>

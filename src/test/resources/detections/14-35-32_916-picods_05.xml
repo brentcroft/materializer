@@ -1,0 +1,113 @@
+<annotation>
+  <date>2020-12-16</date>
+  <time>14:35:33.990</time>
+  <folder>/home/pi/cam-ram/CAM-05/2020-12-16</folder>
+  <filename>14-35-32_916-picods_05.jpg</filename>
+  <path/>
+  <size>
+    <width>1920</width>
+    <height>1080</height>
+    <depth>3</depth>
+  </size>
+  <object>
+    <name>dunnock</name>
+    <score>0.677291</score>
+    <weight>0.6</weight>
+    <bndbox>
+      <xmin>934</xmin>
+      <ymin>317</ymin>
+      <xmax>1578</xmax>
+      <ymax>745</ymax>
+    </bndbox>
+    <attributes>
+      <attribute key="cardinality">2</attribute>
+      <attribute key="consensus">0.333333</attribute>
+      <attribute key="box-score">0.677291</attribute>
+      <attribute key="box-iou">0.798765</attribute>
+      <attribute key="box-weight">0.564969</attribute>
+      <attribute key="weight-bin">6</attribute>
+    </attributes>
+  </object>
+  <object>
+    <name>sparrow</name>
+    <score>0.5402</score>
+    <weight>0.4</weight>
+    <bndbox>
+      <xmin>934</xmin>
+      <ymin>317</ymin>
+      <xmax>1578</xmax>
+      <ymax>745</ymax>
+    </bndbox>
+    <attributes>
+      <attribute key="cardinality">1</attribute>
+      <attribute key="consensus">0.166667</attribute>
+      <attribute key="box-score">0.5402</attribute>
+      <attribute key="box-iou">0.670813</attribute>
+      <attribute key="box-weight">0.392345</attribute>
+      <attribute key="weight-bin">4</attribute>
+    </attributes>
+  </object>
+  <object>
+    <name>robin</name>
+    <score>0.2681</score>
+    <weight>0.3</weight>
+    <bndbox>
+      <xmin>934</xmin>
+      <ymin>317</ymin>
+      <xmax>1578</xmax>
+      <ymax>745</ymax>
+    </bndbox>
+    <attributes>
+      <attribute key="cardinality">1</attribute>
+      <attribute key="consensus">0.166667</attribute>
+      <attribute key="box-score">0.2681</attribute>
+      <attribute key="box-iou">0.861295</attribute>
+      <attribute key="box-weight">0.337623</attribute>
+      <attribute key="weight-bin">3</attribute>
+    </attributes>
+  </object>
+  <object>
+    <name>collared dove</name>
+    <score>0.0</score>
+    <weight>0.0</weight>
+    <bndbox>
+      <xmin>934</xmin>
+      <ymin>317</ymin>
+      <xmax>1578</xmax>
+      <ymax>745</ymax>
+    </bndbox>
+    <attributes>
+      <attribute key="cardinality">0</attribute>
+      <attribute key="consensus">0.0</attribute>
+      <attribute key="box-score">0.0</attribute>
+      <attribute key="box-iou">0.0</attribute>
+      <attribute key="box-weight">0.0</attribute>
+      <attribute key="weight-bin">0</attribute>
+    </attributes>
+  </object>
+  <object>
+    <name>mouse</name>
+    <score>0.0</score>
+    <weight>0.0</weight>
+    <bndbox>
+      <xmin>934</xmin>
+      <ymin>317</ymin>
+      <xmax>1578</xmax>
+      <ymax>745</ymax>
+    </bndbox>
+    <attributes>
+      <attribute key="cardinality">0</attribute>
+      <attribute key="consensus">0.0</attribute>
+      <attribute key="box-score">0.0</attribute>
+      <attribute key="box-iou">0.0</attribute>
+      <attribute key="box-weight">0.0</attribute>
+      <attribute key="weight-bin">0</attribute>
+    </attributes>
+  </object>
+  <attributes>
+    <attribute key="graph">eb_v18_512x288_fw_mdet01_ppn_narrow_adam_a_800k</attribute>
+    <attribute key="frame">[1360, 320, 3280, 1400]</attribute>
+    <attribute key="light_level">48</attribute>
+    <attribute key="harvest">2021-01-01 18-13-00_597: group=(raw-unclassified), source=CAM-05</attribute>
+  </attributes>
+</annotation>

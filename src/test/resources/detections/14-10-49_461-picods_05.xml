@@ -1,0 +1,170 @@
+<annotation>
+  <date>2020-10-16</date>
+  <time>14:10:50.568</time>
+  <folder>/home/pi/cam-ram/CAM-05/2020-10-16</folder>
+  <filename>14-10-49_461-picods_05.jpg</filename>
+  <path/>
+  <size>
+    <width>1920</width>
+    <height>1080</height>
+    <depth>3</depth>
+  </size>
+  <object>
+    <name>sparrow</name>
+    <score>0.604386</score>
+    <weight>0.6</weight>
+    <bndbox>
+      <xmin>672</xmin>
+      <ymin>293</ymin>
+      <xmax>994</xmax>
+      <ymax>803</ymax>
+    </bndbox>
+    <attributes>
+      <attribute key="cardinality">3</attribute>
+      <attribute key="consensus">0.5</attribute>
+      <attribute key="box-score">0.604386</attribute>
+      <attribute key="box-iou">0.828126</attribute>
+      <attribute key="box-weight">0.630174</attribute>
+      <attribute key="weight-bin">6</attribute>
+    </attributes>
+  </object>
+  <object>
+    <name>dunnock</name>
+    <score>0.3168</score>
+    <weight>0.3</weight>
+    <bndbox>
+      <xmin>672</xmin>
+      <ymin>293</ymin>
+      <xmax>994</xmax>
+      <ymax>803</ymax>
+    </bndbox>
+    <attributes>
+      <attribute key="cardinality">1</attribute>
+      <attribute key="consensus">0.166667</attribute>
+      <attribute key="box-score">0.3168</attribute>
+      <attribute key="box-iou">0.763204</attribute>
+      <attribute key="box-weight">0.34284</attribute>
+      <attribute key="weight-bin">3</attribute>
+    </attributes>
+  </object>
+  <object>
+    <name>goldfinch</name>
+    <score>0.0</score>
+    <weight>0.0</weight>
+    <bndbox>
+      <xmin>672</xmin>
+      <ymin>293</ymin>
+      <xmax>994</xmax>
+      <ymax>803</ymax>
+    </bndbox>
+    <attributes>
+      <attribute key="cardinality">0</attribute>
+      <attribute key="consensus">0.0</attribute>
+      <attribute key="box-score">0.0</attribute>
+      <attribute key="box-iou">0.0</attribute>
+      <attribute key="box-weight">0.0</attribute>
+      <attribute key="weight-bin">0</attribute>
+    </attributes>
+  </object>
+  <object>
+    <name>starling</name>
+    <score>0.344217</score>
+    <weight>0.5</weight>
+    <bndbox>
+      <xmin>672</xmin>
+      <ymin>293</ymin>
+      <xmax>994</xmax>
+      <ymax>803</ymax>
+    </bndbox>
+    <attributes>
+      <attribute key="cardinality">2</attribute>
+      <attribute key="consensus">0.333333</attribute>
+      <attribute key="box-score">0.344217</attribute>
+      <attribute key="box-iou">0.852752</attribute>
+      <attribute key="box-weight">0.460799</attribute>
+      <attribute key="weight-bin">5</attribute>
+    </attributes>
+  </object>
+  <object>
+    <name>mouse</name>
+    <score>0.252</score>
+    <weight>0.3</weight>
+    <bndbox>
+      <xmin>672</xmin>
+      <ymin>293</ymin>
+      <xmax>994</xmax>
+      <ymax>803</ymax>
+    </bndbox>
+    <attributes>
+      <attribute key="cardinality">1</attribute>
+      <attribute key="consensus">0.166667</attribute>
+      <attribute key="box-score">0.252</attribute>
+      <attribute key="box-iou">0.735555</attribute>
+      <attribute key="box-weight">0.313777</attribute>
+      <attribute key="weight-bin">3</attribute>
+    </attributes>
+  </object>
+  <object>
+    <name>robin</name>
+    <score>0.0</score>
+    <weight>0.0</weight>
+    <bndbox>
+      <xmin>672</xmin>
+      <ymin>293</ymin>
+      <xmax>994</xmax>
+      <ymax>803</ymax>
+    </bndbox>
+    <attributes>
+      <attribute key="cardinality">0</attribute>
+      <attribute key="consensus">0.0</attribute>
+      <attribute key="box-score">0.0</attribute>
+      <attribute key="box-iou">0.0</attribute>
+      <attribute key="box-weight">0.0</attribute>
+      <attribute key="weight-bin">0</attribute>
+    </attributes>
+  </object>
+  <object>
+    <name>great tit</name>
+    <score>0.2185</score>
+    <weight>0.3</weight>
+    <bndbox>
+      <xmin>672</xmin>
+      <ymin>293</ymin>
+      <xmax>994</xmax>
+      <ymax>803</ymax>
+    </bndbox>
+    <attributes>
+      <attribute key="cardinality">1</attribute>
+      <attribute key="consensus">0.166667</attribute>
+      <attribute key="box-score">0.2185</attribute>
+      <attribute key="box-iou">0.876831</attribute>
+      <attribute key="box-weight">0.317253</attribute>
+      <attribute key="weight-bin">3</attribute>
+    </attributes>
+  </object>
+  <object>
+    <name>collared dove</name>
+    <score>0.0</score>
+    <weight>0.0</weight>
+    <bndbox>
+      <xmin>672</xmin>
+      <ymin>293</ymin>
+      <xmax>994</xmax>
+      <ymax>803</ymax>
+    </bndbox>
+    <attributes>
+      <attribute key="cardinality">0</attribute>
+      <attribute key="consensus">0.0</attribute>
+      <attribute key="box-score">0.0</attribute>
+      <attribute key="box-iou">0.0</attribute>
+      <attribute key="box-weight">0.0</attribute>
+      <attribute key="weight-bin">0</attribute>
+    </attributes>
+  </object>
+  <attributes>
+    <attribute key="graph">eb_v18_512x288_fw_mdet01_ppn_narrow_adam_a_800k</attribute>
+    <attribute key="frame">[0, 1043, 1920, 2123]</attribute>
+    <attribute key="light_level">46</attribute>
+    <attribute key="harvest">2021-01-01 18-13-00_597: group=(raw-unclassified), source=CAM-05</attribute>
+  </attributes>
+</annotation>

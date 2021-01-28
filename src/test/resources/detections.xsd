@@ -44,25 +44,28 @@
     </xs:complexType>
     <xs:complexType name="objectType">
         <xs:sequence>
-            <xs:element name="name">
-                <xs:simpleType>
-                    <xs:restriction base="xs:string">
-                        <xs:enumeration value="blackbird"/>
-                        <xs:enumeration value="blue tit"/>
-                        <xs:enumeration value="coal tit"/>
-                        <xs:enumeration value="goldfinch"/>
-                        <xs:enumeration value="great tit"/>
-                        <xs:enumeration value="mouse"/>
-                        <xs:enumeration value="robin"/>
-                        <xs:enumeration value="sparrow"/>
-                    </xs:restriction>
-                </xs:simpleType>
-            </xs:element>
+            <xs:element name="name" type="animal-label"/>
             <xs:element name="score" type="xs:float"/>
             <xs:element name="weight" type="xs:float"/>
             <xs:element type="bndboxType" name="bndbox"/>
             <xs:element type="attributesType" name="attributes"/>
         </xs:sequence>
     </xs:complexType>
-
+    <xs:simpleType name="animal-label">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="blackbird"/>
+            <xs:enumeration value="blue tit"/>
+            <xs:enumeration value="coal tit"/>
+            <xs:enumeration value="collared dove"/>
+            <xs:enumeration value="dunnock"/>
+            <xs:enumeration value="jackdaw"/>
+            <xs:enumeration value="goldfinch"/>
+            <xs:enumeration value="great tit"/>
+            <xs:enumeration value="mouse"/>
+            <xs:enumeration value="robin"/>
+            <xs:enumeration value="sparrow"/>
+            <xs:enumeration value="starling"/>
+            <xs:enumeration value="wood pigeon"/>
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>
