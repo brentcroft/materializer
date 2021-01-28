@@ -13,15 +13,15 @@ import static java.util.Objects.isNull;
 @Getter
 public class TagException extends RuntimeException
 {
-    private final TagHandler tagHandler;
+    private final TagHandler< ? > tagHandler;
 
-    public TagException( TagHandler tagHandler, Throwable cause )
+    public TagException( TagHandler< ? > tagHandler, Throwable cause )
     {
         super( isNull( cause ) ? "-" : cause.getMessage(), cause );
         this.tagHandler = tagHandler;
     }
 
-    public TagException( TagHandler tagHandler, String message )
+    public TagException( TagHandler< ? > tagHandler, String message )
     {
         super( message );
         this.tagHandler = tagHandler;

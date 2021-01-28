@@ -57,6 +57,6 @@ public interface Tag< T, R >
     {
         return isNull( getChildren() )
                ? null
-               : new TagModel<>( isChoice(), getChildren() );
+               : new TagModel<>( getSelf(), isChoice(), getChildren() );
     }
 }

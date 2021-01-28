@@ -12,17 +12,17 @@ import java.io.IOException;
  */
 public class TagParseException extends TagException
 {
-    public TagParseException( TagHandler tagHandler, ParserConfigurationException e )
+    public TagParseException( TagHandler<?> tagHandler, ParserConfigurationException e )
     {
         super( tagHandler, e );
     }
 
-    public TagParseException( TagHandler tagHandler, SAXException e )
+    public TagParseException( TagHandler<?> tagHandler, SAXException e )
     {
         super( tagHandler, e );
     }
 
-    public TagParseException( TagHandler tagHandler, IOException e )
+    public TagParseException( TagHandler<?> tagHandler, IOException e )
     {
         super( tagHandler, e );
     }

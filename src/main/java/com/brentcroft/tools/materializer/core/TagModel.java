@@ -8,6 +8,7 @@ import org.xml.sax.Attributes;
 @RequiredArgsConstructor
 public class TagModel< R >
 {
+    private final Tag< ?, R > parent;
     private final boolean choice;
     private final Tag< ? super R, ? >[] children;
 
@@ -48,12 +49,12 @@ public class TagModel< R >
             }
             else if ( ! tag.isOptional() )
             {
-                throw new IllegalArgumentException( "Unexpected tag: unrecognised: " + localName );
+                throw new ValidationException( parent, "Unexpected tag: unrecognised: " + localName );
             }
 
             index++;
         }
 
-        throw new IllegalArgumentException( "Unexpected tag: no more children: " + localName );
+        throw new ValidationException( parent, "Unexpected tag: no more children: " + localName );
     }
 }
