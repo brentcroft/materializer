@@ -42,6 +42,7 @@ public class ExtPascalVocReader
         private final FlatTag< Detections > self = this;
         private final Tag< ? super Detections, ? >[] children;
 
+        @SafeVarargs
         RootTag( Tag< ? super Detections, ? >... children )
         {
             this.children = children;

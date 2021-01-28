@@ -30,11 +30,9 @@ public enum DetectionsTag implements FlatTag< Detections >
             SizeTag.HEIGHT,
             SizeTag.DEPTH ),
 
-
     DETECTIONS(
             "annotation",
-            ( detections, attributes ) ->
-            {
+            ( detections, attributes ) -> {
                 detections.setDetections( new LinkedList<>() );
                 detections.setAttributes( new LinkedList<>() );
             },
@@ -53,6 +51,7 @@ public enum DetectionsTag implements FlatTag< Detections >
     private final Tag< ? super Detections, ? >[] children;
     private final BiConsumer< Detections, Attributes > opener;
     private final BiConsumer< Detections, String > closer;
+
 
     @SafeVarargs
     DetectionsTag( String tag, BiConsumer< Detections, Attributes > opener, BiConsumer< Detections, String > closer, Tag< ? super Detections, ? >... children )
@@ -108,11 +107,11 @@ enum DetectionListTag implements StepTag< Detections, Detection >
             DetectionTag.BOX,
             EntryListTag.ENTRY_LIST );
 
-    private final String tag;
-    private final StepTag< Detections, Detection > self = this;
-    private final Tag< ? super Detection, ? >[] children;
     private final boolean multiple = true;
+    private final StepTag< Detections, Detection > self = this;
+    private final String tag;
     private final BiConsumer< Detection, Attributes > opener;
+    private final Tag< ? super Detection, ? >[] children;
 
     @SafeVarargs
     DetectionListTag( String tag, BiConsumer< Detection, Attributes > opener, Tag< ? super Detection, ? >... children )

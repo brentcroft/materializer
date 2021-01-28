@@ -16,22 +16,18 @@ public enum DetectionTag implements FlatTag< Detection >
 {
     NAME(
             "name",
-            false,
             null,
             Detection::setName ),
     SCORE(
             "score",
-            false,
             null,
             ( detection, s ) -> detection.setScore( Double.parseDouble( s ) ) ),
     WEIGHT(
             "weight",
-            false,
             null,
             ( detection, s ) -> detection.setWeight( Double.parseDouble( s ) ) ),
     BOX(
             "bndbox",
-            false,
             ( detection, attributes ) -> detection.setBox( new Box() ),
             null,
             BoxTag.XMIN,
@@ -44,13 +40,11 @@ public enum DetectionTag implements FlatTag< Detection >
     private final BiConsumer< Detection, Attributes > opener;
     private final BiConsumer< Detection, String > closer;
     private final Tag< ? super Detection, ? >[] children;
-    private final boolean multiple;
 
     @SafeVarargs
-    DetectionTag( String tag, final boolean multiple, BiConsumer< Detection, Attributes > opener, BiConsumer< Detection, String > closer, Tag< ? super Detection, ? >... children )
+    DetectionTag( String tag, BiConsumer< Detection, Attributes > opener, BiConsumer< Detection, String > closer, Tag< ? super Detection, ? >... children )
     {
         this.tag = tag;
-        this.multiple = multiple;
         this.opener = opener;
         this.closer = closer;
         this.children = children;

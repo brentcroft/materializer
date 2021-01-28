@@ -9,7 +9,8 @@ Example:
 
     Materializer< Detections > materializer = new Materializer<>(
             schema,
-            0, () -> RootTag.ROOT,
+            0, 
+            () -> RootTag.ROOT,
             Detections::new
     );
 

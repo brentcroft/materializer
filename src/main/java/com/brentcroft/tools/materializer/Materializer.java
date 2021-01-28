@@ -43,6 +43,16 @@ public class Materializer< R > implements Function< InputSource, R >
     private final Supplier< FlatTag< ? super R > > rootTagSupplier;
     private final Supplier< R > rootItemSupplier;
 
+    public Materializer( Supplier< FlatTag< ? super R > > rootTagSupplier, Supplier< R > rootItemSupplier )
+    {
+        this( null, 0, rootTagSupplier, rootItemSupplier );
+    }
+
+    public Materializer( int initialPoolSize, Supplier< FlatTag< ? super R > > rootTagSupplier, Supplier< R > rootItemSupplier )
+    {
+        this( null, initialPoolSize, rootTagSupplier, rootItemSupplier );
+    }
+
     public Materializer( Schema schema, int initialPoolSize, Supplier< FlatTag< ? super R > > rootTagSupplier, Supplier< R > rootItemSupplier )
     {
         this.schema = schema;

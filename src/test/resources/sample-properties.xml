@@ -1,0 +1,7 @@
+<properties>
+    <comment key="color">the color of the item</comment>
+    <entry key="color">red</entry>
+    <entry key="height">1.23</entry>
+    <entry key="width">0.12</entry>
+    <entry key="weight">82.5</entry>
+</properties>

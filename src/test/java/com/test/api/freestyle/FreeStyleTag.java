@@ -2,7 +2,6 @@ package com.test.api.freestyle;
 
 import com.brentcroft.tools.materializer.core.FlatTag;
 import com.brentcroft.tools.materializer.core.Tag;
-import com.test.api.detections.model.Detections;
 import lombok.Getter;
 
 import java.util.Map;

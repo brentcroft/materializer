@@ -6,6 +6,7 @@ import static java.util.Optional.ofNullable;
 
 public interface FlatTag< T > extends Tag< T, T >
 {
+
     default T getItem( T t )
     {
         return t;
