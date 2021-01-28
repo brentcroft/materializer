@@ -1,11 +1,11 @@
-package com.test.api.detections.fixtures;
+package com.brentcroft.tools.materializer.util.fixtures;
 
 import com.brentcroft.tools.materializer.core.FlatTag;
 import com.brentcroft.tools.materializer.core.StepTag;
 import com.brentcroft.tools.materializer.core.Tag;
-import com.test.api.detections.model.Box;
-import com.test.api.detections.model.Boxed;
-import com.test.api.detections.model.Detection;
+import com.brentcroft.tools.materializer.util.model.Box;
+import com.brentcroft.tools.materializer.util.model.Boxed;
+import com.brentcroft.tools.materializer.util.model.Detection;
 import lombok.Getter;
 import org.xml.sax.Attributes;
 

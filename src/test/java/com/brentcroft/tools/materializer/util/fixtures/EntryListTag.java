@@ -1,9 +1,9 @@
-package com.test.api.detections.fixtures;
+package com.brentcroft.tools.materializer.util.fixtures;
 
 import com.brentcroft.tools.materializer.core.StepTag;
 import com.brentcroft.tools.materializer.core.Tag;
-import com.test.api.detections.model.Attributed;
-import com.test.api.detections.model.Entry;
+import com.brentcroft.tools.materializer.util.model.Attributed;
+import com.brentcroft.tools.materializer.util.model.Entry;
 import lombok.Getter;
 import org.xml.sax.Attributes;
 

@@ -1,4 +1,4 @@
-package com.test.api.detections.model;
+package com.brentcroft.tools.materializer.util.model;
 
 import java.util.List;
 

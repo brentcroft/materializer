@@ -1,10 +1,10 @@
-package com.test.api.detections;
+package com.brentcroft.tools.materializer.util;
 
 import com.brentcroft.tools.materializer.Materializer;
 import com.brentcroft.tools.materializer.core.FlatTag;
 import com.brentcroft.tools.materializer.core.Tag;
-import com.test.api.detections.fixtures.DetectionsTag;
-import com.test.api.detections.model.Detections;
+import com.brentcroft.tools.materializer.util.fixtures.DetectionsTag;
+import com.brentcroft.tools.materializer.util.model.Detections;
 import lombok.Getter;
 import org.junit.Test;
 import org.xml.sax.InputSource;
@@ -51,13 +51,14 @@ public class ExtPascalVocReader
 
 
     @Test
-    public void test_pascal_voc() throws IOException
+    public void read_pascal_voc_schema() throws IOException
     {
         Schema schema = Materializer.getSchemas( detectionsXsdUri );
 
         Materializer< Detections > materializer = new Materializer<>(
                 schema,
-                0, () -> RootTag.ROOT,
+                0,
+                () -> RootTag.ROOT,
                 Detections::new
         );
 
@@ -77,8 +78,7 @@ public class ExtPascalVocReader
     public void test_pascal_voc_no_schema() throws IOException
     {
         Materializer< Detections > materializer = new Materializer<>(
-                null,
-                0, () -> RootTag.ROOT,
+                () -> RootTag.ROOT,
                 Detections::new
         );
 
