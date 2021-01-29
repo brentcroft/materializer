@@ -8,11 +8,13 @@ import org.xml.sax.Attributes;
 import java.util.Properties;
 import java.util.function.BiConsumer;
 
+import static java.util.Objects.nonNull;
+
 @Getter
 public enum PropertiesRootTag implements FlatTag< Properties >
 {
-    COMMENT( "comment", true, false ),
-    ENTRY( "entry", true, false,
+    COMMENT( "comment", true ),
+    ENTRY( "entry", true,
 
             // open: cache attributes.key
             ( properties, attributes ) -> properties
@@ -23,11 +25,20 @@ public enum PropertiesRootTag implements FlatTag< Properties >
             // close: de-cache attributes.key
             ( properties, text ) -> properties
                     .setProperty(
-                            ( String ) properties.remove( "$currentKey" ),
+                            properties.getProperty( "$currentKey" ),
                             text ) ),
 
-    PROPERTIES( "*", false, true, ENTRY, COMMENT ),
-    ROOT( "", false, false, PROPERTIES );
+    PROPERTIES( "*", false,
+
+            // open: create cache
+            ( properties, attributes ) -> properties.setProperty( "$currentKey", "" ),
+
+            // close:  remove cache
+            ( properties, text ) -> properties.remove( "$currentKey" ),
+
+            ENTRY, COMMENT ),
+
+    ROOT( "", false, PROPERTIES );
 
 
     private final String tag;
@@ -39,19 +50,19 @@ public enum PropertiesRootTag implements FlatTag< Properties >
     private final Tag< ? super Properties, ? >[] children;
 
     @SafeVarargs
-    PropertiesRootTag( String tag, boolean multiple, boolean choice, Tag< ? super Properties, ? >... children )
+    PropertiesRootTag( String tag, boolean multiple, Tag< ? super Properties, ? >... children )
     {
-        this( tag, multiple, choice, null, null, children );
+        this( tag, multiple, null, null, children );
     }
 
     @SafeVarargs
-    PropertiesRootTag( String tag, boolean multiple, boolean choice, BiConsumer< Properties, Attributes > opener, BiConsumer< Properties, String > closer, Tag< ? super Properties, ? >... children )
+    PropertiesRootTag( String tag, boolean multiple, BiConsumer< Properties, Attributes > opener, BiConsumer< Properties, String > closer, Tag< ? super Properties, ? >... children )
     {
         this.tag = tag;
         this.multiple = multiple;
-        this.choice = choice;
         this.opener = opener;
         this.closer = closer;
+        this.choice = nonNull( children ) && children.length > 0;
         this.children = children;
     }
 }

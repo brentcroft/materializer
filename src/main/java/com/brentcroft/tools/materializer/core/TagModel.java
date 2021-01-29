@@ -30,7 +30,7 @@ public class TagModel< R >
 
             throw new ValidationException( parent, format( "Unexpected tag: no choice matches localName <%s>", localName ) );
         }
-        else if ( index > - 1 )
+        else if ( - 1 < index && index < children.length )
         {
             Tag< ? super R, ? > tag = children[ index ];
 

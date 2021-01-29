@@ -10,6 +10,7 @@ import lombok.Getter;
 import org.xml.sax.Attributes;
 
 import java.util.LinkedList;
+import java.util.Properties;
 import java.util.function.BiConsumer;
 
 
@@ -34,7 +35,7 @@ public enum DetectionsTag implements FlatTag< Detections >
             "annotation",
             ( detections, attributes ) -> {
                 detections.setDetections( new LinkedList<>() );
-                detections.setAttributes( new LinkedList<>() );
+                detections.setAttributes( new Properties());
             },
             null,
             DATE,
@@ -44,7 +45,7 @@ public enum DetectionsTag implements FlatTag< Detections >
             PATH,
             SIZE,
             DetectionListTag.DETECTION,
-            EntryListTag.ENTRY_LIST );
+            PropertiedTag.ATTRIBUTES );
 
     private final String tag;
     private final FlatTag< Detections > self = this;
@@ -100,12 +101,12 @@ enum DetectionListTag implements StepTag< Detections, Detection >
 {
     DETECTION(
             "object",
-            ( detection, attributes ) -> detection.setAttributes( new LinkedList<>() ),
+            ( detection, attributes ) -> detection.setAttributes( new Properties() ),
             DetectionTag.NAME,
             DetectionTag.SCORE,
             DetectionTag.WEIGHT,
             DetectionTag.BOX,
-            EntryListTag.ENTRY_LIST );
+            PropertiedTag.ATTRIBUTES );
 
     private final boolean multiple = true;
     private final StepTag< Detections, Detection > self = this;
