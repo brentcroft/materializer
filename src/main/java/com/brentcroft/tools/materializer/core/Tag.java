@@ -9,7 +9,7 @@ import static java.util.Objects.isNull;
 /**
  * Constructs, modifies and/or validates a member of type R on some context object of type T.
  * <p>
- * A Tag may have child tags of type &lt;? super R, ?&gt;.
+ * A Tag may have child tags of <code>Tag&lt;? super R, ?&gt;</code>.
  *
  * @param <T> a context object
  * @param <R> a member to be constructed, modified and/or validated
@@ -20,7 +20,7 @@ public interface Tag< T, R >
 
     /**
      * Obtains a member R from a context object T.
-     *
+     * <p>
      * NB: A FlatTag provides itself as the member.
      *
      * @param t a context object
@@ -69,7 +69,23 @@ public interface Tag< T, R >
     }
 
     /**
-     * True this Tag's children are choices (otherwise they're a sequence).
+     * True if this Tag matches the supplied open element arguments.
+     * <p>
+     * Default is true if localName equals the tag value or the tag value equals "*".
+     *
+     * @param uri        a namespace uri
+     * @param localName  a local tag name
+     * @param qName      a qualified tag name
+     * @param attributes SAX attributes
+     * @return true if this Tag matches the supplied open element arguments
+     */
+    default boolean matches( String uri, String localName, String qName, Attributes attributes )
+    {
+        return getTag().equals( "*" ) || getTag().equals( localName );
+    }
+
+    /**
+     * True if this Tag's children are choices (otherwise they're a sequence).
      *
      * @return if this Tag's children are choices (otherwise they're a sequence)
      */

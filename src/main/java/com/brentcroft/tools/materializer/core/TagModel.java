@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.xml.sax.Attributes;
 
+import static java.lang.String.format;
+
 @Getter
 @RequiredArgsConstructor
 public class TagModel< R >
@@ -16,45 +18,50 @@ public class TagModel< R >
 
     public Tag< ? super R, ? > getTag( String uri, String localName, String qName, Attributes attributes )
     {
-        if ( index > - 1 )
+        if ( choice )
+        {
+            for ( Tag< ? super R, ? > tag : children )
+            {
+                if ( tag.matches( uri, localName, qName, attributes ) )
+                {
+                    return tag;
+                }
+            }
+
+            throw new ValidationException( parent, format( "Unexpected tag: no choice matches localName <%s>", localName ) );
+        }
+        else if ( index > - 1 )
         {
             Tag< ? super R, ? > tag = children[ index ];
 
-            if ( ( tag.getTag().equals( "*" ) || tag.getTag().equals( localName ) ) && tag.isMultiple() )
+            if ( tag.matches( uri, localName, qName, attributes ) && tag.isMultiple() )
             {
                 return tag;
             }
         }
 
-        if ( choice )
-        {
-            for ( Tag< ? super R, ? > tag : children )
-            {
-                if ( ( tag.getTag().equals( "*" ) || tag.getTag().equals( localName ) ) )
-                {
-                    return tag;
-                }
-            }
-        }
-
+        // sequence advance
         index++;
 
         while ( index < children.length )
         {
             final Tag< ? super R, ? > tag = children[ index ];
 
-            if ( ( tag.getTag().equals( "*" ) || tag.getTag().equals( localName ) ) )
+            if ( tag.matches( uri, localName, qName, attributes ) )
             {
                 return tag;
             }
             else if ( ! tag.isOptional() )
             {
-                throw new ValidationException( parent, "Unexpected tag: unrecognised: " + localName );
+                throw new ValidationException(
+                        parent,
+                        format( "Unexpected tag: mandatory tag <%s> does not match localName <%s>", tag.getTag(), localName ) );
             }
 
             index++;
         }
 
-        throw new ValidationException( parent, "Unexpected tag: no more children: " + localName );
+        throw new ValidationException( parent, format( "Unexpected tag: no child matches localName <%s>", localName ) );
+
     }
 }

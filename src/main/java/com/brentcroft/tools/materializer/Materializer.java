@@ -80,6 +80,34 @@ public class Materializer< R > implements Function< InputSource, R >
         }
     }
 
+    public static Schema getSchemas( String... uris )
+    {
+        List< String > schemaUris = Arrays.asList( uris );
+
+        Source[] sources = schemaUris
+                .stream()
+                .map( uri -> new StreamSource(
+                        Thread
+                                .currentThread()
+                                .getContextClassLoader()
+                                .getResourceAsStream( uri ), uri ) )
+                .collect( Collectors.toList() )
+                .toArray( new Source[ uris.length ] );
+
+        try
+        {
+
+            return SchemaFactory
+                    .newInstance( XMLConstants.W3C_XML_SCHEMA_NS_URI )
+                    .newSchema( sources );
+        }
+        catch ( SAXException e )
+        {
+            throw new IllegalArgumentException(
+                    format( "Failed to load schema uris [%s]: %s", schemaUris, e.getMessage() ), e );
+        }
+    }
+
     private void releaseParser( SAXParser parser )
     {
         if ( nonNull( parser ) )
@@ -90,7 +118,6 @@ public class Materializer< R > implements Function< InputSource, R >
             }
         }
     }
-
 
     @Override
     public R apply( InputSource inputSource )
@@ -150,35 +177,6 @@ public class Materializer< R > implements Function< InputSource, R >
             SAXParser parser = parsers.remove( 0 );
             parser.reset();
             return parser;
-        }
-    }
-
-
-    public static Schema getSchemas( String... uris )
-    {
-        List< String > schemaUris = Arrays.asList( uris );
-
-        Source[] sources = schemaUris
-                .stream()
-                .map( uri -> new StreamSource(
-                        Thread
-                                .currentThread()
-                                .getContextClassLoader()
-                                .getResourceAsStream( uri ), uri ) )
-                .collect( Collectors.toList() )
-                .toArray( new Source[ uris.length ] );
-
-        try
-        {
-
-            return SchemaFactory
-                    .newInstance( XMLConstants.W3C_XML_SCHEMA_NS_URI )
-                    .newSchema( sources );
-        }
-        catch ( SAXException e )
-        {
-            throw new IllegalArgumentException(
-                    format( "Failed to load schema uris [%s]: %s", schemaUris, e.getMessage() ), e );
         }
     }
 

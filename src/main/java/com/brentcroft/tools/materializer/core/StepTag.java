@@ -4,7 +4,7 @@ import org.xml.sax.Attributes;
 
 import static java.util.Optional.ofNullable;
 
-public interface StepTag< T, R >  extends Tag< T, R >
+public interface StepTag< T, R > extends Tag< T, R >
 {
 
     default R step( Object o )
@@ -14,7 +14,7 @@ public interface StepTag< T, R >  extends Tag< T, R >
 
     default void open( Object o, Attributes attributes )
     {
-        R r =  ( R ) o;
+        R r = ( R ) o;
 
         ofNullable( getOpener() )
                 .ifPresent( opener -> opener.accept( r, attributes ) );
@@ -22,7 +22,7 @@ public interface StepTag< T, R >  extends Tag< T, R >
 
     default void close( Object o, String text )
     {
-        R r =  ( R ) o;
+        R r = ( R ) o;
 
         ofNullable( getCloser() )
                 .ifPresent( closer -> closer.accept( r, text ) );

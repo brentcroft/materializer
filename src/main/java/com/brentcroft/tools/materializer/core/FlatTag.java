@@ -14,7 +14,7 @@ public interface FlatTag< T > extends Tag< T, T >
 
     default void open( Object o, Attributes attributes )
     {
-        T r =( T ) o;
+        T r = ( T ) o;
 
         ofNullable( getOpener() )
                 .ifPresent( opener -> opener.accept( r, attributes ) );
@@ -22,7 +22,7 @@ public interface FlatTag< T > extends Tag< T, T >
 
     default void close( Object o, String text )
     {
-        T r =( T ) o;
+        T r = ( T ) o;
 
         ofNullable( getCloser() )
                 .ifPresent( closer -> closer.accept( r, text ) );
