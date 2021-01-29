@@ -14,7 +14,7 @@ import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
 
 @Getter
-public enum PropertiesRootTag implements FlatTag< Properties >
+public enum SchemaRootTag implements FlatTag< Properties >
 {
     COMMENT( "comment" ),
     ENTRY( "entry",
@@ -22,7 +22,7 @@ public enum PropertiesRootTag implements FlatTag< Properties >
             // open: cache attributes.key
             ( properties, attributes ) -> ofNullable( attributes.getValue( "key" ) )
                     .filter( v -> ! v.isEmpty() )
-                    .orElseThrow( () -> new RuntimeException( "Element has no attribute 'key!'" ) ),
+                    .orElseThrow( () -> new RuntimeException( "entry element has no attribute key!" ) ),
 
             // close: de-cache attributes.key
             ( properties, text, cache ) -> properties.setProperty( cache.toString(), text ) ),
@@ -41,13 +41,13 @@ public enum PropertiesRootTag implements FlatTag< Properties >
     private final Tag< ? super Properties, ? >[] children;
 
     @SafeVarargs
-    PropertiesRootTag( String tag, Tag< ? super Properties, ? >... children )
+    SchemaRootTag( String tag, Tag< ? super Properties, ? >... children )
     {
         this( tag, null, null, children );
     }
 
     @SafeVarargs
-    PropertiesRootTag( String tag, BiFunction< Properties, Attributes, ? > opener, TriConsumer< Properties, String, Object > closer, Tag< ? super Properties, ? >... children )
+    SchemaRootTag( String tag, BiFunction< Properties, Attributes, ? > opener, TriConsumer< Properties, String, Object > closer, Tag< ? super Properties, ? >... children )
     {
         this.tag = tag;
         this.multiple = isNull( children ) || children.length == 0;

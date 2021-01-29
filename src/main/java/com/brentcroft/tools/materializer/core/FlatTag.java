@@ -16,9 +16,16 @@ public interface FlatTag< T > extends Tag< T, T >
     {
         T r = ( T ) o;
 
-        return ofNullable( getOpener() )
-                .map( opener -> opener.apply( r, attributes ) )
-                .orElse( null );
+        try
+        {
+            return ofNullable( getOpener() )
+                    .map( opener -> opener.apply( r, attributes ) )
+                    .orElse( null );
+        }
+        catch ( Exception e )
+        {
+            throw new ValidationException( this, e.getMessage() );
+        }
     }
 
     default void close( Object o, String text, Object cached )

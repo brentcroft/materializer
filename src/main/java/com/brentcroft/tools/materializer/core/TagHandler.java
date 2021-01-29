@@ -34,9 +34,8 @@ public class TagHandler< R > extends DefaultHandler
 
     public String getPath()
     {
-        return tagModelStack
+        return tagStack
                 .stream()
-                .map( TagModel::getParent )
                 .map( Tag::getTag )
                 .collect( Collectors.joining( "/" ) );
     }

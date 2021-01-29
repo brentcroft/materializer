@@ -16,9 +16,17 @@ public interface StepTag< T, R > extends Tag< T, R >
     {
         R r = ( R ) o;
 
-        return ofNullable( getOpener() )
-                .map( opener -> opener.apply( r, attributes ) )
-                .orElse( null );
+        try
+        {
+            return ofNullable( getOpener() )
+                    .map( opener -> opener.apply( r, attributes ) )
+                    .orElse( null );
+        }
+        catch ( Exception e )
+        {
+            throw new ValidationException( this, e.getMessage() );
+        }
+
     }
 
     default void close( Object o, String text, Object cached )

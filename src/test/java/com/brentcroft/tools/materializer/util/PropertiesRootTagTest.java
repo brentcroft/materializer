@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 import java.util.Properties;
 
 import static java.lang.String.format;
+import static org.junit.Assert.fail;
 
 public class PropertiesRootTagTest
 {
@@ -36,21 +37,28 @@ public class PropertiesRootTagTest
     }
 
 
-    @Test( expected = TagValidationException.class )
+    @Test()
     public void error_001() throws IOException
     {
         String xml = String.join( "\n", Files
                 .readAllLines( Paths.get( rootDir, "sample-properties.xml" ) ) );
 
-        xml = xml.replace( "<comment key=\"color\">the color of the item</comment>", "<elephant/>" );
+        xml = xml.replace( "key=\"color\"", "" );
 
         System.out.println( xml );
 
-        Properties properties = materializer
-                .apply(
-                        new InputSource(
-                                new StringReader( xml ) ) );
+        try
+        {
+            materializer
+                    .apply(
+                            new InputSource(
+                                    new StringReader( xml ) ) );
 
-        System.out.println( properties );
+            fail( "expected TagValidationException" );
+        }
+        catch ( TagValidationException e )
+        {
+            System.out.printf( "%s[%s] %s", e.toString(), e.getTagHandler().getPath(), e.getMessage() );
+        }
     }
 }
