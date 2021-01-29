@@ -1,8 +1,6 @@
 package com.brentcroft.tools.materializer.util.fixtures;
 
-import com.brentcroft.tools.materializer.core.FlatTag;
-import com.brentcroft.tools.materializer.core.StepTag;
-import com.brentcroft.tools.materializer.core.Tag;
+import com.brentcroft.tools.materializer.core.*;
 import com.brentcroft.tools.materializer.util.model.Detection;
 import com.brentcroft.tools.materializer.util.model.Detections;
 import com.brentcroft.tools.materializer.util.model.Size;
@@ -12,6 +10,7 @@ import org.xml.sax.Attributes;
 import java.util.LinkedList;
 import java.util.Properties;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
 
 @Getter
@@ -25,7 +24,10 @@ public enum DetectionsTag implements FlatTag< Detections >
 
     SIZE(
             "size",
-            ( detections, attributes ) -> detections.setSize( new Size() ),
+            ( detections, attributes ) -> {
+                detections.setSize( new Size() );
+                return null;
+            },
             null,
             SizeTag.WIDTH,
             SizeTag.HEIGHT,
@@ -35,7 +37,8 @@ public enum DetectionsTag implements FlatTag< Detections >
             "annotation",
             ( detections, attributes ) -> {
                 detections.setDetections( new LinkedList<>() );
-                detections.setAttributes( new Properties());
+                detections.setAttributes( new Properties() );
+                return null;
             },
             null,
             DATE,
@@ -49,17 +52,17 @@ public enum DetectionsTag implements FlatTag< Detections >
 
     private final String tag;
     private final FlatTag< Detections > self = this;
+    private final Opener< Detections, Attributes > opener;
+    private final Closer< Detections, String > closer;
     private final Tag< ? super Detections, ? >[] children;
-    private final BiConsumer< Detections, Attributes > opener;
-    private final BiConsumer< Detections, String > closer;
 
 
     @SafeVarargs
-    DetectionsTag( String tag, BiConsumer< Detections, Attributes > opener, BiConsumer< Detections, String > closer, Tag< ? super Detections, ? >... children )
+    DetectionsTag( String tag, Opener< Detections, Attributes > opener, BiConsumer< Detections, String > closer, Tag< ? super Detections, ? >... children )
     {
         this.tag = tag;
         this.opener = opener;
-        this.closer = closer;
+        this.closer = Closer.noCacheCloser( closer );
         this.children = children;
     }
 }
@@ -81,12 +84,12 @@ enum SizeTag implements StepTag< Detections, Size >
 
     private final String tag;
     private final StepTag< Detections, Size > self = this;
-    private final BiConsumer< Size, String > closer;
+    private final TriConsumer< Size, String, Object > closer;
 
     SizeTag( String tag, BiConsumer< Size, String > closer )
     {
         this.tag = tag;
-        this.closer = closer;
+        this.closer = ( a, b, ignored ) -> closer.accept( a, b );
     }
 
     @Override
@@ -101,7 +104,10 @@ enum DetectionListTag implements StepTag< Detections, Detection >
 {
     DETECTION(
             "object",
-            ( detection, attributes ) -> detection.setAttributes( new Properties() ),
+            ( detection, attributes ) -> {
+                detection.setAttributes( new Properties() );
+                return null;
+            },
             DetectionTag.NAME,
             DetectionTag.SCORE,
             DetectionTag.WEIGHT,
@@ -111,11 +117,14 @@ enum DetectionListTag implements StepTag< Detections, Detection >
     private final boolean multiple = true;
     private final StepTag< Detections, Detection > self = this;
     private final String tag;
-    private final BiConsumer< Detection, Attributes > opener;
+    private final BiFunction< Detection, Attributes, ? > opener;
     private final Tag< ? super Detection, ? >[] children;
 
     @SafeVarargs
-    DetectionListTag( String tag, BiConsumer< Detection, Attributes > opener, Tag< ? super Detection, ? >... children )
+    DetectionListTag(
+            String tag,
+            BiFunction< Detection, Attributes, ? > opener,
+            Tag< ? super Detection, ? >... children )
     {
         this.tag = tag;
         this.opener = opener;

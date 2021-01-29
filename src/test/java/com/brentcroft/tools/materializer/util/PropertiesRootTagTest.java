@@ -1,27 +1,55 @@
 package com.brentcroft.tools.materializer.util;
 
 import com.brentcroft.tools.materializer.Materializer;
+import com.brentcroft.tools.materializer.TagValidationException;
 import org.junit.Test;
 import org.xml.sax.InputSource;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.StringReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
+
+import static java.lang.String.format;
 
 public class PropertiesRootTagTest
 {
 
+    String rootDir = "src/test/resources/properties";
+
+    Materializer< Properties > materializer = new Materializer<>(
+            () -> PropertiesRootTag.ROOT,
+            Properties::new );
+
+
     @Test
     public void reads_properties_xml() throws IOException
     {
-        Materializer< Properties > materializer = new Materializer<>(
-                () -> PropertiesRootTag.ROOT,
-                Properties::new );
+        Properties properties = materializer
+                .apply(
+                        new InputSource(
+                                new FileInputStream( format( "%s/%s", rootDir, "sample-properties.xml" ) ) ) );
+
+        System.out.println( properties );
+    }
+
+
+    @Test( expected = TagValidationException.class )
+    public void error_001() throws IOException
+    {
+        String xml = String.join( "\n", Files
+                .readAllLines( Paths.get( rootDir, "sample-properties.xml" ) ) );
+
+        xml = xml.replace( "<comment key=\"color\">the color of the item</comment>", "<elephant/>" );
+
+        System.out.println( xml );
 
         Properties properties = materializer
                 .apply(
                         new InputSource(
-                                new FileInputStream( "src/test/resources/sample-properties.xml" ) ) );
+                                new StringReader( xml ) ) );
 
         System.out.println( properties );
     }

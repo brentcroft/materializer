@@ -1,8 +1,6 @@
 package com.brentcroft.tools.materializer.util.fixtures;
 
-import com.brentcroft.tools.materializer.core.FlatTag;
-import com.brentcroft.tools.materializer.core.StepTag;
-import com.brentcroft.tools.materializer.core.Tag;
+import com.brentcroft.tools.materializer.core.*;
 import com.brentcroft.tools.materializer.util.model.Box;
 import com.brentcroft.tools.materializer.util.model.Boxed;
 import com.brentcroft.tools.materializer.util.model.Detection;
@@ -37,16 +35,16 @@ public enum DetectionTag implements FlatTag< Detection >
 
     private final String tag;
     private final FlatTag< Detection > self = this;
-    private final BiConsumer< Detection, Attributes > opener;
-    private final BiConsumer< Detection, String > closer;
+    private final Opener< Detection, Attributes > opener;
+    private final Closer< Detection, String > closer;
     private final Tag< ? super Detection, ? >[] children;
 
     @SafeVarargs
     DetectionTag( String tag, BiConsumer< Detection, Attributes > opener, BiConsumer< Detection, String > closer, Tag< ? super Detection, ? >... children )
     {
         this.tag = tag;
-        this.opener = opener;
-        this.closer = closer;
+        this.opener = Opener.noCacheOpener( opener );
+        this.closer = Closer.noCacheCloser( closer );
         this.children = children;
     }
 
@@ -67,12 +65,12 @@ enum BoxTag implements StepTag< Boxed, Box >
 
     private final String tag;
     private final StepTag< Boxed, Box > self = this;
-    private final BiConsumer< Box, String > closer;
+    private final Closer< Box, String > closer;
 
     BoxTag( String tag, BiConsumer< Box, String > closer )
     {
         this.tag = tag;
-        this.closer = closer;
+        this.closer = Closer.noCacheCloser( closer );
     }
 
     @Override

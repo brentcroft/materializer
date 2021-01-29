@@ -1,5 +1,7 @@
 package com.brentcroft.tools.materializer.util.fixtures;
 
+import com.brentcroft.tools.materializer.core.Closer;
+import com.brentcroft.tools.materializer.core.Opener;
 import com.brentcroft.tools.materializer.core.StepTag;
 import com.brentcroft.tools.materializer.core.Tag;
 import com.brentcroft.tools.materializer.util.model.Attributed;
@@ -45,15 +47,15 @@ enum EntryTag implements StepTag< List< Entry >, Entry >
 
     private final String tag;
     private final StepTag< List< Entry >, Entry > self = this;
-    private final BiConsumer< Entry, Attributes > opener;
-    private final BiConsumer< Entry, String > closer;
+    private final Opener< Entry, Attributes > opener;
+    private final Closer< Entry, String > closer;
     private final boolean multiple = true;
 
     EntryTag( String tag, BiConsumer< Entry, Attributes > opener, BiConsumer< Entry, String > closer )
     {
         this.tag = tag;
-        this.opener = opener;
-        this.closer = closer;
+        this.opener = Opener.noCacheOpener( opener );
+        this.closer = Closer.noCacheCloser( closer );
     }
 
     @Override

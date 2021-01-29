@@ -3,6 +3,7 @@ package com.brentcroft.tools.materializer.core;
 import org.xml.sax.Attributes;
 
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
 import static java.util.Objects.isNull;
 
@@ -38,12 +39,12 @@ public interface Tag< T, R >
     /**
      * Called by TagHandler.startElement to consume attributes.
      */
-    void open( Object o, Attributes attributes );
+    Object open( Object o, Attributes attributes );
 
     /**
      * Called by TagHandler.endElement to consume text.
      */
-    void close( Object o, String text );
+    void close( Object o, String text, Object cache );
 
     /**
      * Provide no children by default.
@@ -119,7 +120,7 @@ public interface Tag< T, R >
      *
      * @return null
      */
-    default BiConsumer< R, Attributes > getOpener()
+    default BiFunction< R, Attributes, ? > getOpener()
     {
         return null;
     }
@@ -129,7 +130,7 @@ public interface Tag< T, R >
      *
      * @return null
      */
-    default BiConsumer< R, String > getCloser()
+    default TriConsumer< R, String, Object > getCloser()
     {
         return null;
     }
@@ -143,4 +144,6 @@ public interface Tag< T, R >
     {
         return null;
     }
+
+
 }

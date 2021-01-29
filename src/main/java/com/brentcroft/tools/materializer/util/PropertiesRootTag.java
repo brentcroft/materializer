@@ -2,64 +2,55 @@ package com.brentcroft.tools.materializer.util;
 
 import com.brentcroft.tools.materializer.core.FlatTag;
 import com.brentcroft.tools.materializer.core.Tag;
+import com.brentcroft.tools.materializer.core.TriConsumer;
 import lombok.Getter;
 import org.xml.sax.Attributes;
 
 import java.util.Properties;
-import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static java.util.Optional.ofNullable;
 
 @Getter
 public enum PropertiesRootTag implements FlatTag< Properties >
 {
-    COMMENT( "comment", true ),
-    ENTRY( "entry", true,
+    COMMENT( "comment" ),
+    ENTRY( "entry",
 
             // open: cache attributes.key
-            ( properties, attributes ) -> properties
-                    .setProperty(
-                            "$currentKey",
-                            attributes.getValue( "key" ) ),
+            ( properties, attributes ) -> ofNullable( attributes.getValue( "key" ) )
+                    .filter( v -> ! v.isEmpty() )
+                    .orElseThrow( () -> new RuntimeException( "entry element has no attribute key!" ) ),
 
             // close: de-cache attributes.key
-            ( properties, text ) -> properties
-                    .setProperty(
-                            properties.getProperty( "$currentKey" ),
-                            text ) ),
+            ( properties, text, cache ) -> properties.setProperty( cache.toString(), text ) ),
 
-    PROPERTIES( "*", false,
+    PROPERTIES( "*", ENTRY, COMMENT ),
 
-            // open: create cache
-            ( properties, attributes ) -> properties.setProperty( "$currentKey", "" ),
-
-            // close:  remove cache
-            ( properties, text ) -> properties.remove( "$currentKey" ),
-
-            ENTRY, COMMENT ),
-
-    ROOT( "", false, PROPERTIES );
+    ROOT( "", PROPERTIES );
 
 
     private final String tag;
     private final FlatTag< Properties > self = this;
     private final boolean multiple;
     private final boolean choice;
-    private final BiConsumer< Properties, Attributes > opener;
-    private final BiConsumer< Properties, String > closer;
+    private final BiFunction< Properties, Attributes, ? > opener;
+    private final TriConsumer< Properties, String, Object > closer;
     private final Tag< ? super Properties, ? >[] children;
 
     @SafeVarargs
-    PropertiesRootTag( String tag, boolean multiple, Tag< ? super Properties, ? >... children )
+    PropertiesRootTag( String tag, Tag< ? super Properties, ? >... children )
     {
-        this( tag, multiple, null, null, children );
+        this( tag, null, null, children );
     }
 
     @SafeVarargs
-    PropertiesRootTag( String tag, boolean multiple, BiConsumer< Properties, Attributes > opener, BiConsumer< Properties, String > closer, Tag< ? super Properties, ? >... children )
+    PropertiesRootTag( String tag, BiFunction< Properties, Attributes, ? > opener, TriConsumer< Properties, String, Object > closer, Tag< ? super Properties, ? >... children )
     {
         this.tag = tag;
-        this.multiple = multiple;
+        this.multiple = isNull( children ) || children.length == 0;
         this.opener = opener;
         this.closer = closer;
         this.choice = nonNull( children ) && children.length > 0;

@@ -17,7 +17,7 @@ import static java.lang.String.format;
 
 public class ExtPascalVocReader
 {
-    String detectionsXsdUri = "src/test/resources/detections.xsd";
+    String detectionsXsdUri = "src/test/resources/detections/detections.xsd";
 
     String rootDir = "src/test/resources/detections";
 

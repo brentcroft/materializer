@@ -18,6 +18,7 @@ import static java.util.Objects.nonNull;
 public class TagHandler< R > extends DefaultHandler
 {
     private final Stack< Object > itemStack = new Stack<>();
+    private final Stack< Object > cacheStack = new Stack<>();
 
     private final Stack< Tag< ?, ? > > tagStack = new Stack<>();
     private final Stack< TagModel< ? > > tagModelStack = new Stack<>();
@@ -26,15 +27,16 @@ public class TagHandler< R > extends DefaultHandler
 
     public TagHandler( FlatTag< ? super R > rootTag, R rootItem )
     {
-        itemStack.push( rootItem );
         tagStack.push( rootTag );
+        itemStack.push( rootItem );
         tagModelStack.push( rootTag.getTagModel() );
     }
 
     public String getPath()
     {
-        return tagStack
+        return tagModelStack
                 .stream()
+                .map( TagModel::getParent )
                 .map( Tag::getTag )
                 .collect( Collectors.joining( "/" ) );
     }
@@ -43,7 +45,7 @@ public class TagHandler< R > extends DefaultHandler
     {
         characters.setLength( 0 );
 
-        if ( isNull( tagModelStack.peek() ) )
+        if ( tagModelStack.isEmpty() )
         {
             throw new TagHandlerException( this, format( "No model on stack for tag: <%s>", localName ) );
         }
@@ -70,20 +72,20 @@ public class TagHandler< R > extends DefaultHandler
 
         tagStack.push( tag );
         tagModelStack.push( tag.getTagModel() );
-
-        tag.open( item, attributes );
+        cacheStack.push( tag.open( item, attributes ) );
     }
 
     public void endElement( String uri, String localName, String qName )
     {
-        Tag< ?, ? > tag = tagStack.peek();
+        Object cachedObject = cacheStack.pop();
+        Tag< ?, ? > tag = tagStack.pop();
 
         if ( nonNull( tag ) )
         {
             Object item = itemStack.peek();
 
             // stacks identify state if exception thrown
-            tag.close( item, characters.toString().trim() );
+            tag.close( item, characters.toString().trim(), cachedObject );
 
             if ( tag instanceof StepTag )
             {
@@ -93,7 +95,6 @@ public class TagHandler< R > extends DefaultHandler
 
         // pop the stacks
         tagModelStack.pop();
-        tagStack.pop();
         characters.setLength( 0 );
     }
 
