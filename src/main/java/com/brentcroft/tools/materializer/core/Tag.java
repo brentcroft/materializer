@@ -40,6 +40,10 @@ public interface Tag< T, R >
 
     /**
      * Called by TagHandler.startElement to consume attributes.
+     *
+     * @param o the object in context
+     * @param attributes any attributes available
+     * @return an object to cache and pas to the closer
      */
     Object open( Object o, Attributes attributes );
 
@@ -73,6 +77,10 @@ public interface Tag< T, R >
 
     /**
      * Called by TagHandler.endElement to consume text.
+     *
+     * @param o the object in context
+     * @param text the text read whilst open
+     * @param cache any object cached by the opener
      */
     void close( Object o, String text, Object cache );
 

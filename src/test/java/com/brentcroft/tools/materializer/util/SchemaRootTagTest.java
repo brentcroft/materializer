@@ -14,65 +14,81 @@ import java.nio.file.Paths;
 
 import static java.lang.String.format;
 
-public class SchemaRootTagTest
-{
-    String rootDir = "src/test/resources/detections";
-
-    Materializer< SchemaObject > materializer = new Materializer<>(
-            () -> SchemaRootTag.ROOT,
-            SchemaObject::new );
-
-    @Test
-    @Ignore
-    public void creates_root_mutator_json() throws IOException
-    {
-        SchemaObject schemaObject = materializer
-                .apply(
-                        new InputSource(
-                                new FileInputStream( format( "%s/%s", rootDir, "detections.xsd" ) ) ) );
-
-        Mutator rootMutator = Mutator.rootMutator( Detections.class, schemaObject );
-
-        String json = rootMutator.jsonate( "" );
-
-        System.out.println( json );
-
-        Path path = Paths.get(
-                "src/test/resources",
-                "Detections.js" );
-
-        Files.createDirectories( path.getParent() );
-        Files.write( path, json.getBytes() );
-    }
+public class SchemaRootTagTest {
+  String rootDir = "src/test/resources/detections";
 
 
-    @Test
-    @Ignore
-    public void generates_materializer() throws IOException
-    {
-        SchemaObject schemaObject = materializer
-                .apply(
-                        new InputSource(
-                                new FileInputStream( format( "%s/%s", rootDir, "detections.xsd" ) ) ) );
+  @Test
+  @Ignore
+  public void creates_root_mutator_json() throws IOException {
 
-        //System.out.println( schemaObject );
+    String systemId = format("%s/%s", rootDir, "detections.xsd");
 
-        Mutator rootMutator = Mutator.rootMutator( Detections.class, schemaObject );
+    Materializer<SchemaObject> materializer = new Materializer<>(
+        () -> SchemaRootTag.ROOT,
+        () -> {
+          SchemaObject so = new SchemaObject();
+          so.setSystemId(systemId);
+          return so;
+        });
 
-        String source = schemaObject.generateSource(
-                rootMutator,
-                "meta/tag-enumeration.el",
-                "com.brentcroft.test" );
+    SchemaObject schemaObject = materializer
+        .apply(
+            new InputSource(
+                new FileInputStream(format("%s/%s", rootDir, "detections.xsd"))));
+
+    Mutator rootMutator = Mutator.rootMutator(Detections.class, schemaObject);
+
+    String json = rootMutator.jsonate("");
+
+    System.out.println(json);
+
+    Path path = Paths.get(
+        "src/test/resources",
+        "Detections.js");
+
+    Files.createDirectories(path.getParent());
+    Files.write(path, json.getBytes());
+  }
+
+
+  @Test
+  @Ignore
+  public void generates_materializer() throws IOException {
+
+    String systemId = format("%s/%s", rootDir, "detections.xsd");
+
+    Materializer<SchemaObject> materializer = new Materializer<>(
+        () -> SchemaRootTag.ROOT,
+        () -> {
+          SchemaObject so = new SchemaObject();
+          so.setSystemId(systemId);
+          return so;
+        });
+
+    SchemaObject schemaObject = materializer
+        .apply(
+            new InputSource(
+                new FileInputStream(systemId)));
+
+    //System.out.println( schemaObject );
+
+    Mutator rootMutator = Mutator.rootMutator(Detections.class, schemaObject);
+
+    String source = schemaObject.generateSource(
+        rootMutator,
+        "meta/tag-enumeration.el",
+        "com.brentcroft.test");
 
 //        System.out.println( source );
 
 
-        Path path = Paths.get(
-                "src/test/java",
-                "com.brentcroft.test".replace( '.','/' ),
-                "DetectionsRootTag.java" );
+    Path path = Paths.get(
+        "src/test/java",
+        "com.brentcroft.test".replace('.', '/'),
+        "DetectionsRootTag.java");
 
-        Files.createDirectories( path.getParent() );
-        Files.write(path,source.getBytes() );
-    }
+    Files.createDirectories(path.getParent());
+    Files.write(path, source.getBytes());
+  }
 }
