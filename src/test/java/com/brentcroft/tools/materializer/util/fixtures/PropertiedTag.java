@@ -1,17 +1,12 @@
 package com.brentcroft.tools.materializer.util.fixtures;
 
-import com.brentcroft.tools.materializer.core.FlatTag;
-import com.brentcroft.tools.materializer.core.StepTag;
-import com.brentcroft.tools.materializer.core.Tag;
-import com.brentcroft.tools.materializer.core.TriConsumer;
+import com.brentcroft.tools.materializer.core.*;
 import com.brentcroft.tools.materializer.util.model.Propertied;
 import lombok.Getter;
 import org.xml.sax.Attributes;
 
+import java.util.Map;
 import java.util.Properties;
-import java.util.function.BiFunction;
-
-import static java.util.Optional.ofNullable;
 
 @Getter
 public enum PropertiedTag implements FlatTag< Propertied >
@@ -36,26 +31,31 @@ public enum PropertiedTag implements FlatTag< Propertied >
 @Getter
 enum AttributePropertiesTag implements StepTag< Propertied, Properties >
 {
-    ATTRIBUTE( "attribute",
+    ATTRIBUTE( "attribute", Map.class,
 
             // open: cache attributes.key
-            ( properties, attributes ) -> ofNullable( attributes.getValue( "key" ) )
-                    .filter( v -> ! v.isEmpty() )
-                    .orElseThrow( () -> new RuntimeException( "entry element has no attribute key!" ) ),
+            ( properties, attributes ) -> Tag.getAttributesMap( attributes ),
 
             // close: de-cache attributes.key
-            ( properties, text, cache ) -> properties.setProperty( cache.toString(), text ) );
+            ( properties, text, cache ) -> {
+                if ( ! cache.containsKey( "key" ) )
+                {
+                    throw new IllegalArgumentException( "missing attribute: key" );
+                }
+                properties.setProperty( cache.get( "key" ).toString(), text );
+            } );
 
     private final String tag;
     private final StepTag< Propertied, Properties > self = this;
     private final boolean multiple = true;
-    private final BiFunction< Properties, Attributes, ? > opener;
-    private final TriConsumer< Properties, String, Object > closer;
+    private final Opener< Properties, Attributes, ? > opener;
+    private final Closer< Properties, String, ? > closer;
 
-    AttributePropertiesTag(
+    < T > AttributePropertiesTag(
             String tag,
-            BiFunction< Properties, Attributes, ? > opener,
-            TriConsumer< Properties, String, Object > closer )
+            Class< T > cacheClass,
+            Opener< Properties, Attributes, T > opener,
+            Closer< Properties, String, T > closer )
     {
         this.tag = tag;
         this.opener = opener;

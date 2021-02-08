@@ -19,7 +19,7 @@ public interface FlatTag< T > extends Tag< T, T >
         try
         {
             return ofNullable( getOpener() )
-                    .map( opener -> opener.apply( r, attributes ) )
+                    .map( opener -> opener.open( r, attributes ) )
                     .orElse( null );
         }
         catch ( Exception e )
@@ -32,8 +32,15 @@ public interface FlatTag< T > extends Tag< T, T >
     {
         T r = ( T ) o;
 
-        ofNullable( getCloser() )
-                .ifPresent( closer -> closer.accept( r, text, cached ) );
+        try
+        {
+            ofNullable( getCloser() )
+                    .ifPresent( closer -> closer.close( r, text, cached ) );
+        }
+        catch ( Exception e )
+        {
+            throw new ValidationException( this, e.getMessage() );
+        }
 
         ofNullable( getValidator() )
                 .ifPresent( validator -> validator.accept( getSelf(), r ) );

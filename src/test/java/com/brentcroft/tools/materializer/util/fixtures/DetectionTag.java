@@ -35,8 +35,8 @@ public enum DetectionTag implements FlatTag< Detection >
 
     private final String tag;
     private final FlatTag< Detection > self = this;
-    private final Opener< Detection, Attributes > opener;
-    private final Closer< Detection, String > closer;
+    private final Opener< Detection, Attributes, ? > opener;
+    private final Closer< Detection, String, ? > closer;
     private final Tag< ? super Detection, ? >[] children;
 
     @SafeVarargs
@@ -46,12 +46,6 @@ public enum DetectionTag implements FlatTag< Detection >
         this.opener = Opener.noCacheOpener( opener );
         this.closer = Closer.noCacheCloser( closer );
         this.children = children;
-    }
-
-    @Override
-    public Detection getItem( Detection detection )
-    {
-        return detection;
     }
 }
 
@@ -65,7 +59,7 @@ enum BoxTag implements StepTag< Boxed, Box >
 
     private final String tag;
     private final StepTag< Boxed, Box > self = this;
-    private final Closer< Box, String > closer;
+    private final Closer< Box, String, ? > closer;
 
     BoxTag( String tag, BiConsumer< Box, String > closer )
     {

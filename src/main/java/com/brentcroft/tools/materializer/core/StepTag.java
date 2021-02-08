@@ -19,7 +19,7 @@ public interface StepTag< T, R > extends Tag< T, R >
         try
         {
             return ofNullable( getOpener() )
-                    .map( opener -> opener.apply( r, attributes ) )
+                    .map( opener -> opener.open( r, attributes ) )
                     .orElse( null );
         }
         catch ( Exception e )
@@ -34,7 +34,7 @@ public interface StepTag< T, R > extends Tag< T, R >
         R r = ( R ) o;
 
         ofNullable( getCloser() )
-                .ifPresent( closer -> closer.accept( r, text, cached ) );
+                .ifPresent( closer -> closer.close( r, text, cached ) );
 
         ofNullable( getValidator() )
                 .ifPresent( validator -> validator.accept( getSelf(), r ) );

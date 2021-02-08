@@ -3,6 +3,7 @@ package com.brentcroft.tools.materializer;
 import com.brentcroft.tools.materializer.core.TagHandler;
 import lombok.Getter;
 
+import static java.lang.String.format;
 import static java.util.Objects.isNull;
 
 /**
@@ -29,6 +30,6 @@ public class TagException extends RuntimeException
 
     public String toString()
     {
-        return getClass().getSimpleName();
+        return format( "%s [%s]: %s", getClass().getSimpleName(), tagHandler.getPath(), getMessage());
     }
 }

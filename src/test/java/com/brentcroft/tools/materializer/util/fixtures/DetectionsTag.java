@@ -10,7 +10,6 @@ import org.xml.sax.Attributes;
 import java.util.LinkedList;
 import java.util.Properties;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 
 
 @Getter
@@ -26,7 +25,6 @@ public enum DetectionsTag implements FlatTag< Detections >
             "size",
             ( detections, attributes ) -> {
                 detections.setSize( new Size() );
-                return null;
             },
             null,
             SizeTag.WIDTH,
@@ -38,7 +36,6 @@ public enum DetectionsTag implements FlatTag< Detections >
             ( detections, attributes ) -> {
                 detections.setDetections( new LinkedList<>() );
                 detections.setAttributes( new Properties() );
-                return null;
             },
             null,
             DATE,
@@ -47,21 +44,22 @@ public enum DetectionsTag implements FlatTag< Detections >
             FILENAME,
             PATH,
             SIZE,
-            DetectionListTag.DETECTION,
-            PropertiedTag.ATTRIBUTES );
+            DetectionListTag.DETECTION ),
+
+    ROOT( "", null, null, DETECTIONS );
 
     private final String tag;
     private final FlatTag< Detections > self = this;
-    private final Opener< Detections, Attributes > opener;
-    private final Closer< Detections, String > closer;
+    private final Opener< Detections, Attributes, ? > opener;
+    private final Closer< Detections, String, ? > closer;
     private final Tag< ? super Detections, ? >[] children;
 
 
     @SafeVarargs
-    DetectionsTag( String tag, Opener< Detections, Attributes > opener, BiConsumer< Detections, String > closer, Tag< ? super Detections, ? >... children )
+    DetectionsTag( String tag, BiConsumer< Detections, Attributes > opener, BiConsumer< Detections, String > closer, Tag< ? super Detections, ? >... children )
     {
         this.tag = tag;
-        this.opener = opener;
+        this.opener = Opener.noCacheOpener( opener );
         this.closer = Closer.noCacheCloser( closer );
         this.children = children;
     }
@@ -84,12 +82,12 @@ enum SizeTag implements StepTag< Detections, Size >
 
     private final String tag;
     private final StepTag< Detections, Size > self = this;
-    private final TriConsumer< Size, String, Object > closer;
+    private final Closer< Size, String, ? > closer;
 
     SizeTag( String tag, BiConsumer< Size, String > closer )
     {
         this.tag = tag;
-        this.closer = ( a, b, ignored ) -> closer.accept( a, b );
+        this.closer = Closer.noCacheCloser( closer );
     }
 
     @Override
@@ -104,10 +102,7 @@ enum DetectionListTag implements StepTag< Detections, Detection >
 {
     DETECTION(
             "object",
-            ( detection, attributes ) -> {
-                detection.setAttributes( new Properties() );
-                return null;
-            },
+            ( detection, attributes ) -> detection.setAttributes( new Properties() ),
             DetectionTag.NAME,
             DetectionTag.SCORE,
             DetectionTag.WEIGHT,
@@ -117,17 +112,17 @@ enum DetectionListTag implements StepTag< Detections, Detection >
     private final boolean multiple = true;
     private final StepTag< Detections, Detection > self = this;
     private final String tag;
-    private final BiFunction< Detection, Attributes, ? > opener;
+    private final Opener< Detection, Attributes, ? > opener;
     private final Tag< ? super Detection, ? >[] children;
 
     @SafeVarargs
     DetectionListTag(
             String tag,
-            BiFunction< Detection, Attributes, ? > opener,
+            BiConsumer< Detection, Attributes > opener,
             Tag< ? super Detection, ? >... children )
     {
         this.tag = tag;
-        this.opener = opener;
+        this.opener = Opener.noCacheOpener( opener );
         this.children = children;
     }
 

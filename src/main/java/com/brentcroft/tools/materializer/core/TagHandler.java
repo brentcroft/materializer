@@ -49,6 +49,13 @@ public class TagHandler< R > extends DefaultHandler
             throw new TagHandlerException( this, format( "No model on stack for tag: <%s>", localName ) );
         }
 
+
+        if ( isNull( tagModelStack.peek() ) )
+        {
+            throw new TagHandlerException( this, format( "isNull( tagModelStack.peek() ) is null for tag: <%s>", localName ) );
+        }
+
+
         Tag< ?, ? > tag = tagModelStack.peek().getTag( uri, localName, qName, attributes );
 
 

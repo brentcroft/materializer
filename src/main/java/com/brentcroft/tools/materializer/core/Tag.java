@@ -2,8 +2,10 @@ package com.brentcroft.tools.materializer.core;
 
 import org.xml.sax.Attributes;
 
+import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static java.util.Objects.isNull;
 
@@ -40,6 +42,34 @@ public interface Tag< T, R >
      * Called by TagHandler.startElement to consume attributes.
      */
     Object open( Object o, Attributes attributes );
+
+    /**
+     * Utility method to cast an argument list of Tags as an array.
+     *
+     * @param tags an argument list of Tags
+     * @param <X> a derived super type
+     *
+     * @return an array of Tags
+     */
+    @SafeVarargs
+    static < X > Tag< ? super X, ? >[] tags( Tag< ? super X, ? >... tags )
+    {
+        return tags;
+    }
+
+    /**
+     * Utility method to convert Attributes to a Map.
+     *
+     * @param attributes XML attributes
+     * @return a map of the attributes
+     */
+    static Map< String, String > getAttributesMap( Attributes attributes )
+    {
+        return IntStream
+                .range( 0, attributes.getLength() )
+                .mapToObj( index -> new String[]{attributes.getLocalName( index ), attributes.getValue( index )} )
+                .collect( Collectors.toMap( keys -> keys[ 0 ], keys -> keys[ 1 ] ) );
+    }
 
     /**
      * Called by TagHandler.endElement to consume text.
@@ -120,7 +150,7 @@ public interface Tag< T, R >
      *
      * @return null
      */
-    default BiFunction< R, Attributes, ? > getOpener()
+    default Opener< R, Attributes, ? > getOpener()
     {
         return null;
     }
@@ -130,7 +160,7 @@ public interface Tag< T, R >
      *
      * @return null
      */
-    default TriConsumer< R, String, Object > getCloser()
+    default Closer< R, String, ? > getCloser()
     {
         return null;
     }
@@ -144,6 +174,5 @@ public interface Tag< T, R >
     {
         return null;
     }
-
 
 }

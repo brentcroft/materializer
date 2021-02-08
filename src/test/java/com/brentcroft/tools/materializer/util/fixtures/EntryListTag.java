@@ -47,8 +47,8 @@ enum EntryTag implements StepTag< List< Entry >, Entry >
 
     private final String tag;
     private final StepTag< List< Entry >, Entry > self = this;
-    private final Opener< Entry, Attributes > opener;
-    private final Closer< Entry, String > closer;
+    private final Opener< Entry, Attributes, ? > opener;
+    private final Closer< Entry, String, ? > closer;
     private final boolean multiple = true;
 
     EntryTag( String tag, BiConsumer< Entry, Attributes > opener, BiConsumer< Entry, String > closer )
