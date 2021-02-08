@@ -2,6 +2,7 @@ package com.brentcroft.tools.materializer.util;
 
 import com.brentcroft.tools.materializer.Materializer;
 import com.brentcroft.tools.materializer.util.model.Detections;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.InputSource;
 
@@ -22,6 +23,7 @@ public class SchemaRootTagTest
             SchemaObject::new );
 
     @Test
+    @Ignore
     public void creates_root_mutator_json() throws IOException
     {
         SchemaObject schemaObject = materializer
@@ -45,6 +47,7 @@ public class SchemaRootTagTest
 
 
     @Test
+    @Ignore
     public void generates_materializer() throws IOException
     {
         SchemaObject schemaObject = materializer
