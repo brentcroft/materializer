@@ -221,7 +221,10 @@ enum SchemaLeafTag implements FlatTag<SchemaItem> {
 
 
   LENGTH("length"),
+  FRACTIONDIGITS("fractionDigits"),
   TOTALDIGITS("totalDigits"),
+  MININCLUSIVE("minInclusive"),
+  MAXINCLUSIVE("maxInclusive"),
   MINLENGTH("minLength"),
   MAXLENGTH("maxLength"),
   ATTRIBUTE("attribute"),
@@ -229,12 +232,19 @@ enum SchemaLeafTag implements FlatTag<SchemaItem> {
 
   EXTENSION("extension", ATTRIBUTE, CHOICE, SEQUENCE),
 
+  ANYTHING("*")
+      {
+        @Override
+        public Tag<? super SchemaItem, ?>[] getChildren() {
+          return Tag.tags(ANYTHING);
+        }
+      },
 
-  DOCUMENTATION("documentation"),
+  DOCUMENTATION("documentation", ANYTHING),
   ANNOTATION("annotation", DOCUMENTATION),
 
   ENUMERATION("enumeration"),
-  RESTRICTION("restriction", PATTERN, ENUMERATION, MINLENGTH, MAXLENGTH, TOTALDIGITS, LENGTH),
+  RESTRICTION("restriction", PATTERN, ENUMERATION, MINLENGTH, MAXLENGTH, TOTALDIGITS, LENGTH, MININCLUSIVE, MAXINCLUSIVE, FRACTIONDIGITS),
 
   SIMPLE_CONTENT("simpleContent", EXTENSION, ANNOTATION),
   SIMPLE_TYPE("simpleType", RESTRICTION, ANNOTATION),
