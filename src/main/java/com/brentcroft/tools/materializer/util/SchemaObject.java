@@ -34,7 +34,14 @@ public class SchemaObject
     public String toString()
     {
         return format(
-                "rootElements: %n%s %n" + "complexTypes: %n%s %n" + "simpleTypes: %n%s",
+                "rootElements: %s%n %s%n %s%n%s %n" + "complexTypes: %n%s %n" + "simpleTypes: %n%s",
+                systemId,
+                localPrefix,
+                namespacePrefixes
+                .entrySet()
+                .stream()
+                .map( entry -> format(" xmlns:%s=%s", entry.getKey(), entry.getValue()) )
+                .collect( Collectors.joining( "\n" ) ),
                 rootObjects
                         .stream()
                         .map( SchemaItem::toString )
