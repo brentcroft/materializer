@@ -49,6 +49,8 @@ public enum SchemaRootTag implements FlatTag< SchemaObject >
                             SchemaObject importedSchemaObject = materializer
                                     .apply( new InputSource( new FileInputStream( systemId ) ) );
 
+                            importedSchemaObject.reify();
+
                             schemaObject.getRootObjects().addAll( importedSchemaObject.getRootObjects() );
                             schemaObject.getComplexTypes().addAll( importedSchemaObject.getComplexTypes() );
                             schemaObject.getSimpleTypes().addAll( importedSchemaObject.getSimpleTypes() );
