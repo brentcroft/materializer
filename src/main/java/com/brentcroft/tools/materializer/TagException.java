@@ -30,6 +30,6 @@ public class TagException extends RuntimeException
 
     public String toString()
     {
-        return format( "%s [%s]: %s", getClass().getSimpleName(), tagHandler.getPath(), getMessage());
+        return format( "%s [%s]: %s", getClass().getSimpleName(), tagHandler.getPath(), getMessage() );
     }
 }

@@ -19,40 +19,11 @@ import static java.util.Objects.isNull;
  */
 public interface Tag< T, R >
 {
-    String getTag();
-
-    /**
-     * Obtains a member R from a context object T.
-     * <p>
-     * NB: A FlatTag provides itself as the member.
-     *
-     * @param t a context object
-     * @return a member of the context object
-     */
-    R getItem( T t );
-
-    /**
-     * Enforce implementation of a self member.
-     *
-     * @return the instantiation of this Tag.
-     */
-    Tag< T, R > getSelf();
-
-    /**
-     * Called by TagHandler.startElement to consume attributes.
-     *
-     * @param o the object in context
-     * @param attributes any attributes available
-     * @return an object to cache and pas to the closer
-     */
-    Object open( Object o, Attributes attributes );
-
     /**
      * Utility method to cast an argument list of Tags as an array.
      *
      * @param tags an argument list of Tags
-     * @param <X> a derived super type
-     *
+     * @param <X>  a derived super type
      * @return an array of Tags
      */
     @SafeVarargs
@@ -75,11 +46,39 @@ public interface Tag< T, R >
                 .collect( Collectors.toMap( keys -> keys[ 0 ], keys -> keys[ 1 ] ) );
     }
 
+    String getTag();
+
+    /**
+     * Obtains a member R from a context object T.
+     * <p>
+     * NB: A FlatTag provides itself as the member.
+     *
+     * @param t a context object
+     * @return a member of the context object
+     */
+    R getItem( T t );
+
+    /**
+     * Enforce implementation of a self member.
+     *
+     * @return the instantiation of this Tag.
+     */
+    Tag< T, R > getSelf();
+
+    /**
+     * Called by TagHandler.startElement to consume attributes.
+     *
+     * @param o          the object in context
+     * @param attributes any attributes available
+     * @return an object to cache and pas to the closer
+     */
+    Object open( Object o, Attributes attributes );
+
     /**
      * Called by TagHandler.endElement to consume text.
      *
-     * @param o the object in context
-     * @param text the text read whilst open
+     * @param o     the object in context
+     * @param text  the text read whilst open
      * @param cache any object cached by the opener
      */
     void close( Object o, String text, Object cache );

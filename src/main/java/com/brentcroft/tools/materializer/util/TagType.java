@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 enum TagType
 {
-    FLAT("Flat"),
-    STEP("Step");
+    FLAT( "Flat" ),
+    STEP( "Step" );
     private final String type;
 }

@@ -1,70 +1,73 @@
 package com.brentcroft.test;
 
-import com.brentcroft.tools.materializer.core.*;
-import com.brentcroft.tools.materializer.util.model.Box;
-import com.brentcroft.tools.materializer.util.model.Detection;
-import com.brentcroft.tools.materializer.util.model.Detections;
-import com.brentcroft.tools.materializer.util.model.Size;
+import com.brentcroft.tools.materializer.core.Closer;
+import com.brentcroft.tools.materializer.core.FlatTag;
+import com.brentcroft.tools.materializer.core.StepTag;
+import com.brentcroft.tools.materializer.core.Opener;
+import com.brentcroft.tools.materializer.core.Tag;
 import lombok.Getter;
 import org.xml.sax.Attributes;
 
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.*;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.function.BiConsumer;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-/* Root FlatTag of Detections */
-/* {
-  name: "",
-  parent: "",
-  index: 0,
-  tag: "annotation",
-  tagType: "FLAT",
-  context: "Detections",
-  contextStep: "Detections",
-  argument: "Detections",
-  children: 8 } */
+/* generated imports */
+import com.brentcroft.tools.materializer.util.model.Detections;
 
+import com.brentcroft.tools.materializer.util.model.Size;
+import java.util.List;
+import com.brentcroft.tools.materializer.util.model.Detection;
+import com.brentcroft.tools.materializer.util.model.Box;
+import java.util.Properties;
+import java.util.Properties;
+
+/*
+
+    Root FlatTag of Detections
+    Generated: 2021-02-11T00:53:28.801
+
+*/
 @Getter
 public enum DetectionsRootTag implements FlatTag< Detections >
 {
-
+    
     DATE( "date", Detections::setDate ),
     TIME( "time", Detections::setTime ),
     FOLDER( "folder", Detections::setFolder ),
     FILENAME( "filename", Detections::setFilename ),
     PATH( "path", Detections::setPath ),
     SIZE(
-            "size",
-            ( context, attributes ) -> context.setSize( new Size() ),
-            null,
-            SizeStepTag.WIDTH,
-            SizeStepTag.HEIGHT,
-            SizeStepTag.DEPTH ),
+         "size",
+         ( context, attributes ) -> context.setSize( new Size() ),
+         null,
+         SizeStepTag.WIDTH,
+         SizeStepTag.HEIGHT,
+         SizeStepTag.DEPTH ),
     ATTRIBUTES(
-            "attributes",
-            DetectionsPropertiesTag.ATTRIBUTE
-    ),
+         "attributes",
+         DetectionsPropertiesTag.ATTRIBUTE
+          ),
 
     DOCUMENT(
-            "annotation",
-            ( detections, attributes ) -> {
-                detections.setDetections( new ArrayList<>() );
-                detections.setAttributes( new Properties() );
-            },
-            ( detections, text ) -> {
-            },
-            DATE,
-            TIME,
-            FOLDER,
-            FILENAME,
-            PATH,
-            SIZE,
-            DetectionsDetectionListTag.DETECTIONS,
-            ATTRIBUTES ),
+        "annotation",
+        ( detections, attributes ) -> {
+            detections.setDetections( new ArrayList<>() );
+detections.setAttributes( new Properties() );
+        },
+        ( detections, text ) -> {},
+        DATE,
+        TIME,
+        FOLDER,
+        FILENAME,
+        PATH,
+        SIZE,
+        DetectionsDetectionListTag.DETECTIONS,
+        ATTRIBUTES),
     ROOT( "", DOCUMENT );
 
     private final String tag;
@@ -105,26 +108,15 @@ public enum DetectionsRootTag implements FlatTag< Detections >
 }
 
 
-// step-tag: Detections, Size
-/* {
-  name: "setSize",
-  parent: "",
-  index: 5,
-  tag: "size",
-  tagType: "STEP",
-  context: "Detections",
-  contextStep: "Size",
-  argument: "Size",
-  children: 3 } */
 
+    
 @Getter
 enum SizeStepTag implements StepTag< Detections, Size >
 {
-
+    
     WIDTH( "width", ( size, text ) -> size.setWidth( Integer.parseInt( text ) ) ),
     HEIGHT( "height", ( size, text ) -> size.setHeight( Integer.parseInt( text ) ) ),
-    DEPTH( "depth", ( size, text ) -> size.setDepth( Integer.parseInt( text ) ) ),
-    ;
+    DEPTH( "depth", ( size, text ) -> size.setDepth( Integer.parseInt( text ) ) ),;
 
     private final String tag;
     private final StepTag< Detections, Size > self = this;
@@ -169,38 +161,24 @@ enum SizeStepTag implements StepTag< Detections, Size >
         return detections.getSize();
     }
 }
+        
 
-
-// List tag
-/* {
-  name: "setDetections",
-  parent: "",
-  index: 6,
-  tag: "object",
-  tagType: "STEP",
-  context: "Detections",
-  contextStep: "List",
-  argument: "List",
-  argumentType: "Detection",
-  optional: true,
-  multiple: true,
-  children: 5 } */
-
+    
+            
 @Getter
 enum DetectionsDetectionListTag implements StepTag< Detections, Detection >
 {
     DETECTIONS(
-            "object",
-            ( detection, attributes ) -> {
+             "object",
+             ( detection, attributes ) -> {
                 detection.setAttributes( new Properties() );
-            },
-            ( detection, text ) -> {
-            },
-            DetectionTag.NAME,
-            DetectionTag.WEIGHT,
-            DetectionTag.SCORE,
-            DetectionTag.BOX,
-            DetectionTag.ATTRIBUTES );
+             },
+             ( detection, text ) -> {},
+             DetectionTag.NAME,
+             DetectionTag.SCORE,
+             DetectionTag.WEIGHT,
+             DetectionTag.BOX,
+             DetectionTag.ATTRIBUTES );
 
     private final String tag;
     private final StepTag< Detections, Detection > self = this;
@@ -235,43 +213,27 @@ enum DetectionsDetectionListTag implements StepTag< Detections, Detection >
 }
 
 
-// Flat Tag
-/* {
-  name: "setDetections",
-  parent: "",
-  index: 6,
-  tag: "object",
-  tagType: "STEP",
-  context: "Detections",
-  contextStep: "List",
-  argument: "List",
-  argumentType: "Detection",
-  optional: true,
-  multiple: true,
-  children: 5 } */
-
 @Getter
 enum DetectionTag implements FlatTag< Detection >
 {
-
+   
     NAME( "name", Detection::setName ),
-    WEIGHT( "weight", ( detection, text ) -> detection.setWeight( Double.parseDouble( text ) ) ),
     SCORE( "score", ( detection, text ) -> detection.setScore( Double.parseDouble( text ) ) ),
+    WEIGHT( "weight", ( detection, text ) -> detection.setWeight( Double.parseDouble( text ) ) ),
     BOX(
-            "bndbox",
-            ( detection, attributes ) -> detection.setBox( new Box() ),
-            null,
-            BoxStepTag.XMIN,
-            BoxStepTag.YMIN,
-            BoxStepTag.XMAX,
-            BoxStepTag.YMAX ),
+         "bndbox",
+         ( detection, attributes ) -> detection.setBox( new Box() ),
+         null,
+         BoxStepTag.XMIN,
+         BoxStepTag.YMIN,
+         BoxStepTag.XMAX,
+         BoxStepTag.YMAX ),
     ATTRIBUTES(
-            "attributes",
-            null,
-            null,
-            DetectionPropertiesTag.ATTRIBUTE
-    ),
-    ;
+         "attributes",
+         null,
+         null,
+         DetectionPropertiesTag.ATTRIBUTE
+          ),;
 
     private final String tag;
     private final FlatTag< Detection > self = this;
@@ -303,28 +265,17 @@ enum DetectionTag implements FlatTag< Detection >
     }
 }
 
+        
 
-// step-tag: Detection, Box
-/* {
-  name: "setBox",
-  parent: "setDetections",
-  index: 3,
-  tag: "bndbox",
-  tagType: "STEP",
-  context: "Detection",
-  contextStep: "Box",
-  argument: "Box",
-  children: 4 } */
-
+    
 @Getter
 enum BoxStepTag implements StepTag< Detection, Box >
 {
-
+    
     XMIN( "xmin", ( box, text ) -> box.setXmin( Integer.parseInt( text ) ) ),
     YMIN( "ymin", ( box, text ) -> box.setYmin( Integer.parseInt( text ) ) ),
     XMAX( "xmax", ( box, text ) -> box.setXmax( Integer.parseInt( text ) ) ),
-    YMAX( "ymax", ( box, text ) -> box.setYmax( Integer.parseInt( text ) ) ),
-    ;
+    YMAX( "ymax", ( box, text ) -> box.setYmax( Integer.parseInt( text ) ) ),;
 
     private final String tag;
     private final StepTag< Detection, Box > self = this;
@@ -369,29 +320,19 @@ enum BoxStepTag implements StepTag< Detection, Box >
         return detection.getBox();
     }
 }
+        
 
-
-// Map tag
-/* {
-  name: "setAttributes",
-  parent: "setDetections",
-  index: 4,
-  tag: "attributes",
-  tagType: "STEP",
-  context: "Detection",
-  contextStep: "Properties",
-  argument: "Properties",
-  children: 1 } */
-
+    
+            
 @Getter
 enum DetectionPropertiesTag implements StepTag< Detection, Properties >
 {
-
+    
     ATTRIBUTE(
-            "attribute",
-            Map.class,
-            ( properties, attributes ) -> Tag.getAttributesMap( attributes ),
-            ( properties, text, cache ) -> {
+             "attribute",
+             Map.class,
+             ( properties, attributes ) -> Tag.getAttributesMap( attributes ),
+             ( properties, text, cache ) -> {
 
                 if ( ! cache.containsKey( "key" ) )
                 {
@@ -399,8 +340,7 @@ enum DetectionPropertiesTag implements StepTag< Detection, Properties >
                 }
                 properties.setProperty( cache.get( "key" ).toString(), text );
 
-            } ),
-    ;
+             } ),;
 
 
     private final String tag;
@@ -428,30 +368,19 @@ enum DetectionPropertiesTag implements StepTag< Detection, Properties >
     }
 }
 
+        
 
-// Map tag
-/* {
-  name: "setAttributes",
-  parent: "",
-  index: 6,
-  tag: "object",
-  tagType: "STEP",
-  context: "Detections",
-  contextStep: "Properties",
-  argument: "Properties",
-  optional: true,
-  multiple: true,
-  children: 1 } */
-
+    
+            
 @Getter
 enum DetectionsPropertiesTag implements StepTag< Detections, Properties >
 {
-
+    
     ATTRIBUTE(
-            "attribute",
-            Map.class,
-            ( properties, attributes ) -> Tag.getAttributesMap( attributes ),
-            ( properties, text, cache ) -> {
+             "attribute",
+             Map.class,
+             ( properties, attributes ) -> Tag.getAttributesMap( attributes ),
+             ( properties, text, cache ) -> {
 
                 if ( ! cache.containsKey( "key" ) )
                 {
@@ -459,8 +388,7 @@ enum DetectionsPropertiesTag implements StepTag< Detections, Properties >
                 }
                 properties.setProperty( cache.get( "key" ).toString(), text );
 
-            } ),
-    ;
+             } ),;
 
 
     private final String tag;

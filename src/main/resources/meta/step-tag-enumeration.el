@@ -11,10 +11,6 @@
         </c:when>
 
         <c:otherwise>
-
-// step-tag: ${ stepItem.context.simpleName }, ${ stepItem.contextStep.simpleName }
-/* ${ stepItem } */
-
 @Getter
 enum ${ stepItem.contextStep.simpleName }StepTag implements StepTag< ${ stepItem.context.simpleName }, ${ stepItem.contextStep.simpleName } >
 {

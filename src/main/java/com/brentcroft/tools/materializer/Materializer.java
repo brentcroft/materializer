@@ -34,115 +34,150 @@ import static java.util.Objects.nonNull;
  * @param <R> the type of object to materialize.
  */
 @Getter
-public class Materializer<R> implements Function<InputSource, R> {
+public class Materializer< R > implements Function< InputSource, R >
+{
 
-  private final Schema schema;
-  private final SAXParserFactory saxParserFactory;
-  private final List<SAXParser> parsers = new LinkedList<>();
-  private final Supplier<FlatTag<? super R>> rootTagSupplier;
-  private final Supplier<R> rootItemSupplier;
+    private final Schema schema;
+    private final SAXParserFactory saxParserFactory;
+    private final List< SAXParser > parsers = new LinkedList<>();
+    private final Supplier< FlatTag< ? super R > > rootTagSupplier;
+    private final Supplier< R > rootItemSupplier;
 
-  public Materializer(Supplier<FlatTag<? super R>> rootTagSupplier, Supplier<R> rootItemSupplier) {
-    this(null, 0, rootTagSupplier, rootItemSupplier);
-  }
-
-  public Materializer(int initialPoolSize, Supplier<FlatTag<? super R>> rootTagSupplier, Supplier<R> rootItemSupplier) {
-    this(null, initialPoolSize, rootTagSupplier, rootItemSupplier);
-  }
-
-
-  public Materializer(Schema schema, int initialPoolSize, Supplier<FlatTag<? super R>> rootTagSupplier, Supplier<R> rootItemSupplier) {
-    this.schema = schema;
-    this.saxParserFactory = SAXParserFactory.newInstance();
-    this.rootTagSupplier = rootTagSupplier;
-    this.rootItemSupplier = rootItemSupplier;
-
-    saxParserFactory.setNamespaceAware(true);
-
-    if (nonNull(schema)) {
-      saxParserFactory.setSchema(schema);
+    public Materializer( Supplier< FlatTag< ? super R > > rootTagSupplier, Supplier< R > rootItemSupplier )
+    {
+        this( null, 0, rootTagSupplier, rootItemSupplier );
     }
 
-    try {
-      for (int i = 0; i < initialPoolSize; i++) {
-        releaseParser(saxParserFactory.newSAXParser());
-      }
-    } catch (SAXException | ParserConfigurationException e) {
-      throw new IllegalArgumentException(e);
-    }
-  }
-
-  public static Schema getSchemas(String... uris) {
-    List<String> schemaUris = Arrays.asList(uris);
-
-    Source[] sources = schemaUris
-        .stream()
-        .map(uri -> new StreamSource(
-            Thread
-                .currentThread()
-                .getContextClassLoader()
-                .getResourceAsStream(uri), uri))
-        .collect(Collectors.toList())
-        .toArray(new Source[uris.length]);
-
-    try {
-
-      return SchemaFactory
-          .newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
-          .newSchema(sources);
-    } catch (SAXException e) {
-      throw new IllegalArgumentException(
-          format("Failed to load schema uris [%s]: %s", schemaUris, e.getMessage()), e);
-    }
-  }
-
-  private void releaseParser(SAXParser parser) {
-    if (nonNull(parser)) {
-      synchronized (parsers) {
-        parsers.add(parser);
-      }
-    }
-  }
-
-  @Override
-  public R apply(InputSource inputSource) {
-    R rootItem = rootItemSupplier.get();
-
-    TagHandler<R> tagHandler = new TagHandler<>(rootTagSupplier.get(), rootItem);
-
-    SAXParser parser = null;
-
-    try {
-      parser = getParser();
-
-      parser.parse(inputSource, tagHandler);
-    } catch (ParserConfigurationException e) {
-      throw new TagParseException(tagHandler, e);
-    } catch (SAXException e) {
-      throw new TagParseException(tagHandler, e);
-    } catch (IOException e) {
-      throw new TagParseException(tagHandler, e);
-    } catch (ValidationException e) {
-      throw new TagValidationException(tagHandler, e);
-    } catch (TagException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new TagException(tagHandler, e);
-    } finally {
-      releaseParser(parser);
+    public Materializer( int initialPoolSize, Supplier< FlatTag< ? super R > > rootTagSupplier, Supplier< R > rootItemSupplier )
+    {
+        this( null, initialPoolSize, rootTagSupplier, rootItemSupplier );
     }
 
-    return rootItem;
-  }
 
-  private SAXParser getParser() throws ParserConfigurationException, SAXException {
-    synchronized (parsers) {
-      if (parsers.isEmpty()) {
-        return saxParserFactory.newSAXParser();
-      }
-      SAXParser parser = parsers.remove(0);
-      parser.reset();
-      return parser;
+    public Materializer( Schema schema, int initialPoolSize, Supplier< FlatTag< ? super R > > rootTagSupplier, Supplier< R > rootItemSupplier )
+    {
+        this.schema = schema;
+        this.saxParserFactory = SAXParserFactory.newInstance();
+        this.rootTagSupplier = rootTagSupplier;
+        this.rootItemSupplier = rootItemSupplier;
+
+        saxParserFactory.setNamespaceAware( true );
+
+        if ( nonNull( schema ) )
+        {
+            saxParserFactory.setSchema( schema );
+        }
+
+        try
+        {
+            for ( int i = 0; i < initialPoolSize; i++ )
+            {
+                releaseParser( saxParserFactory.newSAXParser() );
+            }
+        }
+        catch ( SAXException | ParserConfigurationException e )
+        {
+            throw new IllegalArgumentException( e );
+        }
     }
-  }
+
+    public static Schema getSchemas( String... uris )
+    {
+        List< String > schemaUris = Arrays.asList( uris );
+
+        Source[] sources = schemaUris
+                .stream()
+                .map( uri -> new StreamSource(
+                        Thread
+                                .currentThread()
+                                .getContextClassLoader()
+                                .getResourceAsStream( uri ), uri ) )
+                .collect( Collectors.toList() )
+                .toArray( new Source[ uris.length ] );
+
+        try
+        {
+
+            return SchemaFactory
+                    .newInstance( XMLConstants.W3C_XML_SCHEMA_NS_URI )
+                    .newSchema( sources );
+        }
+        catch ( SAXException e )
+        {
+            throw new IllegalArgumentException(
+                    format( "Failed to load schema uris [%s]: %s", schemaUris, e.getMessage() ), e );
+        }
+    }
+
+    private void releaseParser( SAXParser parser )
+    {
+        if ( nonNull( parser ) )
+        {
+            synchronized ( parsers )
+            {
+                parsers.add( parser );
+            }
+        }
+    }
+
+    @Override
+    public R apply( InputSource inputSource )
+    {
+        R rootItem = rootItemSupplier.get();
+
+        TagHandler< R > tagHandler = new TagHandler<>( rootTagSupplier.get(), rootItem );
+
+        SAXParser parser = null;
+
+        try
+        {
+            parser = getParser();
+
+            parser.parse( inputSource, tagHandler );
+        }
+        catch ( ParserConfigurationException e )
+        {
+            throw new TagParseException( tagHandler, e );
+        }
+        catch ( SAXException e )
+        {
+            throw new TagParseException( tagHandler, e );
+        }
+        catch ( IOException e )
+        {
+            throw new TagParseException( tagHandler, e );
+        }
+        catch ( ValidationException e )
+        {
+            throw new TagValidationException( tagHandler, e );
+        }
+        catch ( TagException e )
+        {
+            throw e;
+        }
+        catch ( Exception e )
+        {
+            throw new TagException( tagHandler, e );
+        }
+        finally
+        {
+            releaseParser( parser );
+        }
+
+        return rootItem;
+    }
+
+    private SAXParser getParser() throws ParserConfigurationException, SAXException
+    {
+        synchronized ( parsers )
+        {
+            if ( parsers.isEmpty() )
+            {
+                return saxParserFactory.newSAXParser();
+            }
+            SAXParser parser = parsers.remove( 0 );
+            parser.reset();
+            return parser;
+        }
+    }
 }

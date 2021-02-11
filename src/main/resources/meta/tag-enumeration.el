@@ -22,9 +22,12 @@ import ${ rootClass.name };
 import ${ item.contextStep.name };<c:if test="${ not empty item.argumentType }">
 import ${ item.argumentType.name };</c:if></c:forEach>
 
-/* Root FlatTag of ${ rootClass.simpleName } */
-/* ${ root } */
+/*
 
+    Root FlatTag of ${ rootClass.simpleName }
+    Generated: ${ c:now() }
+
+*/
 @Getter
 public enum ${ rootClass.simpleName }RootTag implements FlatTag< ${ rootClass.simpleName } >
 {

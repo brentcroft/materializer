@@ -52,6 +52,10 @@ public class SchemaItem
         return attributes.get( "type" );
     }
 
+    public String getRef()
+    {
+        return attributes.get( "ref" );
+    }
 
     public boolean isOptional()
     {

@@ -1,7 +1,4 @@
 
-// List tag
-/* ${ stepItem } */
-
 @Getter
 enum ${ stepItem.context.simpleName }${ stepItem.argumentType.simpleName }ListTag implements StepTag< ${ stepItem.context.simpleName }, ${ stepItem.argumentType.simpleName } >
 {

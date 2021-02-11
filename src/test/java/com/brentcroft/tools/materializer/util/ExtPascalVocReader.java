@@ -31,25 +31,6 @@ public class ExtPascalVocReader
             "14-35-32_916-picods_05.xml"
     };
 
-
-    @Getter
-    public enum RootTag implements FlatTag< Detections >
-    {
-        ROOT( DetectionsTag.DETECTIONS );
-
-        // must be an empty string: @see TagHandler.getPath().
-        private final String tag = "";
-        private final FlatTag< Detections > self = this;
-        private final Tag< ? super Detections, ? >[] children;
-
-        @SafeVarargs
-        RootTag( Tag< ? super Detections, ? >... children )
-        {
-            this.children = children;
-        }
-    }
-
-
     @Test
     public void read_pascal_voc_schema() throws IOException
     {
@@ -73,7 +54,6 @@ public class ExtPascalVocReader
         }
     }
 
-
     @Test
     public void test_pascal_voc_no_schema() throws IOException
     {
@@ -90,6 +70,24 @@ public class ExtPascalVocReader
                                     new FileInputStream( format( "%s/%s", rootDir, detectionUri ) ) ) );
 
             System.out.println( detections );
+        }
+    }
+
+
+    @Getter
+    public enum RootTag implements FlatTag< Detections >
+    {
+        ROOT( DetectionsTag.DETECTIONS );
+
+        // must be an empty string: @see TagHandler.getPath().
+        private final String tag = "";
+        private final FlatTag< Detections > self = this;
+        private final Tag< ? super Detections, ? >[] children;
+
+        @SafeVarargs
+        RootTag( Tag< ? super Detections, ? >... children )
+        {
+            this.children = children;
         }
     }
 }

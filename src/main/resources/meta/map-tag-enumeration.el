@@ -1,7 +1,4 @@
 
-// Map tag
-/* ${ stepItem } */
-
 @Getter
 enum ${ stepItem.context.simpleName }${ stepItem.argument.simpleName }Tag implements StepTag< ${ stepItem.context.simpleName }, ${ stepItem.argument.simpleName } >
 {

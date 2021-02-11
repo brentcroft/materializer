@@ -1,7 +1,4 @@
 
-// Flat Tag
-/* ${ stepItem } */
-
 @Getter
 enum ${ stepItem.argumentType.simpleName }Tag implements FlatTag< ${ stepItem.argumentType.simpleName } >
 {

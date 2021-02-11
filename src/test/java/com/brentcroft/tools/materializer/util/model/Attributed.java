@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface Attributed
 {
-    List<Entry> getAttributes();
+    List< Entry > getAttributes();
 
-    void setAttributes(List<Entry> entries);
+    void setAttributes( List< Entry > entries );
 }

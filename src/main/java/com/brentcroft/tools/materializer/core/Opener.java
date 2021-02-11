@@ -7,12 +7,6 @@ import static java.util.Objects.nonNull;
 
 public interface Opener< A, B, C > extends BiFunction< A, B, C >
 {
-    default C open(A a, B b)
-    {
-        return apply( a, b );
-    }
-
-
     static < A, B, C > Opener< A, B, C > noCacheOpener( BiConsumer< A, B > opener )
     {
         return ( a, b ) -> {
@@ -24,5 +18,10 @@ public interface Opener< A, B, C > extends BiFunction< A, B, C >
 
             return null;
         };
+    }
+
+    default C open( A a, B b )
+    {
+        return apply( a, b );
     }
 }

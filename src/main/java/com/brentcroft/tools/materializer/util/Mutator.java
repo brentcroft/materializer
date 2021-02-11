@@ -24,9 +24,8 @@ public class Mutator
 {
     private final String name;
     private final Class< ? > argument;
-    private Class< ? > argumentType;
     private final List< Mutator > children = new LinkedList<>();
-
+    private Class< ? > argumentType;
     private Mutator parent;
     private String tag;
     private TagType tagType;
@@ -59,9 +58,45 @@ public class Mutator
         }
     }
 
+    public static Mutator rootMutator( Class< ? > clazz, SchemaObject schemaObject )
+    {
+        Mutator rootMutator = new Mutator( "", clazz );
+
+        rootMutator.setTag( "" );
+        rootMutator.setTagType( TagType.FLAT );
+        rootMutator.setContext( clazz );
+        rootMutator.setContextStep( clazz );
+
+        for ( SchemaItem item : schemaObject.getRootObjects() )
+        {
+            if ( rootMutator.link( clazz, item, schemaObject ) )
+            {
+                break;
+            }
+        }
+
+        if ( ! rootMutator.isLinked() )
+        {
+            throw new RuntimeException( "Root mutator was not linked." );
+        }
+
+        // re-apply
+        rootMutator.setTagType( TagType.FLAT );
+
+        return rootMutator;
+    }
+
     public String getBeanName()
     {
         return name.substring( 3, 4 ).toLowerCase() + name.substring( 4 );
+    }
+
+    public String getArgumentTypeBeanName()
+    {
+        return ofNullable( argumentType )
+                .map( Class::getSimpleName )
+                .map( String::toLowerCase )
+                .orElse( "" );
     }
 
     public String getBeanGetter()
@@ -79,13 +114,8 @@ public class Mutator
         return Map.class.isAssignableFrom( argument );
     }
 
-    public boolean canSetSimpleItem( SchemaItem item )
+    public boolean isAssignable( TypeHandler typeHandler )
     {
-        if ( isNull( typeHandler ) || ! getBeanName().equals( item.getName() ) )
-        {
-            return false;
-        }
-
         return getArgument().isAssignableFrom( typeHandler.getClazz() )
                 || getArgument().isAssignableFrom( typeHandler.getClazzBoxed() );
     }
@@ -111,39 +141,58 @@ public class Mutator
 
         switch ( type )
         {
-            case "xs:string":
-                return TypeHandler.STRING;
-
-            case "xs:integer":
-                return TypeHandler.INTEGER;
-
-            case "xs:long":
-                return TypeHandler.LONG;
-
-            case "xs:short":
-                return TypeHandler.SHORT;
-
             case "xs:boolean":
                 return TypeHandler.BOOLEAN;
 
+            case "xs:string":
+                return TypeHandler.STRING;
+
+            case "xs:short":
+                if ( isAssignable( TypeHandler.SHORT ) )
+                {
+                    return TypeHandler.SHORT;
+                }
+            case "xs:integer":
+                if ( isAssignable( TypeHandler.INTEGER ) )
+                {
+                    return TypeHandler.INTEGER;
+                }
+            case "xs:long":
+                return TypeHandler.LONG;
+
+
+            // map to float if possible else double
             case "xs:float":
-                return TypeHandler.FLOAT;
+                if ( isAssignable( TypeHandler.FLOAT ) )
+                {
+                    return TypeHandler.FLOAT;
+                }
 
             case "xs:double":
-                return TypeHandler.DOUBLE;
+                if ( isAssignable( TypeHandler.DOUBLE ) )
+                {
+                    return TypeHandler.DOUBLE;
+                }
 
             default:
                 return null;
         }
     }
 
-
     public List< Mutator > getMutators()
     {
         if ( isMap() )
         {
-            Mutator m = new Mutator( "setProperty", String.class );
+            Mutator m = new Mutator( "setProperty", String.class )
+            {
+
+                public boolean link( Class< ? > contextClazz, SchemaItem schemaItem, SchemaObject schemaObject )
+                {
+                    return super.link( contextClazz, schemaItem, schemaObject );
+                }
+            };
             m.setParent( this );
+            m.setTagType( TagType.FLAT );
             return Collections.singletonList( m );
         }
 
@@ -156,10 +205,10 @@ public class Mutator
                         .filter( m -> m.getName().startsWith( "set" ) )
                         .map( Mutator::new )
                         .peek( m -> m.setParent( this ) )
+                        .sorted( Comparator.comparing( Mutator::getBeanName ) )
                         .collect( Collectors.toList() ) )
                 .orElse( emptyList() );
     }
-
 
     public boolean link( Class< ? > contextClazz, SchemaItem schemaItem, SchemaObject schemaObject )
     {
@@ -168,70 +217,89 @@ public class Mutator
             return false;
         }
 
-
-        setTypeHandler( getSimpleType( schemaItem.getTypeRef() ) );
-
-        if ( nonNull( getTypeHandler() ) && ! canSetSimpleItem( schemaItem ) )
-        {
-            return false;
-        }
+        TypeHandler typeHandler = getSimpleType( schemaItem.getTypeRef() );
 
         List< Mutator > mutators = getMutators();
 
-        if ( nonNull( getTypeHandler() ) && mutators.size() > 1 )
+        // typeHandler requires a single mutator
+        if ( nonNull( typeHandler ) && mutators.size() > 1 )
         {
-            throw new RuntimeException( "nonNull(typeRef) && mutators.size() > 1" );
+            throw new RuntimeException( "nonNull( typeHandler ) && mutators.size() > 1" );
         }
 
-        TagType tagType = mutators.size() > 1 || isNull( getTypeHandler() ) ? TagType.STEP : TagType.FLAT;
+
+        TagType tagType = ( mutators.size() > 1 || isNull( typeHandler ) )
+                          ? TagType.STEP
+                          : TagType.FLAT;
+
+
+        Class< ? > contextStepClazz = ( TagType.STEP.equals( tagType ) )
+                                      ? getArgument()
+                                      : contextClazz;
+
+
+        setTypeHandler( isNull( typeHandler ) ? TypeHandler.identify( contextStepClazz ) : typeHandler );
+
 
         setTagType( tagType );
-        setContextStep(
-                tagType == TagType.STEP
-                ? getArgument()
-                : contextClazz );
+        setTag( schemaItem.getName() );
 
-        if ( isNull( getTypeHandler() ) )
-        {
-            setTypeHandler( TypeHandler.identify( getContextStep() ) );
-        }
+        setMultiple( schemaItem.isMultiple() );
+        setOptional( schemaItem.isOptional() );
+
+        setContext( contextClazz );
+        setContextStep( contextStepClazz );
+
 
         if ( mutators.size() > 0 )
         {
-            // if no children on this item then lookup in global complex types
-            SchemaItem stepItem = schemaItem
-                                          .getChildren()
-                                          .isEmpty()
-                                  ? schemaObject
-                                          .getComplexTypes()
-                                          .stream()
-                                          .filter( ct -> ct.getName().equals( schemaItem.getTypeRef() ) )
-                                          .findAny()
-                                          .orElse( null )
-                                  : schemaItem;
+            SchemaItem childItem = reifyItem( schemaItem, schemaObject );
 
-            if ( isNull( stepItem ) )
+            if ( isNull( childItem ) )
             {
                 //throw new RuntimeException( "isNull( stepItem )" );
                 return false;
             }
-            else if ( isNull( stepItem.getChildren() ) )
+            else if ( isNull( childItem.getChildren() ) )
             {
                 //throw new RuntimeException( "isNull( stepItem.getChildren() )" );
                 return false;
             }
 
-            boolean unassigned = mutators
-                    .stream()
-                    .anyMatch( mutator -> stepItem
-                            .getChildren()
-                            .stream()
-                            .noneMatch( item -> mutator
-                                    .link(
-                                            isCollection() || isMap() ? getArgumentType() : getContextStep(),
-                                            item,
-                                            schemaObject ) )
-                    );
+            boolean unassigned = false;
+
+
+            for ( Mutator mutator : mutators )
+            {
+                boolean matched = false;
+
+                String beanName = mutator.isCollection()
+                                  ? mutator.getArgumentTypeBeanName()
+                                  : mutator.getBeanName();
+
+                for ( SchemaItem item : childItem.getChildren() )
+                {
+                    if ( beanName.equals( item.getName() )
+                            || beanName.equals( schemaObject.getHints().get( item.getName() ) ) )
+                    {
+                        matched = mutator
+                                .link(
+                                        isCollection() ? getArgumentType() : getContextStep(),
+                                        item,
+                                        schemaObject );
+                        if ( matched )
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                if ( ! matched )
+                {
+                    unassigned = true;
+                    break;
+                }
+            }
 
             if ( unassigned )
             {
@@ -248,16 +316,45 @@ public class Mutator
 
         linked = true;
 
-
-        setTag( schemaItem.getName() );
-        setMultiple( schemaItem.isMultiple() );
-        setOptional( schemaItem.isOptional() );
-        setContext( contextClazz );
-
-
         return linked;
     }
 
+    private SchemaItem reifyItem( SchemaItem parentUnreified, SchemaObject schemaObject )
+    {
+        if ( ! parentUnreified
+                .getChildren()
+                .isEmpty() )
+        {
+            return parentUnreified;
+        }
+        else if ( nonNull( parentUnreified.getRef() ) )
+        {
+            return schemaObject
+                    .getRootObjects()
+                    .stream()
+                    .filter( ro -> ro.getName().equals( parentUnreified.getRef() ) )
+                    .map( ro -> ( SchemaItem ) ro )
+                    .findAny()
+                    .orElse( null );
+        }
+        else if ( nonNull( parentUnreified.getTypeRef() ) )
+        {
+            return schemaObject
+                    .getComplexTypes()
+                    .stream()
+                    .filter( ct -> ct.getName().equals( parentUnreified.getTypeRef() ) )
+                    .map( ct -> ( SchemaItem ) ct )
+                    .findAny()
+                    .orElse( schemaObject
+                            .getSimpleTypes()
+                            .stream()
+                            .filter( ct -> ct.getName().equals( parentUnreified.getTypeRef() ) )
+                            .findAny()
+                            .orElse( null ) );
+        }
+
+        throw new IllegalArgumentException( "No link found for schema item: " + parentUnreified );
+    }
 
     public void detectTables( List< Mutator > tables )
     {
@@ -272,7 +369,6 @@ public class Mutator
         }
     }
 
-
     public String getPopulators()
     {
         List< String > populators = children
@@ -285,7 +381,6 @@ public class Mutator
                ? ""
                : String.join( ";\n", populators ) + ";";
     }
-
 
     public String getOpener()
     {
@@ -381,34 +476,5 @@ public class Mutator
                           .map( c -> c.jsonate( indent + offset ) )
                           .collect( Collectors.joining( ", \n" ) ) ) + " \n" + indent + offset + "]" )
         );
-    }
-
-
-    public static Mutator rootMutator( Class< ? > clazz, SchemaObject schemaObject )
-    {
-        Mutator rootMutator = new Mutator( "", clazz );
-
-        rootMutator.setTag( "" );
-        rootMutator.setTagType( TagType.FLAT );
-        rootMutator.setContext( clazz );
-        rootMutator.setContextStep( clazz );
-
-        for ( SchemaItem item : schemaObject.getRootObjects() )
-        {
-            if ( rootMutator.link( clazz, item, schemaObject ) )
-            {
-                break;
-            }
-        }
-
-        // re-apply
-        rootMutator.setTagType( TagType.FLAT );
-
-        if ( ! rootMutator.isLinked() )
-        {
-            throw new RuntimeException( "Root mutator was not linked." );
-        }
-
-        return rootMutator;
     }
 }

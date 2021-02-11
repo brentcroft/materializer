@@ -82,20 +82,6 @@
         children: []
     }, 
     { 
-        name: "setAttributes",
-        index: 5,
-        argument: "Properties",
-        argumentType: "null",
-        tag: "size",
-        tagType: "STEP",
-        context: "Detections",
-        contextStep: "Properties",
-        optional: false,
-        multiple: false,
-        choice: false,
-        children: []
-    }, 
-    { 
         name: "setSize",
         index: 5,
         argument: "Size",
@@ -166,48 +152,6 @@
         choice: false,
         children: [ 
         { 
-            name: "setAttributes",
-            index: 0,
-            argument: "Properties",
-            argumentType: "null",
-            tag: "name",
-            tagType: "STEP",
-            context: "Detection",
-            contextStep: "Properties",
-            optional: false,
-            multiple: false,
-            choice: false,
-            children: []
-        }, 
-        { 
-            name: "setScore",
-            index: 0,
-            argument: "Double",
-            argumentType: "null",
-            tag: "name",
-            tagType: "STEP",
-            context: "Detection",
-            contextStep: "Double",
-            optional: false,
-            multiple: false,
-            choice: false,
-            children: []
-        }, 
-        { 
-            name: "setWeight",
-            index: 0,
-            argument: "Double",
-            argumentType: "null",
-            tag: "name",
-            tagType: "STEP",
-            context: "Detection",
-            contextStep: "Double",
-            optional: false,
-            multiple: false,
-            choice: false,
-            children: []
-        }, 
-        { 
             name: "setName",
             index: 0,
             argument: "String",
@@ -216,6 +160,34 @@
             tagType: "STEP",
             context: "Detection",
             contextStep: "String",
+            optional: false,
+            multiple: false,
+            choice: false,
+            children: []
+        }, 
+        { 
+            name: "setScore",
+            index: 1,
+            argument: "Double",
+            argumentType: "null",
+            tag: "score",
+            tagType: "FLAT",
+            context: "Detection",
+            contextStep: "Detection",
+            optional: false,
+            multiple: false,
+            choice: false,
+            children: []
+        }, 
+        { 
+            name: "setWeight",
+            index: 2,
+            argument: "Double",
+            argumentType: "null",
+            tag: "weight",
+            tagType: "FLAT",
+            context: "Detection",
+            contextStep: "Detection",
             optional: false,
             multiple: false,
             choice: false,
@@ -291,6 +263,64 @@
                 children: []
             } 
             ]
+        }, 
+        { 
+            name: "setAttributes",
+            index: 4,
+            argument: "Properties",
+            argumentType: "null",
+            tag: "attributes",
+            tagType: "STEP",
+            context: "Detection",
+            contextStep: "Properties",
+            optional: false,
+            multiple: false,
+            choice: false,
+            children: [ 
+            { 
+                name: "setProperty",
+                index: 0,
+                argument: "String",
+                argumentType: "null",
+                tag: "attribute",
+                tagType: "STEP",
+                context: "Properties",
+                contextStep: "String",
+                optional: true,
+                multiple: true,
+                choice: false,
+                children: []
+            } 
+            ]
+        } 
+        ]
+    }, 
+    { 
+        name: "setAttributes",
+        index: 7,
+        argument: "Properties",
+        argumentType: "null",
+        tag: "attributes",
+        tagType: "STEP",
+        context: "Detections",
+        contextStep: "Properties",
+        optional: false,
+        multiple: false,
+        choice: false,
+        children: [ 
+        { 
+            name: "setProperty",
+            index: 0,
+            argument: "String",
+            argumentType: "null",
+            tag: "attribute",
+            tagType: "STEP",
+            context: "Properties",
+            contextStep: "String",
+            optional: true,
+            multiple: true,
+            choice: false,
+            children: []
         } 
         ]
     } 

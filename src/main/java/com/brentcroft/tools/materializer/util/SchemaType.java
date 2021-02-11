@@ -5,11 +5,11 @@ import lombok.Getter;
 import static java.util.Objects.nonNull;
 
 @Getter
-public class SchemaType<T>
+public class SchemaType< T >
 {
-    private final Class<T> type;
-    private  final ComplexTypeObject complexTypeObject;
-    private  final SimpleTypeObject simpleTypeObject;
+    private final Class< T > type;
+    private final ComplexTypeObject complexTypeObject;
+    private final SimpleTypeObject simpleTypeObject;
 
     public SchemaType( Class< T > type )
     {
@@ -34,8 +34,8 @@ public class SchemaType<T>
     }
 
 
-    public boolean accepts(Object o)
+    public boolean accepts( Object o )
     {
-        return (nonNull(type) && type.isInstance( o ));
+        return ( nonNull( type ) && type.isInstance( o ) );
     }
 }
