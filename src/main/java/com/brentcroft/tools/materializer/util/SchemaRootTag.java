@@ -78,9 +78,16 @@ public enum SchemaRootTag implements FlatTag< SchemaObject >
                         .forEach( ( k, v ) -> {
                             if ( k.startsWith( "xmlns:" ) )
                             {
+                                String prefix = k.substring( 6 );
+
                                 schemaObject
                                         .getNamespacePrefixes()
-                                        .put( k.substring( 6 ), v );
+                                        .put( prefix, v );
+
+                                if ( "http://www.w3.org/2001/XMLSchema".equals( v ) )
+                                {
+                                    schemaObject.setXsdPrefix( prefix );
+                                }
                             }
                         } );
 

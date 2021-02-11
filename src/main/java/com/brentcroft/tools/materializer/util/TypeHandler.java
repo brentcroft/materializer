@@ -101,14 +101,6 @@ public enum TypeHandler
 
 
             case LIST:
-//                return ofNullable( formatter )
-//                        .map( op -> format(
-//                                formatter,
-//                                mutator.getContext().getSimpleName().toLowerCase(),
-//                                mutator.getName(),
-//                                mutator.getContextStep().getSimpleName() ) )
-//                        .orElse( null );
-
             case PROPERTIES:
             case MAP:
                 return ofNullable( formatter )

@@ -29,6 +29,9 @@ public class SchemaObject
     private String localPrefix;
 
     @Setter
+    private String xsdPrefix;
+
+    @Setter
     private String systemId;
 
     public String toString()
@@ -82,6 +85,18 @@ public class SchemaObject
     public String localName( String ref )
     {
         String localPrefix = getLocalPrefix();
+
+        if ( nonNull( ref ) && nonNull( localPrefix ) && ref.startsWith( localPrefix + ":" ) )
+        {
+            return ref.substring( localPrefix.length() + 1 );
+        }
+
+        return ref;
+    }
+
+    public String xsdName( String ref )
+    {
+        String localPrefix = getXsdPrefix();
 
         if ( nonNull( ref ) && nonNull( localPrefix ) && ref.startsWith( localPrefix + ":" ) )
         {
