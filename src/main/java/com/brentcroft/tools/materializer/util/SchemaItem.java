@@ -64,7 +64,7 @@ public class SchemaItem
             else if ( nonNull( getTypeRef() ) )
             {
                 // reference to primitive
-                if ( getTypeRef().startsWith( "xs:" ) )
+                if ( getTypeRef().startsWith( schemaObject.getXsdPrefix() + ":" ) )
                 {
                     reified = this;
                 }
