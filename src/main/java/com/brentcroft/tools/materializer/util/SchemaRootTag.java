@@ -82,10 +82,13 @@ public enum SchemaRootTag implements FlatTag< SchemaObject >
                         } );
 
                 ofNullable( cacheMap.get( "targetNamespace" ) )
-
-                        .map( t -> schemaObject
+                        .flatMap( targetNamespace -> schemaObject
                                 .getNamespacePrefixes()
-                                .get( t ) )
+                                .entrySet()
+                                .stream()
+                                .filter( entry -> entry.getValue().equals( targetNamespace ) )
+                                .findAny()
+                                .map( Map.Entry::getKey ) )
                         .ifPresent( schemaObject::setLocalPrefix );
             },
             IMPORT,
