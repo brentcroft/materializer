@@ -133,53 +133,51 @@ public class Mutator
 
     public TypeHandler getSimpleType( String type, SchemaObject schemaObject )
     {
-        if ( isNull( type ) )
+        String xsdType = schemaObject.xsdName( type );
+
+        if ( isNull( xsdType ) )
         {
             return null;
         }
 
-        return ofNullable( schemaObject.xsdName( type ) )
-                .map( xsdName -> {
-                    switch ( type )
-                    {
-                        case "boolean":
-                            return TypeHandler.BOOLEAN;
+        switch ( xsdType )
+        {
+            case "boolean":
+                return TypeHandler.BOOLEAN;
 
-                        case "string":
-                            return TypeHandler.STRING;
+            case "string":
+                return TypeHandler.STRING;
 
-                        case "short":
-                            if ( isAssignable( TypeHandler.SHORT ) )
-                            {
-                                return TypeHandler.SHORT;
-                            }
-                        case "integer":
-                            if ( isAssignable( TypeHandler.INTEGER ) )
-                            {
-                                return TypeHandler.INTEGER;
-                            }
-                        case "long":
-                            return TypeHandler.LONG;
+            case "short":
+                if ( isAssignable( TypeHandler.SHORT ) )
+                {
+                    return TypeHandler.SHORT;
+                }
+            case "integer":
+                if ( isAssignable( TypeHandler.INTEGER ) )
+                {
+                    return TypeHandler.INTEGER;
+                }
+            case "long":
+                return TypeHandler.LONG;
 
 
-                        // map to float if possible else double
-                        case "xs:float":
-                            if ( isAssignable( TypeHandler.FLOAT ) )
-                            {
-                                return TypeHandler.FLOAT;
-                            }
+            // map to float if possible else double
+            case "float":
+                if ( isAssignable( TypeHandler.FLOAT ) )
+                {
+                    return TypeHandler.FLOAT;
+                }
 
-                        case "xs:double":
-                            if ( isAssignable( TypeHandler.DOUBLE ) )
-                            {
-                                return TypeHandler.DOUBLE;
-                            }
+            case "double":
+                if ( isAssignable( TypeHandler.DOUBLE ) )
+                {
+                    return TypeHandler.DOUBLE;
+                }
 
-                        default:
-                            return null;
-                    }
-                } )
-                .orElse( null );
+            default:
+                return null;
+        }
     }
 
     public List< Mutator > getMutators()

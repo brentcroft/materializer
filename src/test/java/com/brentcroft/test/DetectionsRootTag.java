@@ -29,7 +29,7 @@ import com.brentcroft.tools.materializer.util.model.Size;
 /*
 
     Root FlatTag of Detections
-    Generated: 2021-02-11T10:57:42.735
+    Generated: 2021-02-11T12:34:46.830333400
 
 */
 @Getter
