@@ -67,12 +67,9 @@ public enum SchemaRootTag implements FlatTag< SchemaObject >
 
     SCHEMA(
             "schema",
-            Map.class,
-            ( schemaObject, attributes ) -> Tag.getAttributesMap( attributes ),
-            ( schemaObject, text, cache ) -> {
+            ( schemaObject, attributes ) -> {
 
-                @SuppressWarnings( value = "unchecked" )
-                Map< String, String > cacheMap = ( Map< String, String > ) cache;
+                Map< String, String > cacheMap = Tag.getAttributesMap( attributes );
 
                 cacheMap
                         .forEach( ( k, v ) -> {
@@ -113,7 +110,6 @@ public enum SchemaRootTag implements FlatTag< SchemaObject >
     private final boolean choice = true;
     private final FlatTag< SchemaObject > self = this;
     private final Opener< SchemaObject, Attributes, ? > opener;
-    private final Closer< SchemaObject, String, ? > closer;
     private final Tag< ? super SchemaObject, ? >[] children;
 
     @SafeVarargs
@@ -124,23 +120,18 @@ public enum SchemaRootTag implements FlatTag< SchemaObject >
     {
         this.tag = tag;
         this.opener = null;
-        this.closer = null;
         this.children = children;
     }
 
     @SafeVarargs
-    < T > SchemaRootTag(
+    SchemaRootTag(
             String tag,
-            @SuppressWarnings( value = "unused" )
-                    Class< T > cacheClass,
-            Opener< SchemaObject, Attributes, T > opener,
-            Closer< SchemaObject, String, T > closer,
+            BiConsumer< SchemaObject, Attributes > opener,
             Tag< ? super SchemaObject, ? >... children
     )
     {
         this.tag = tag;
-        this.opener = opener;
-        this.closer = closer;
+        this.opener = Opener.noCacheOpener( opener );
         this.children = children;
     }
 
@@ -153,7 +144,6 @@ public enum SchemaRootTag implements FlatTag< SchemaObject >
     {
         this.tag = tag;
         this.opener = opener;
-        this.closer = null;
         this.children = Tag.tags();
     }
 }
