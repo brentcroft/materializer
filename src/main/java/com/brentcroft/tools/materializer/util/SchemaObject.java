@@ -45,6 +45,22 @@ public class SchemaObject
         );
     }
 
+    public void reify()
+    {
+        for ( SchemaItem item : getSimpleTypes() )
+        {
+            item.reify( this );
+        }
+        for ( SchemaItem item : getComplexTypes() )
+        {
+            item.reify( this );
+        }
+        for ( SchemaItem item : getRootObjects() )
+        {
+            item.reify( this );
+        }
+    }
+
 
     public String generateSource( Mutator rootMutator, String templateUri, String packageName )
     {

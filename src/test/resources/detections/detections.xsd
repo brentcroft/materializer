@@ -10,11 +10,12 @@
                 <xs:element type="xs:string" name="filename"/>
                 <xs:element type="xs:string" name="path"/>
                 <xs:element type="sizeType" name="size"/>
-                <xs:element type="objectType" name="object" maxOccurs="unbounded" minOccurs="0"/>
+                <xs:element ref="object" maxOccurs="unbounded" minOccurs="0"/>
                 <xs:element type="attributesType" name="attributes"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
+    <xs:element type="objectType" name="object"/>
     <xs:complexType name="sizeType">
         <xs:sequence>
             <xs:element type="xs:integer" name="width"/>

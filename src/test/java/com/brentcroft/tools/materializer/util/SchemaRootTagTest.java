@@ -43,6 +43,8 @@ public class SchemaRootTagTest
         hints.put( "attribute", "property" );
         hints.put( "object", "detection" );
         hints.put( "bndbox", "box" );
+
+        schemaObject.reify();
     }
 
     @Test
@@ -65,7 +67,7 @@ public class SchemaRootTagTest
 
 
     @Test
-    public void generates_materializer() throws IOException
+    public void generates_root_tag() throws IOException
     {
         Mutator rootMutator = Mutator
                 .rootMutator( Detections.class, schemaObject );

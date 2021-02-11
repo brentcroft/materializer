@@ -62,7 +62,6 @@ public class Mutator
     {
         Mutator rootMutator = new Mutator( "", clazz );
 
-        rootMutator.setTag( "" );
         rootMutator.setTagType( TagType.FLAT );
         rootMutator.setContext( clazz );
         rootMutator.setContextStep( clazz );
@@ -242,7 +241,12 @@ public class Mutator
 
 
         setTagType( tagType );
-        setTag( schemaItem.getName() );
+
+        // may have been set by the un-reified item
+        if ( isNull( getTag() ) )
+        {
+            setTag( schemaItem.getName() );
+        }
 
         setMultiple( schemaItem.isMultiple() );
         setOptional( schemaItem.isOptional() );
@@ -253,17 +257,9 @@ public class Mutator
 
         if ( mutators.size() > 0 )
         {
-            SchemaItem childItem = reifyItem( schemaItem, schemaObject );
-
-            if ( isNull( childItem ) )
+            if ( isNull( schemaItem.getChildren() ) )
             {
-                //throw new RuntimeException( "isNull( stepItem )" );
-                return false;
-            }
-            else if ( isNull( childItem.getChildren() ) )
-            {
-                //throw new RuntimeException( "isNull( stepItem.getChildren() )" );
-                return false;
+                throw new RuntimeException( "isNull( stepItem.getChildren() )" );
             }
 
             boolean unassigned = false;
@@ -277,15 +273,25 @@ public class Mutator
                                   ? mutator.getArgumentTypeBeanName()
                                   : mutator.getBeanName();
 
-                for ( SchemaItem item : childItem.getChildren() )
+                for ( SchemaItem item : schemaItem.getReified().getChildren() )
                 {
-                    if ( beanName.equals( item.getName() )
-                            || beanName.equals( schemaObject.getHints().get( item.getName() ) ) )
+                    SchemaItem reifiedChild = item.getReified();
+
+                    // element ref takes name from reified item
+                    // other types take name from un-reified item
+                    String itemName = nonNull( item.getName() )
+                                      ? item.getName()
+                                      : reifiedChild.getName();
+
+                    if ( beanName.equals( itemName ) || beanName.equals( schemaObject.getHints().get( itemName ) ) )
                     {
+                        // push the name now
+                        mutator.setTag( itemName );
+
                         matched = mutator
                                 .link(
                                         isCollection() ? getArgumentType() : getContextStep(),
-                                        item,
+                                        reifiedChild,
                                         schemaObject );
                         if ( matched )
                         {
@@ -319,42 +325,6 @@ public class Mutator
         return linked;
     }
 
-    private SchemaItem reifyItem( SchemaItem parentUnreified, SchemaObject schemaObject )
-    {
-        if ( ! parentUnreified
-                .getChildren()
-                .isEmpty() )
-        {
-            return parentUnreified;
-        }
-        else if ( nonNull( parentUnreified.getRef() ) )
-        {
-            return schemaObject
-                    .getRootObjects()
-                    .stream()
-                    .filter( ro -> ro.getName().equals( parentUnreified.getRef() ) )
-                    .map( ro -> ( SchemaItem ) ro )
-                    .findAny()
-                    .orElse( null );
-        }
-        else if ( nonNull( parentUnreified.getTypeRef() ) )
-        {
-            return schemaObject
-                    .getComplexTypes()
-                    .stream()
-                    .filter( ct -> ct.getName().equals( parentUnreified.getTypeRef() ) )
-                    .map( ct -> ( SchemaItem ) ct )
-                    .findAny()
-                    .orElse( schemaObject
-                            .getSimpleTypes()
-                            .stream()
-                            .filter( ct -> ct.getName().equals( parentUnreified.getTypeRef() ) )
-                            .findAny()
-                            .orElse( null ) );
-        }
-
-        throw new IllegalArgumentException( "No link found for schema item: " + parentUnreified );
-    }
 
     public void detectTables( List< Mutator > tables )
     {

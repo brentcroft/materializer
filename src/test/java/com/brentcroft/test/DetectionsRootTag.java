@@ -19,28 +19,28 @@ import static java.util.Objects.nonNull;
 /* generated imports */
 import com.brentcroft.tools.materializer.util.model.Detections;
 
-import com.brentcroft.tools.materializer.util.model.Size;
+import java.util.Properties;
 import java.util.List;
 import com.brentcroft.tools.materializer.util.model.Detection;
+import java.util.Properties;
 import com.brentcroft.tools.materializer.util.model.Box;
-import java.util.Properties;
-import java.util.Properties;
+import com.brentcroft.tools.materializer.util.model.Size;
 
 /*
 
     Root FlatTag of Detections
-    Generated: 2021-02-11T00:53:28.801
+    Generated: 2021-02-11T09:15:43.491355300
 
 */
 @Getter
 public enum DetectionsRootTag implements FlatTag< Detections >
 {
     
+    ATTRIBUTES(
+         "attributes",
+         DetectionsPropertiesTag.ATTRIBUTE
+          ),
     DATE( "date", Detections::setDate ),
-    TIME( "time", Detections::setTime ),
-    FOLDER( "folder", Detections::setFolder ),
-    FILENAME( "filename", Detections::setFilename ),
-    PATH( "path", Detections::setPath ),
     SIZE(
          "size",
          ( context, attributes ) -> context.setSize( new Size() ),
@@ -48,26 +48,26 @@ public enum DetectionsRootTag implements FlatTag< Detections >
          SizeStepTag.WIDTH,
          SizeStepTag.HEIGHT,
          SizeStepTag.DEPTH ),
-    ATTRIBUTES(
-         "attributes",
-         DetectionsPropertiesTag.ATTRIBUTE
-          ),
+    TIME( "time", Detections::setTime ),
+    FOLDER( "folder", Detections::setFolder ),
+    FILENAME( "filename", Detections::setFilename ),
+    PATH( "path", Detections::setPath ),
 
     DOCUMENT(
         "annotation",
         ( detections, attributes ) -> {
-            detections.setDetections( new ArrayList<>() );
-detections.setAttributes( new Properties() );
+            detections.setAttributes( new Properties() );
+detections.setDetections( new ArrayList<>() );
         },
         ( detections, text ) -> {},
+        ATTRIBUTES,
         DATE,
+        DetectionsDetectionListTag.DETECTIONS,
+        SIZE,
         TIME,
         FOLDER,
         FILENAME,
-        PATH,
-        SIZE,
-        DetectionsDetectionListTag.DETECTIONS,
-        ATTRIBUTES),
+        PATH),
     ROOT( "", DOCUMENT );
 
     private final String tag;
@@ -110,57 +110,51 @@ detections.setAttributes( new Properties() );
 
 
     
+            
 @Getter
-enum SizeStepTag implements StepTag< Detections, Size >
+enum DetectionsPropertiesTag implements StepTag< Detections, Properties >
 {
     
-    WIDTH( "width", ( size, text ) -> size.setWidth( Integer.parseInt( text ) ) ),
-    HEIGHT( "height", ( size, text ) -> size.setHeight( Integer.parseInt( text ) ) ),
-    DEPTH( "depth", ( size, text ) -> size.setDepth( Integer.parseInt( text ) ) ),;
+    ATTRIBUTE(
+             "attribute",
+             Map.class,
+             ( properties, attributes ) -> Tag.getAttributesMap( attributes ),
+             ( properties, text, cache ) -> {
+
+                if ( ! cache.containsKey( "key" ) )
+                {
+                    throw new IllegalArgumentException( "missing attribute: key" );
+                }
+                properties.setProperty( cache.get( "key" ).toString(), text );
+
+             } ),;
+
 
     private final String tag;
-    private final StepTag< Detections, Size > self = this;
-    private final boolean multiple;
-    private final boolean choice;
-    private final Opener< Size, Attributes, ? > opener;
-    private final Closer< Size, String, ? > closer;
-    private final Tag< ? super Size, ? >[] children;
+    private final StepTag< Detections, Properties > self = this;
+    private final boolean multiple = true;
+    private final Opener< Properties, Attributes, ? > opener;
+    private final Closer< Properties, String, ? > closer;
 
-
-    SizeStepTag( String tag, BiConsumer< Size, String > closer )
-    {
-        this( tag, null, null, Closer.noCacheCloser( closer ) );
-    }
-
-    @SafeVarargs
-    SizeStepTag( String tag, Tag< ? super Size, ? >... children )
-    {
-        this( tag, Object.class, null, null, children );
-    }
-
-    @SafeVarargs
-    < C > SizeStepTag(
+    < T > DetectionsPropertiesTag(
             String tag,
-            Class< C > c,
-            Opener< Size, Attributes, C > opener,
-            Closer< Size, String, C > closer,
-            Tag< ? super Size, ? >... children
+            Class< T > cacheClass,
+            Opener< Properties, Attributes, T > opener,
+            Closer< Properties, String, T > closer
     )
     {
         this.tag = tag;
-        this.multiple = isNull( children ) || children.length == 0;
         this.opener = opener;
         this.closer = closer;
-        this.choice = nonNull( children ) && children.length > 0;
-        this.children = children;
     }
 
     @Override
-    public Size getItem( Detections detections )
+    public Properties getItem( Detections detections )
     {
-        return detections.getSize();
+        return detections.getAttributes();
     }
 }
+
         
 
     
@@ -174,11 +168,11 @@ enum DetectionsDetectionListTag implements StepTag< Detections, Detection >
                 detection.setAttributes( new Properties() );
              },
              ( detection, text ) -> {},
+             DetectionTag.ATTRIBUTES,
+             DetectionTag.BOX,
              DetectionTag.NAME,
              DetectionTag.SCORE,
-             DetectionTag.WEIGHT,
-             DetectionTag.BOX,
-             DetectionTag.ATTRIBUTES );
+             DetectionTag.WEIGHT );
 
     private final String tag;
     private final StepTag< Detections, Detection > self = this;
@@ -217,9 +211,12 @@ enum DetectionsDetectionListTag implements StepTag< Detections, Detection >
 enum DetectionTag implements FlatTag< Detection >
 {
    
-    NAME( "name", Detection::setName ),
-    SCORE( "score", ( detection, text ) -> detection.setScore( Double.parseDouble( text ) ) ),
-    WEIGHT( "weight", ( detection, text ) -> detection.setWeight( Double.parseDouble( text ) ) ),
+    ATTRIBUTES(
+         "attributes",
+         null,
+         null,
+         DetectionPropertiesTag.ATTRIBUTE
+          ),
     BOX(
          "bndbox",
          ( detection, attributes ) -> detection.setBox( new Box() ),
@@ -228,12 +225,9 @@ enum DetectionTag implements FlatTag< Detection >
          BoxStepTag.YMIN,
          BoxStepTag.XMAX,
          BoxStepTag.YMAX ),
-    ATTRIBUTES(
-         "attributes",
-         null,
-         null,
-         DetectionPropertiesTag.ATTRIBUTE
-          ),;
+    NAME( "name", Detection::setName ),
+    SCORE( "score", ( detection, text ) -> detection.setScore( Double.parseDouble( text ) ) ),
+    WEIGHT( "weight", ( detection, text ) -> detection.setWeight( Double.parseDouble( text ) ) ),;
 
     private final String tag;
     private final FlatTag< Detection > self = this;
@@ -262,6 +256,54 @@ enum DetectionTag implements FlatTag< Detection >
         this.closer = Closer.noCacheCloser( closer );
         this.choice = nonNull( children ) && children.length > 0;
         this.children = children;
+    }
+}
+
+        
+
+    
+            
+@Getter
+enum DetectionPropertiesTag implements StepTag< Detection, Properties >
+{
+    
+    ATTRIBUTE(
+             "attribute",
+             Map.class,
+             ( properties, attributes ) -> Tag.getAttributesMap( attributes ),
+             ( properties, text, cache ) -> {
+
+                if ( ! cache.containsKey( "key" ) )
+                {
+                    throw new IllegalArgumentException( "missing attribute: key" );
+                }
+                properties.setProperty( cache.get( "key" ).toString(), text );
+
+             } ),;
+
+
+    private final String tag;
+    private final StepTag< Detection, Properties > self = this;
+    private final boolean multiple = true;
+    private final Opener< Properties, Attributes, ? > opener;
+    private final Closer< Properties, String, ? > closer;
+
+    < T > DetectionPropertiesTag(
+            String tag,
+            Class< T > cacheClass,
+            Opener< Properties, Attributes, T > opener,
+            Closer< Properties, String, T > closer
+    )
+    {
+        this.tag = tag;
+        this.opener = opener;
+        this.closer = closer;
+    }
+
+    @Override
+    public Properties getItem( Detection detection )
+    {
+        return detection.getAttributes();
     }
 }
 
@@ -323,99 +365,57 @@ enum BoxStepTag implements StepTag< Detection, Box >
         
 
     
-            
 @Getter
-enum DetectionPropertiesTag implements StepTag< Detection, Properties >
+enum SizeStepTag implements StepTag< Detections, Size >
 {
     
-    ATTRIBUTE(
-             "attribute",
-             Map.class,
-             ( properties, attributes ) -> Tag.getAttributesMap( attributes ),
-             ( properties, text, cache ) -> {
-
-                if ( ! cache.containsKey( "key" ) )
-                {
-                    throw new IllegalArgumentException( "missing attribute: key" );
-                }
-                properties.setProperty( cache.get( "key" ).toString(), text );
-
-             } ),;
-
+    WIDTH( "width", ( size, text ) -> size.setWidth( Integer.parseInt( text ) ) ),
+    HEIGHT( "height", ( size, text ) -> size.setHeight( Integer.parseInt( text ) ) ),
+    DEPTH( "depth", ( size, text ) -> size.setDepth( Integer.parseInt( text ) ) ),;
 
     private final String tag;
-    private final StepTag< Detection, Properties > self = this;
-    private final boolean multiple = true;
-    private final Opener< Properties, Attributes, ? > opener;
-    private final Closer< Properties, String, ? > closer;
+    private final StepTag< Detections, Size > self = this;
+    private final boolean multiple;
+    private final boolean choice;
+    private final Opener< Size, Attributes, ? > opener;
+    private final Closer< Size, String, ? > closer;
+    private final Tag< ? super Size, ? >[] children;
 
-    < T > DetectionPropertiesTag(
+
+    SizeStepTag( String tag, BiConsumer< Size, String > closer )
+    {
+        this( tag, null, null, Closer.noCacheCloser( closer ) );
+    }
+
+    @SafeVarargs
+    SizeStepTag( String tag, Tag< ? super Size, ? >... children )
+    {
+        this( tag, Object.class, null, null, children );
+    }
+
+    @SafeVarargs
+    < C > SizeStepTag(
             String tag,
-            Class< T > cacheClass,
-            Opener< Properties, Attributes, T > opener,
-            Closer< Properties, String, T > closer
+            Class< C > c,
+            Opener< Size, Attributes, C > opener,
+            Closer< Size, String, C > closer,
+            Tag< ? super Size, ? >... children
     )
     {
         this.tag = tag;
+        this.multiple = isNull( children ) || children.length == 0;
         this.opener = opener;
         this.closer = closer;
+        this.choice = nonNull( children ) && children.length > 0;
+        this.children = children;
     }
 
     @Override
-    public Properties getItem( Detection detection )
+    public Size getItem( Detections detections )
     {
-        return detection.getAttributes();
+        return detections.getSize();
     }
 }
-
-        
-
-    
-            
-@Getter
-enum DetectionsPropertiesTag implements StepTag< Detections, Properties >
-{
-    
-    ATTRIBUTE(
-             "attribute",
-             Map.class,
-             ( properties, attributes ) -> Tag.getAttributesMap( attributes ),
-             ( properties, text, cache ) -> {
-
-                if ( ! cache.containsKey( "key" ) )
-                {
-                    throw new IllegalArgumentException( "missing attribute: key" );
-                }
-                properties.setProperty( cache.get( "key" ).toString(), text );
-
-             } ),;
-
-
-    private final String tag;
-    private final StepTag< Detections, Properties > self = this;
-    private final boolean multiple = true;
-    private final Opener< Properties, Attributes, ? > opener;
-    private final Closer< Properties, String, ? > closer;
-
-    < T > DetectionsPropertiesTag(
-            String tag,
-            Class< T > cacheClass,
-            Opener< Properties, Attributes, T > opener,
-            Closer< Properties, String, T > closer
-    )
-    {
-        this.tag = tag;
-        this.opener = opener;
-        this.closer = closer;
-    }
-
-    @Override
-    public Properties getItem( Detections detections )
-    {
-        return detections.getAttributes();
-    }
-}
-
         
 
 

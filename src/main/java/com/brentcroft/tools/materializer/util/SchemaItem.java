@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
 
 @Getter
@@ -19,6 +20,8 @@ public class SchemaItem
     private final int index;
 
     private final List< ElementObject > children = new LinkedList<>();
+    private SchemaItem reified;
+
 
     @Setter
     private Map< String, String > attributes;
@@ -41,6 +44,62 @@ public class SchemaItem
 
         children.add( schemaItem );
     }
+
+
+    public void reify( SchemaObject schemaObject )
+    {
+        if ( getChildren()
+                .isEmpty() )
+        {
+            if ( nonNull( getRef() ) )
+            {
+                reified = schemaObject
+                        .getRootObjects()
+                        .stream()
+                        .filter( ro -> ro.getName().equals( getRef() ) )
+                        .map( ro -> ( SchemaItem ) ro )
+                        .findAny()
+                        .orElseThrow( () -> new IllegalArgumentException( "Un-reified item ref: " + this ) );
+            }
+            else if ( nonNull( getTypeRef() ) )
+            {
+                // reference to primitive
+                if ( getTypeRef().startsWith( "xs:" ) )
+                {
+                    reified = this;
+                }
+                else
+                {
+                    reified = schemaObject
+                            .getComplexTypes()
+                            .stream()
+                            .filter( ct -> ct.getName().equals( getTypeRef() ) )
+                            .map( ct -> ( SchemaItem ) ct )
+                            .findAny()
+                            .orElseGet( () -> schemaObject
+                                    .getSimpleTypes()
+                                    .stream()
+                                    .filter( ct -> ct.getName().equals( getTypeRef() ) )
+                                    .findAny()
+                                    .orElseThrow( () -> new IllegalArgumentException( "Un-reified item type ref: " + this ) ) );
+                }
+            }
+            else
+            {
+                // TODO: reify simple types
+                reified = this;
+            }
+        }
+        else
+        {
+            for ( SchemaItem item : getChildren() )
+            {
+                item.reify( schemaObject );
+            }
+            reified = this;
+        }
+    }
+
 
     public String getName()
     {
