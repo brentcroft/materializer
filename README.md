@@ -32,49 +32,54 @@ Following is the complete code for the usage shown above:
     @Getter
     public enum PropertiesRootTag implements FlatTag< Properties >
     {
-        COMMENT( "comment", true, false ),
-        ENTRY( "entry", true, false,
+        ENTRY( "entry", String.class,
     
-                // open: cache attributes.key
-                ( properties, attributes ) -> properties
-                        .setProperty(
-                                "$currentKey",
-                                attributes.getValue( "key" ) ),
+                // open: cache attribute @key
+                ( properties, attributes ) -> Optional
+                        .ofNullable( Tag.getAttributesMap( attributes ).get( "key" ) )
+                        .map( Object::toString )
+                        .orElseThrow( () -> new IllegalArgumentException( "missing attribute: key" ) ),
     
-                // close: de-cache attributes.key
-                ( properties, text ) -> properties
-                        .setProperty(
-                                ( String ) properties.remove( "$currentKey" ),
-                                text ) ),
+                // close: de-cache
+                ( properties, text, cache ) -> properties.setProperty( cache, text ) ),
     
-        PROPERTIES( "*", false, true, ENTRY, COMMENT ),
-        ROOT( "", false, false, PROPERTIES );
-    
+        COMMENT( "comment" ),
+        PROPERTIES( "*", ENTRY, COMMENT ),
+        ROOT( "", PROPERTIES );
     
         private final String tag;
         private final FlatTag< Properties > self = this;
         private final boolean multiple;
         private final boolean choice;
-        private final BiConsumer< Properties, Attributes > opener;
-        private final BiConsumer< Properties, String > closer;
+        private final Opener< Properties, Attributes, ? > opener;
+        private final Closer< Properties, String, ? > closer;
         private final Tag< ? super Properties, ? >[] children;
     
         @SafeVarargs
-        PropertiesRootTag( String tag, boolean multiple, boolean choice, Tag< ? super Properties, ? >... children )
+        PropertiesRootTag( String tag, Tag< ? super Properties, ? >... children )
         {
-            this( tag, multiple, choice, null, null, children );
+            this( tag, Object.class, null, null, children );
         }
     
         @SafeVarargs
-        PropertiesRootTag( String tag, boolean multiple, boolean choice, BiConsumer< Properties, Attributes > opener, BiConsumer< Properties, String > closer, Tag< ? super Properties, ? >... children )
+        < C > PropertiesRootTag(
+                String tag,
+                Class< C > c,
+                Opener< Properties, Attributes, C > opener,
+                Closer< Properties, String, C > closer,
+                Tag< ? super Properties, ? >... children
+        )
         {
             this.tag = tag;
-            this.multiple = multiple;
-            this.choice = choice;
+            this.multiple = isNull( children ) || children.length == 0;
             this.opener = opener;
             this.closer = closer;
+            this.choice = nonNull( children ) && children.length > 0;
             this.children = children;
         }
     }
 
-
+## Tag Generation
+A simple SchemaRootTag is provided that models XSD schemas. 
+View the tests to see an example of generating a Tag 
+from a target Class and a Schema.
