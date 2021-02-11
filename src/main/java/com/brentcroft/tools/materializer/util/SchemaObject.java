@@ -34,26 +34,32 @@ public class SchemaObject
     public String toString()
     {
         return format(
-                "rootElements: %s%n %s%n %s%n%s %n" + "complexTypes: %n%s %n" + "simpleTypes: %n%s",
+                "rootElements: %n" +
+                        " systemId=%s%n" +
+                        " localPrefix=%s%n" +
+                        " namespaces: %n  %s%n" +
+                        " roots: %n  %s%n" +
+                        " complexTypes: %n  %s%n" +
+                        " simpleTypes: %n  %s",
                 systemId,
-                localPrefix,
+                nonNull( localPrefix ) ? localPrefix : "",
                 namespacePrefixes
-                .entrySet()
-                .stream()
-                .map( entry -> format(" xmlns:%s=%s", entry.getKey(), entry.getValue()) )
-                .collect( Collectors.joining( "\n" ) ),
+                        .entrySet()
+                        .stream()
+                        .map( entry -> format( " xmlns:%s=%s", entry.getKey(), entry.getValue() ) )
+                        .collect( Collectors.joining( "\n  " ) ),
                 rootObjects
                         .stream()
                         .map( SchemaItem::toString )
-                        .collect( Collectors.joining( "\n" ) ),
+                        .collect( Collectors.joining( "\n  " ) ),
                 complexTypes
                         .stream()
                         .map( SchemaItem::toString )
-                        .collect( Collectors.joining( "\n" ) ),
+                        .collect( Collectors.joining( "\n  " ) ),
                 simpleTypes
                         .stream()
                         .map( SchemaItem::toString )
-                        .collect( Collectors.joining( "\n" ) )
+                        .collect( Collectors.joining( "\n  " ) )
         );
     }
 

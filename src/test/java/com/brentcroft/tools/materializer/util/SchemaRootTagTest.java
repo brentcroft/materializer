@@ -45,6 +45,8 @@ public class SchemaRootTagTest
         hints.put( "bndbox", "box" );
 
         schemaObject.reify();
+
+        //System.out.println( schemaObject );
     }
 
     @Test
@@ -55,7 +57,7 @@ public class SchemaRootTagTest
 
         String json = rootMutator.jsonate( "" );
 
-        System.out.println( json );
+        //System.out.println( json );
 
         Path path = Paths.get(
                 "src/test/resources",
