@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 
 import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
 
 @Getter
 public enum SchemaRootTag implements FlatTag< SchemaObject >
@@ -64,6 +65,29 @@ public enum SchemaRootTag implements FlatTag< SchemaObject >
 
     SCHEMA(
             "schema",
+            Map.class,
+            ( schemaObject, attributes ) -> Tag.getAttributesMap( attributes ),
+            ( schemaObject, text, cache ) -> {
+
+                Map< String, String > cacheMap = ( Map< String, String > ) cache;
+
+                cacheMap
+                        .forEach( ( k, v ) -> {
+                            if ( k.startsWith( "xmlns:" ) )
+                            {
+                                schemaObject
+                                        .getNamespacePrefixes()
+                                        .put( k.substring( 6 ), v );
+                            }
+                        } );
+
+                ofNullable( cacheMap.get( "targetNamespace" ) )
+
+                        .map( t -> schemaObject
+                                .getNamespacePrefixes()
+                                .get( t ) )
+                        .ifPresent( schemaObject::setLocalPrefix );
+            },
             IMPORT,
             SchemaReferenceTag.ELEMENT,
             SchemaReferenceTag.COMPLEX_TYPE,
@@ -76,6 +100,7 @@ public enum SchemaRootTag implements FlatTag< SchemaObject >
     private final boolean choice = true;
     private final FlatTag< SchemaObject > self = this;
     private final Opener< SchemaObject, Attributes, ? > opener;
+    private final Closer< SchemaObject, String, ? > closer;
     private final Tag< ? super SchemaObject, ? >[] children;
 
     @SafeVarargs
@@ -86,6 +111,22 @@ public enum SchemaRootTag implements FlatTag< SchemaObject >
     {
         this.tag = tag;
         this.opener = null;
+        this.closer = null;
+        this.children = children;
+    }
+
+    @SafeVarargs
+    < T > SchemaRootTag(
+            String tag,
+            Class< T > cacheClass,
+            Opener< SchemaObject, Attributes, T > opener,
+            Closer< SchemaObject, String, T > closer,
+            Tag< ? super SchemaObject, ? >... children
+    )
+    {
+        this.tag = tag;
+        this.opener = opener;
+        this.closer = closer;
         this.children = children;
     }
 
@@ -97,6 +138,7 @@ public enum SchemaRootTag implements FlatTag< SchemaObject >
     {
         this.tag = tag;
         this.opener = opener;
+        this.closer = null;
         this.children = Tag.tags();
     }
 }

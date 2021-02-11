@@ -56,7 +56,7 @@ public class SchemaItem
                 reified = schemaObject
                         .getRootObjects()
                         .stream()
-                        .filter( ro -> ro.getName().equals( getRef() ) )
+                        .filter( ro -> ro.getName().equals( schemaObject.localName( getRef() ) ) )
                         .map( ro -> ( SchemaItem ) ro )
                         .findAny()
                         .orElseThrow( () -> new IllegalArgumentException( "Un-reified item ref: " + this ) );
@@ -73,13 +73,13 @@ public class SchemaItem
                     reified = schemaObject
                             .getComplexTypes()
                             .stream()
-                            .filter( ct -> ct.getName().equals( getTypeRef() ) )
+                            .filter( ct -> ct.getName().equals( schemaObject.localName( getTypeRef() ) ) )
                             .map( ct -> ( SchemaItem ) ct )
                             .findAny()
                             .orElseGet( () -> schemaObject
                                     .getSimpleTypes()
                                     .stream()
-                                    .filter( ct -> ct.getName().equals( getTypeRef() ) )
+                                    .filter( ct -> ct.getName().equals( schemaObject.localName( getTypeRef() ) ) )
                                     .findAny()
                                     .orElseThrow( () -> new IllegalArgumentException( "Un-reified item type ref: " + this ) ) );
                 }

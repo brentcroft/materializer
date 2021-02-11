@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
+import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
 
 @Getter
@@ -20,8 +21,12 @@ public class SchemaObject
     protected final List< ComplexTypeObject > complexTypes = new LinkedList<>();
     protected final List< SimpleTypeObject > simpleTypes = new LinkedList<>();
 
+    protected final Map< String, String > namespacePrefixes = new HashMap<>();
+
     protected final Map< String, String > hints = new HashMap<>();
 
+    @Setter
+    private String localPrefix;
 
     @Setter
     private String systemId;
@@ -59,6 +64,18 @@ public class SchemaObject
         {
             item.reify( this );
         }
+    }
+
+    public String localName( String ref )
+    {
+        String localPrefix = getLocalPrefix();
+
+        if ( nonNull( ref ) && nonNull( localPrefix ) && ref.startsWith( localPrefix + ":" ) )
+        {
+            return ref.substring( localPrefix.length() + 1 );
+        }
+
+        return ref;
     }
 
 
