@@ -182,14 +182,8 @@ public class Mutator
     {
         if ( isMap() )
         {
-            Mutator m = new Mutator( "setProperty", String.class )
-            {
-
-                public boolean link( Class< ? > contextClazz, SchemaItem schemaItem, SchemaObject schemaObject )
-                {
-                    return super.link( contextClazz, schemaItem, schemaObject );
-                }
-            };
+            // dummy mutator
+            Mutator m = new Mutator( "setProperty", String.class );
             m.setParent( this );
             m.setTagType( TagType.FLAT );
             return Collections.singletonList( m );

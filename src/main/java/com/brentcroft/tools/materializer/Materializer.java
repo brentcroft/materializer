@@ -70,6 +70,8 @@ public class Materializer< R > implements Function< InputSource, R >
 
         try
         {
+            saxParserFactory.setFeature( "http://xml.org/sax/features/namespace-prefixes", true );
+
             for ( int i = 0; i < initialPoolSize; i++ )
             {
                 releaseParser( saxParserFactory.newSAXParser() );
@@ -177,6 +179,7 @@ public class Materializer< R > implements Function< InputSource, R >
             }
             SAXParser parser = parsers.remove( 0 );
             parser.reset();
+
             return parser;
         }
     }

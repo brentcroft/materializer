@@ -69,6 +69,7 @@ public enum SchemaRootTag implements FlatTag< SchemaObject >
             ( schemaObject, attributes ) -> Tag.getAttributesMap( attributes ),
             ( schemaObject, text, cache ) -> {
 
+                @SuppressWarnings( value = "unchecked" )
                 Map< String, String > cacheMap = ( Map< String, String > ) cache;
 
                 cacheMap
@@ -121,7 +122,8 @@ public enum SchemaRootTag implements FlatTag< SchemaObject >
     @SafeVarargs
     < T > SchemaRootTag(
             String tag,
-            Class< T > cacheClass,
+            @SuppressWarnings( value = "unused" )
+                    Class< T > cacheClass,
             Opener< SchemaObject, Attributes, T > opener,
             Closer< SchemaObject, String, T > closer,
             Tag< ? super SchemaObject, ? >... children
@@ -135,7 +137,8 @@ public enum SchemaRootTag implements FlatTag< SchemaObject >
 
     < T > SchemaRootTag(
             String tag,
-            Class< T > cacheClass,
+            @SuppressWarnings( value = "unused" )
+                    Class< T > cacheClass,
             Opener< SchemaObject, Attributes, T > opener
     )
     {
@@ -341,7 +344,8 @@ enum SchemaLeafTag implements FlatTag< SchemaItem >
     @SafeVarargs
     < C > SchemaLeafTag(
             String tag,
-            Class< C > c,
+            @SuppressWarnings( value = "unused" )
+                    Class< C > c,
             Opener< SchemaItem, Attributes, C > opener,
             Closer< SchemaItem, String, C > closer,
             Tag< ? super SchemaItem, ? >... children

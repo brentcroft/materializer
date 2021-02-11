@@ -2,10 +2,9 @@ package com.brentcroft.tools.materializer.core;
 
 import org.xml.sax.Attributes;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static java.util.Objects.isNull;
 
@@ -40,10 +39,20 @@ public interface Tag< T, R >
      */
     static Map< String, String > getAttributesMap( Attributes attributes )
     {
-        return IntStream
-                .range( 0, attributes.getLength() )
-                .mapToObj( index -> new String[]{attributes.getLocalName( index ), attributes.getValue( index )} )
-                .collect( Collectors.toMap( keys -> keys[ 0 ], keys -> keys[ 1 ] ) );
+        Map< String, String > map = new HashMap<>();
+
+        for ( int i = 0, n = attributes.getLength(); i < n;i++)
+        {
+            String key = attributes.getLocalName( i );
+            if ( key.length() == 0)
+            {
+                key = attributes.getQName( i );
+            }
+            String value = attributes.getValue( i );
+            map.put( key, value );
+        }
+
+        return map;
     }
 
     String getTag();
