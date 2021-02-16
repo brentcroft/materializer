@@ -5,7 +5,7 @@
 
     <groupId>com.brentcroft.tools</groupId>
     <artifactId>materializer</artifactId>
-    <version>00.01.03</version>
+    <version>00.01.04</version>
 
     <name>Brentcroft Materializer</name>
 

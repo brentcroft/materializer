@@ -192,8 +192,8 @@ public class Mutator
         }
 
         List< Mutator > mutators = ofNullable( isCollection()
-                           ? getArgumentType()
-                           : getArgument() )
+                                               ? getArgumentType()
+                                               : getArgument() )
                 .map( c -> Stream
                         .of( c.getMethods() )
                         .filter( m -> m.getParameterCount() == 1 )
@@ -205,27 +205,28 @@ public class Mutator
                 .orElse( emptyList() );
 
         // remove super shadow duplicates
-        for (int i = mutators.size()-1;i> 0;i--)
+        for ( int i = mutators.size() - 1; i > 0; i-- )
         {
-            Mutator m1 = mutators.get(i);
-            Mutator m2 = mutators.get(i-1);
-            if (m1.getName().equals(m2.getName()))
+            Mutator m1 = mutators.get( i );
+            Mutator m2 = mutators.get( i - 1 );
+            if ( m1.getName().equals( m2.getName() ) )
             {
-                if (m1.getArgument().isAssignableFrom(m2.getArgument()))
+                if ( m1.getArgument().isAssignableFrom( m2.getArgument() ) )
                 {
-                    mutators.remove(i);
+                    mutators.remove( i );
                 }
-                else if (m2.getArgument().isAssignableFrom(m1.getArgument()))
+                else if ( m2.getArgument().isAssignableFrom( m1.getArgument() ) )
                 {
-                    mutators.remove(i-1);
+                    mutators.remove( i - 1 );
                 }
-                else {
+                else
+                {
                     throw new IllegalArgumentException(
-                        format(
-                            "Arguments for overloaded method '%s' are not compatible: %s, %s",
-                            m1.getName(),
-                            m1.getArgument().getName(),
-                            m2.getArgument().getName()));
+                            format(
+                                    "Arguments for overloaded method '%s' are not compatible: %s, %s",
+                                    m1.getName(),
+                                    m1.getArgument().getName(),
+                                    m2.getArgument().getName() ) );
                 }
             }
         }
@@ -246,7 +247,7 @@ public class Mutator
         if ( nonNull( typeHandler ) && schemaItem.getReified().getChildren().size() > 1 )
         {
             //return false;
-            throw new RuntimeException( format("Simple type handler [%s] but more than one reified child: %s", typeHandler, schemaItem.getReified().getChildren().size()) );
+            throw new RuntimeException( format( "Simple type handler [%s] but more than one reified child: %s", typeHandler, schemaItem.getReified().getChildren().size() ) );
         }
 
         List< Mutator > mutators = getMutators();

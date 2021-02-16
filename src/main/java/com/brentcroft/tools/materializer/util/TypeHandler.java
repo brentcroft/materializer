@@ -32,7 +32,7 @@ public enum TypeHandler
     PROPERTIES( Properties.class, "%1$s.%2$s( new Properties() )", null ),
     MAP( Map.class, "%1$s.%2$s( new HashMap<>() )", null ),
 
-    ENUM( Enum.class,  null, "( %1$s, text ) -> %1$s.%2$s( %3$s.valueOf( text ) )" ),
+    ENUM( Enum.class, null, "( %1$s, text ) -> %1$s.%2$s( %3$s.valueOf( text ) )" ),
     ;
 
     private final Class< ? > clazz;

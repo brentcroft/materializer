@@ -18,14 +18,14 @@ import static java.util.Optional.ofNullable;
 @Getter
 public enum SchemaRootTag implements FlatTag< SchemaObject >
 {
-  ANYTHING( "*" )
-      {
-        @Override
-        public Tag< ? super SchemaObject, ? >[] getChildren()
-        {
-          return Tag.tags( ANYTHING );
-        }
-      },
+    ANYTHING( "*" )
+            {
+                @Override
+                public Tag< ? super SchemaObject, ? >[] getChildren()
+                {
+                    return Tag.tags( ANYTHING );
+                }
+            },
 
 
     IMPORT(
@@ -75,7 +75,7 @@ public enum SchemaRootTag implements FlatTag< SchemaObject >
             },
 
     ATTRIBUTE( "attribute", ANYTHING ),
-  ATTRIBUTEGROUP( "attributeGroup", ANYTHING ),
+    ATTRIBUTEGROUP( "attributeGroup", ANYTHING ),
 
     SCHEMA(
             "schema",
@@ -114,7 +114,7 @@ public enum SchemaRootTag implements FlatTag< SchemaObject >
             SchemaReferenceTag.ELEMENT,
             SchemaReferenceTag.COMPLEX_TYPE,
             SchemaReferenceTag.SIMPLE_TYPE,
-        ATTRIBUTE, ATTRIBUTEGROUP),
+            ATTRIBUTE, ATTRIBUTEGROUP ),
 
     ROOT( "", SCHEMA );
 
@@ -187,7 +187,7 @@ enum SchemaReferenceTag implements StepTag< SchemaObject, SchemaItem >
             SchemaLeafTag.SEQUENCE,
             SchemaLeafTag.SIMPLE_CONTENT,
             SchemaLeafTag.ANNOTATION,
-            SchemaLeafTag.ANYATTRIBUTE)
+            SchemaLeafTag.ANYATTRIBUTE )
             {
                 @Override
                 public ComplexTypeObject getItem( SchemaObject schemaObject )
@@ -281,13 +281,13 @@ enum SchemaElementTag implements StepTag< SchemaItem, SchemaItem >
 enum SchemaLeafTag implements FlatTag< SchemaItem >
 {
     ANYTHING( "*" )
-      {
-        @Override
-        public Tag< ? super SchemaItem, ? >[] getChildren()
-        {
-          return Tag.tags( ANYTHING );
-        }
-      },
+            {
+                @Override
+                public Tag< ? super SchemaItem, ? >[] getChildren()
+                {
+                    return Tag.tags( ANYTHING );
+                }
+            },
 
     CHOICE( "choice", ( Tag< ? super SchemaItem, ? > ) null )
             {
@@ -326,15 +326,14 @@ enum SchemaLeafTag implements FlatTag< SchemaItem >
     EXTENSION( "extension", ATTRIBUTE, ANYATTRIBUTE, CHOICE, SEQUENCE ),
 
 
-
     ANY( "any" )
-      {
-        @Override
-        public Tag< ? super SchemaItem, ? >[] getChildren()
-        {
-          return Tag.tags( ANYTHING );
-        }
-      },
+            {
+                @Override
+                public Tag< ? super SchemaItem, ? >[] getChildren()
+                {
+                    return Tag.tags( ANYTHING );
+                }
+            },
 
     DOCUMENTATION( "documentation", ANYTHING ),
     ANNOTATION( "annotation", DOCUMENTATION ),
@@ -351,7 +350,7 @@ enum SchemaLeafTag implements FlatTag< SchemaItem >
             CHOICE,
             SIMPLE_CONTENT,
             ANNOTATION,
-        ANYATTRIBUTE);
+            ANYATTRIBUTE );
 
 
     private final String tag;

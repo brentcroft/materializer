@@ -41,10 +41,10 @@ public interface Tag< T, R >
     {
         Map< String, String > map = new HashMap<>();
 
-        for ( int i = 0, n = attributes.getLength(); i < n;i++)
+        for ( int i = 0, n = attributes.getLength(); i < n; i++ )
         {
             String key = attributes.getLocalName( i );
-            if ( key.length() == 0)
+            if ( key.length() == 0 )
             {
                 key = attributes.getQName( i );
             }

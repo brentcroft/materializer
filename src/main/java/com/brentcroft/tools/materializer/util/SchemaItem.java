@@ -48,53 +48,68 @@ public class SchemaItem
 
     public void reify( SchemaObject schemaObject )
     {
-        if (isNull(reified)) {
-            if (getChildren().isEmpty()) {
-                if (nonNull(getRef())) {
-                    String localRef = schemaObject.localName(getRef());
+        if ( isNull( reified ) )
+        {
+            if ( getChildren().isEmpty() )
+            {
+                if ( nonNull( getRef() ) )
+                {
+                    String localRef = schemaObject.localName( getRef() );
 
                     reified = schemaObject
-                        .getRootObjects()
-                        .stream()
-                        .filter(ro -> ro.getName().equals(localRef))
-                        .map(ro -> (SchemaItem) ro)
-                        .findAny()
-                        .orElse(null);
+                            .getRootObjects()
+                            .stream()
+                            .filter( ro -> ro.getName().equals( localRef ) )
+                            .map( ro -> ( SchemaItem ) ro )
+                            .findAny()
+                            .orElse( null );
 
-                    if (isNull(reified)) {
-                        throw new IllegalArgumentException(format("Un-reified item ref: %s; %s", this, schemaObject.getSystemId()));
+                    if ( isNull( reified ) )
+                    {
+                        throw new IllegalArgumentException( format( "Un-reified item ref: %s; %s", this, schemaObject.getSystemId() ) );
                     }
-                } else if (nonNull(getTypeRef())) {
+                }
+                else if ( nonNull( getTypeRef() ) )
+                {
                     // reference to primitive
-                    if (getTypeRef().startsWith(schemaObject.getXsdPrefix() + ":")) {
+                    if ( getTypeRef().startsWith( schemaObject.getXsdPrefix() + ":" ) )
+                    {
                         reified = this;
-                    } else {
-                        String localName = schemaObject.localName(getTypeRef());
+                    }
+                    else
+                    {
+                        String localName = schemaObject.localName( getTypeRef() );
 
                         reified = schemaObject
-                            .getComplexTypes()
-                            .stream()
-                            .filter(ct -> ct.getName().equals(localName))
-                            .map(ct -> (SchemaItem) ct)
-                            .findAny()
-                            .orElseGet(() -> schemaObject
-                                .getSimpleTypes()
+                                .getComplexTypes()
                                 .stream()
-                                .filter(ct -> ct.getName().equals(localName))
+                                .filter( ct -> ct.getName().equals( localName ) )
+                                .map( ct -> ( SchemaItem ) ct )
                                 .findAny()
-                                .orElse(null));
+                                .orElseGet( () -> schemaObject
+                                        .getSimpleTypes()
+                                        .stream()
+                                        .filter( ct -> ct.getName().equals( localName ) )
+                                        .findAny()
+                                        .orElse( null ) );
 
-                        if (isNull(reified)) {
-                            throw new IllegalArgumentException(format("Un-reified type ref: %s; %s", this, schemaObject.getSystemId()));
+                        if ( isNull( reified ) )
+                        {
+                            throw new IllegalArgumentException( format( "Un-reified type ref: %s; %s", this, schemaObject.getSystemId() ) );
                         }
                     }
-                } else {
+                }
+                else
+                {
                     // TODO: reify simple types
                     reified = this;
                 }
-            } else {
-                for (SchemaItem item : getChildren()) {
-                    item.reify(schemaObject);
+            }
+            else
+            {
+                for ( SchemaItem item : getChildren() )
+                {
+                    item.reify( schemaObject );
                 }
                 reified = this;
             }

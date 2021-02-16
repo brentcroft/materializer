@@ -5,11 +5,7 @@ import com.brentcroft.tools.jstl.MapBindings;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -89,19 +85,19 @@ public class SchemaObject
 
     public String localName( String ref )
     {
-        if (isNull(ref))
+        if ( isNull( ref ) )
         {
             return null;
         }
 
-        int i = ref.indexOf(':') + 1;
+        int i = ref.indexOf( ':' ) + 1;
 
-        if (i < 2)
+        if ( i < 2 )
         {
             return ref;
         }
 
-        return ref.substring(i);
+        return ref.substring( i );
 
 //        // allow any match on a known prefix
 //        return getNamespacePrefixes()
