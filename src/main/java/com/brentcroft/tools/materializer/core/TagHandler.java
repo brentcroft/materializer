@@ -46,13 +46,11 @@ public class TagHandler< R > extends DefaultHandler
 
         if ( tagModelStack.isEmpty() )
         {
-            throw new TagHandlerException( this, format( "No model on stack for tag: <%s>", localName ) );
+            throw new TagHandlerException( this, format( "Empty stack for localName: '%s'", localName ) );
         }
-
-
-        if ( isNull( tagModelStack.peek() ) )
+        else if ( isNull( tagModelStack.peek() ) )
         {
-            throw new TagHandlerException( this, format( "isNull( tagModelStack.peek() ) is null for tag: <%s>", localName ) );
+            throw new TagHandlerException( this, format( "Model on stack is null for localName: '%s'", localName ) );
         }
 
 
@@ -73,7 +71,7 @@ public class TagHandler< R > extends DefaultHandler
 
         if ( isNull( item ) )
         {
-            throw new TagHandlerException( this, format( "No item obtained for tag: <%s>", tag.getTag() ) );
+            throw new TagHandlerException( this, format( "No item obtained for tag: %s", tag.getTag() ) );
         }
 
         tagStack.push( tag );

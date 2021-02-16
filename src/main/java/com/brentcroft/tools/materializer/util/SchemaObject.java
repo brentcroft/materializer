@@ -5,11 +5,16 @@ import com.brentcroft.tools.jstl.MapBindings;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
 
@@ -84,14 +89,28 @@ public class SchemaObject
 
     public String localName( String ref )
     {
-        String localPrefix = getLocalPrefix();
-
-        if ( nonNull( ref ) && nonNull( localPrefix ) && ref.startsWith( localPrefix + ":" ) )
+        if (isNull(ref))
         {
-            return ref.substring( localPrefix.length() + 1 );
+            return null;
         }
 
-        return ref;
+        int i = ref.indexOf(':') + 1;
+
+        if (i < 2)
+        {
+            return ref;
+        }
+
+        return ref.substring(i);
+
+//        // allow any match on a known prefix
+//        return getNamespacePrefixes()
+//            .keySet()
+//            .stream()
+//            .filter( prefix -> ref.startsWith( prefix + ":" ))
+//            .map( prefix -> ref.substring( prefix.length() + 1 ))
+//            .findAny()
+//            .orElse(ref);
     }
 
     public String xsdName( String ref )

@@ -39,7 +39,7 @@ public interface FlatTag< T > extends Tag< T, T >
         }
         catch ( Exception e )
         {
-            throw new ValidationException( this, e.getMessage() );
+            throw new ValidationException( this, e );
         }
 
         ofNullable( getValidator() )

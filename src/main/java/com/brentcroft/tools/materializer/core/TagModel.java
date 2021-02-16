@@ -28,7 +28,7 @@ public class TagModel< R >
                 }
             }
 
-            throw new ValidationException( parent, format( "Unexpected tag: no choice matches localName <%s>", localName ) );
+            throw new ValidationException( parent, format( "Unexpected tag: no choice of '%s' matches localName '%s'", parent.getTag(), localName ) );
         }
         else if ( - 1 < index && index < children.length )
         {

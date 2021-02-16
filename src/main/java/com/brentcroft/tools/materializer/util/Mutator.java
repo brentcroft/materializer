@@ -191,7 +191,7 @@ public class Mutator
             return Collections.singletonList( m );
         }
 
-        return ofNullable( isCollection()
+        List< Mutator > mutators = ofNullable( isCollection()
                            ? getArgumentType()
                            : getArgument() )
                 .map( c -> Stream
@@ -200,9 +200,37 @@ public class Mutator
                         .filter( m -> m.getName().startsWith( "set" ) )
                         .map( Mutator::new )
                         .peek( m -> m.setParent( this ) )
-                        .sorted( Comparator.comparing( Mutator::getBeanName ) )
+                        .sorted( Comparator.comparing( Mutator::getName ) )
                         .collect( Collectors.toList() ) )
                 .orElse( emptyList() );
+
+        // remove super shadow duplicates
+        for (int i = mutators.size()-1;i> 0;i--)
+        {
+            Mutator m1 = mutators.get(i);
+            Mutator m2 = mutators.get(i-1);
+            if (m1.getName().equals(m2.getName()))
+            {
+                if (m1.getArgument().isAssignableFrom(m2.getArgument()))
+                {
+                    mutators.remove(i);
+                }
+                else if (m2.getArgument().isAssignableFrom(m1.getArgument()))
+                {
+                    mutators.remove(i-1);
+                }
+                else {
+                    throw new IllegalArgumentException(
+                        format(
+                            "Arguments for overloaded method '%s' are not compatible: %s, %s",
+                            m1.getName(),
+                            m1.getArgument().getName(),
+                            m2.getArgument().getName()));
+                }
+            }
+        }
+
+        return mutators;
     }
 
     public boolean link( Class< ? > contextClazz, SchemaItem schemaItem, SchemaObject schemaObject )
@@ -214,12 +242,20 @@ public class Mutator
 
         TypeHandler typeHandler = getSimpleType( schemaItem.getTypeRef(), schemaObject );
 
+        // typeHandler requires a single mutator
+        if ( nonNull( typeHandler ) && schemaItem.getReified().getChildren().size() > 1 )
+        {
+            //return false;
+            throw new RuntimeException( format("Simple type handler [%s] but more than one reified child: %s", typeHandler, schemaItem.getReified().getChildren().size()) );
+        }
+
         List< Mutator > mutators = getMutators();
 
         // typeHandler requires a single mutator
         if ( nonNull( typeHandler ) && mutators.size() > 1 )
         {
-            throw new RuntimeException( "nonNull( typeHandler ) && mutators.size() > 1" );
+            return false;
+            //throw new RuntimeException( "nonNull( typeHandler ) && mutators.size() > 1" );
         }
 
 

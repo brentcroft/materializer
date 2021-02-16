@@ -29,8 +29,8 @@ public class Detections implements Propertied
                 format( "    size=%s", size ),
                 detections
                         .stream()
-                        .map( d -> format( "   %s", d ) )
-                        .collect( Collectors.joining( "\n    " ) ),
+                        .map( d -> format( "    %s", d ) )
+                        .collect( Collectors.joining( "\n" ) ),
                 format( "    attributes=%s", attributes ) );
     }
 }
