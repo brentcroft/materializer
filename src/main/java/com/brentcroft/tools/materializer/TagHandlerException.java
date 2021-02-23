@@ -12,4 +12,9 @@ public class TagHandlerException extends TagException
     {
         super( tagHandler, message );
     }
+
+    public TagHandlerException( TagHandler< ? > tagHandler, Throwable throwable )
+    {
+        super( tagHandler, throwable );
+    }
 }

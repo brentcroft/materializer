@@ -3,6 +3,7 @@ package com.brentcroft.tools.materializer.util;
 import com.brentcroft.tools.materializer.Materializer;
 import com.brentcroft.tools.materializer.util.model.Detections;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.InputSource;
 
@@ -16,6 +17,7 @@ import java.util.Map;
 
 import static java.lang.String.format;
 
+@Ignore
 public class SchemaRootTagTest
 {
     private final String rootDir = "src/test/resources/detections";

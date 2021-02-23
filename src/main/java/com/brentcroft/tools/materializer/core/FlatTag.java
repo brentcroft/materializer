@@ -1,25 +1,24 @@
 package com.brentcroft.tools.materializer.core;
 
-import org.xml.sax.Attributes;
-
 import static java.util.Optional.ofNullable;
 
 public interface FlatTag< T > extends Tag< T, T >
 {
 
-    default T getItem( T t )
+    default T getItem( T t, OpenEvent openEvent )
     {
         return t;
     }
 
-    default Object open( Object o, Attributes attributes )
+    default Object open( Object c, Object o, OpenEvent event )
     {
+        T t = ( T ) c;
         T r = ( T ) o;
 
         try
         {
             return ofNullable( getOpener() )
-                    .map( opener -> opener.open( r, attributes ) )
+                    .map( opener -> opener.open( t, r, event ) )
                     .orElse( null );
         }
         catch ( Exception e )
@@ -28,14 +27,16 @@ public interface FlatTag< T > extends Tag< T, T >
         }
     }
 
-    default void close( Object o, String text, Object cached )
+    default void close( Object c, Object o, String text, Object cached )
     {
+        T t = ( T ) c;
+
         T r = ( T ) o;
 
         try
         {
             ofNullable( getCloser() )
-                    .ifPresent( closer -> closer.close( r, text, cached ) );
+                    .ifPresent( closer -> closer.close( t, r, text, cached ) );
         }
         catch ( Exception e )
         {

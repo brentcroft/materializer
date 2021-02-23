@@ -5,6 +5,7 @@ import lombok.Getter;
 
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
+import static java.util.Optional.ofNullable;
 
 /**
  * A TagException is raised by TagHandler
@@ -30,6 +31,21 @@ public class TagException extends RuntimeException
 
     public String toString()
     {
-        return format( "%s [%s]: %s", getClass().getSimpleName(), tagHandler.getPath(), getMessage() );
+        return format(
+                "%s [%s, path: %s]: %s",
+                getClass().getSimpleName(),
+                ofNullable( tagHandler.getDocumentLocator() )
+                        .map( locator -> format( "%s%sline: %s, col: %s",
+                                ofNullable( locator.getPublicId() )
+                                        .map( pid -> "system-id: " + pid + ", " )
+                                        .orElse( "" ),
+                                ofNullable( locator.getSystemId() )
+                                        .map( sid -> "system-id: " + sid + ", " )
+                                        .orElse( "" ),
+                                locator.getLineNumber(),
+                                locator.getColumnNumber() ) )
+                        .orElse( "" ),
+                tagHandler.getPath(),
+                getMessage() );
     }
 }

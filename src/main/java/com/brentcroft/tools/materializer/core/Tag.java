@@ -2,10 +2,9 @@ package com.brentcroft.tools.materializer.core;
 
 import org.xml.sax.Attributes;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.BiConsumer;
 
+import static com.brentcroft.tools.materializer.core.ElementMatcher.getDefaultMatcher;
 import static java.util.Objects.isNull;
 
 /**
@@ -32,30 +31,21 @@ public interface Tag< T, R >
     }
 
     /**
-     * Utility method to convert Attributes to a Map.
+     * Utility method to capture Attributes to an AttributesMap.
+     * <p>
+     * Delegates to <code>AttributesMap.getAttributesMap( attributes )</code>
      *
      * @param attributes XML attributes
-     * @return a map of the attributes
+     * @return an AttributesMap
      */
-    static Map< String, String > getAttributesMap( Attributes attributes )
+    static AttributesMap getAttributesMap( Attributes attributes )
     {
-        Map< String, String > map = new HashMap<>();
-
-        for ( int i = 0, n = attributes.getLength(); i < n; i++ )
-        {
-            String key = attributes.getLocalName( i );
-            if ( key.length() == 0 )
-            {
-                key = attributes.getQName( i );
-            }
-            String value = attributes.getValue( i );
-            map.put( key, value );
-        }
-
-        return map;
+        return AttributesMap.getAttributesMap( attributes );
     }
 
     String getTag();
+
+    String name();
 
     /**
      * Obtains a member R from a context object T.
@@ -63,9 +53,10 @@ public interface Tag< T, R >
      * NB: A FlatTag provides itself as the member.
      *
      * @param t a context object
+     * @param openEvent details of the event
      * @return a member of the context object
      */
-    R getItem( T t );
+    R getItem( T t, OpenEvent openEvent );
 
     /**
      * Enforce implementation of a self member.
@@ -77,20 +68,22 @@ public interface Tag< T, R >
     /**
      * Called by TagHandler.startElement to consume attributes.
      *
-     * @param o          the object in context
-     * @param attributes any attributes available
+     * @param c          the context object
+     * @param r          the object in context
+     * @param event  details of the event
      * @return an object to cache and pas to the closer
      */
-    Object open( Object o, Attributes attributes );
+    Object open( Object c, Object r, OpenEvent event );
 
     /**
      * Called by TagHandler.endElement to consume text.
      *
-     * @param o     the object in context
+     * @param c     the context object
+     * @param r     the object in context
      * @param text  the text read whilst open
      * @param cache any object cached by the opener
      */
-    void close( Object o, String text, Object cache );
+    void close( Object c, Object r, String text, Object cache );
 
     /**
      * Provide no children by default.
@@ -118,7 +111,7 @@ public interface Tag< T, R >
     /**
      * True if this Tag matches the supplied open element arguments.
      * <p>
-     * Default is true if localName equals the tag value or the tag value equals "*".
+     * Delegates to the assigned ElementMatcher.
      *
      * @param uri        a namespace uri
      * @param localName  a local tag name
@@ -128,7 +121,7 @@ public interface Tag< T, R >
      */
     default boolean matches( String uri, String localName, String qName, Attributes attributes )
     {
-        return getTag().equals( "*" ) || getTag().equals( localName );
+        return getElementMatcher().matches( uri, localName, qName, attributes );
     }
 
     /**
@@ -162,11 +155,23 @@ public interface Tag< T, R >
     }
 
     /**
+     * The default ElementMatcher matches if this tag is "*" or either of the localName or the qName equals this tag.
+     *
+     * @return the default ElementMatcher
+     */
+    default ElementMatcher getElementMatcher()
+    {
+        return getDefaultMatcher( getTag() );
+    }
+
+
+
+    /**
      * Override to implement opening behaviour.
      *
      * @return null
      */
-    default Opener< R, Attributes, ? > getOpener()
+    default Opener< T, R, OpenEvent, ? > getOpener()
     {
         return null;
     }
@@ -176,7 +181,7 @@ public interface Tag< T, R >
      *
      * @return null
      */
-    default Closer< R, String, ? > getCloser()
+    default Closer< T, R, String, ? > getCloser()
     {
         return null;
     }

@@ -4,6 +4,7 @@ package com.brentcroft.tools.materializer.util;
 import com.brentcroft.test.DetectionsRootTag;
 import com.brentcroft.tools.materializer.Materializer;
 import com.brentcroft.tools.materializer.util.model.Detections;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.InputSource;
 
@@ -13,13 +14,14 @@ import java.io.IOException;
 
 import static java.lang.String.format;
 
+@Ignore
 public class SyntheticVocReader
 {
-    String detectionsXsdUri = "src/test/resources/detections/detections.xsd";
+    private static final String detectionsXsdUri = "src/test/resources/detections/detections.xsd";
 
-    String rootDir = "src/test/resources/detections";
+    private static final String rootDir = "src/test/resources/detections";
 
-    String[] detectionsUris = {
+    private static final String[] detectionsUris = {
             "07-18-37_940-picods_05.xml",
             "07-32-02_639-picods_05.xml",
             "09-28-17_798-picods_05.xml",
@@ -29,19 +31,16 @@ public class SyntheticVocReader
             "14-35-32_916-picods_05.xml"
     };
 
+    private static final Materializer< Detections > materializer = new Materializer<>(
+            Materializer.getSchemas( detectionsXsdUri ),
+            0,
+            () -> DetectionsRootTag.ROOT,
+            Detections::new
+    );
 
     @Test
-    public void read_pascal_voc_schema() throws IOException
+    public void reads_detections() throws IOException
     {
-        Schema schema = Materializer.getSchemas( detectionsXsdUri );
-
-        Materializer< Detections > materializer = new Materializer<>(
-                schema,
-                0,
-                () -> DetectionsRootTag.ROOT,
-                Detections::new
-        );
-
         for ( String detectionUri : detectionsUris )
         {
             Detections detections = materializer
@@ -52,24 +51,5 @@ public class SyntheticVocReader
             System.out.println( detections );
         }
     }
-//
-//
-//    @Test
-//    public void test_pascal_voc_no_schema() throws IOException
-//    {
-//        Materializer< Detections > materializer = new Materializer<>(
-//                () -> DetectionsRootTag.ROOT,
-//                Detections::new
-//        );
-//
-//        for ( String detectionUri : detectionsUris )
-//        {
-//            Detections detections = materializer
-//                    .apply(
-//                            new InputSource(
-//                                    new FileInputStream( format( "%s/%s", rootDir, detectionUri ) ) ) );
-//
-//            System.out.println( detections );
-//        }
-//    }
+
 }

@@ -1,14 +1,12 @@
 package com.brentcroft.tools.materializer.util;
 
-import com.brentcroft.tools.materializer.core.Closer;
-import com.brentcroft.tools.materializer.core.FlatTag;
-import com.brentcroft.tools.materializer.core.Opener;
-import com.brentcroft.tools.materializer.core.Tag;
+import com.brentcroft.tools.materializer.core.*;
 import lombok.Getter;
 import org.xml.sax.Attributes;
 
 import java.util.Optional;
 import java.util.Properties;
+import java.util.function.BiFunction;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -16,15 +14,15 @@ import static java.util.Objects.nonNull;
 @Getter
 public enum PropertiesRootTag implements FlatTag< Properties >
 {
-    ENTRY( "entry", String.class,
+    ENTRY(
+            "entry",
 
-            // open: cache attribute @key
-            ( properties, attributes ) -> Optional
-                    .ofNullable( Tag.getAttributesMap( attributes ).get( "key" ) )
-                    .map( Object::toString )
-                    .orElseThrow( () -> new IllegalArgumentException( "missing attribute: key" ) ),
+            String.class,
 
-            // close: de-cache
+            ( properties, event ) -> event
+                    .getAttributesMap()
+                    .getAttribute( "key" ),
+
             ( properties, text, cache ) -> properties.setProperty( cache, text ) ),
 
     COMMENT( "comment" ),
@@ -35,8 +33,8 @@ public enum PropertiesRootTag implements FlatTag< Properties >
     private final FlatTag< Properties > self = this;
     private final boolean multiple;
     private final boolean choice;
-    private final Opener< Properties, Attributes, ? > opener;
-    private final Closer< Properties, String, ? > closer;
+    private final FlatCacheOpener< Properties, OpenEvent, ? > opener;
+    private final FlatCacheCloser< Properties, String, ? > closer;
     private final Tag< ? super Properties, ? >[] children;
 
     @SafeVarargs
@@ -49,15 +47,15 @@ public enum PropertiesRootTag implements FlatTag< Properties >
     < C > PropertiesRootTag(
             String tag,
             Class< C > c,
-            Opener< Properties, Attributes, C > opener,
-            Closer< Properties, String, C > closer,
+            BiFunction< Properties, OpenEvent, C > opener,
+            TriConsumer< Properties, String, C > closer,
             Tag< ? super Properties, ? >... children
     )
     {
         this.tag = tag;
         this.multiple = isNull( children ) || children.length == 0;
-        this.opener = opener;
-        this.closer = closer;
+        this.opener = Opener.flatCacheOpener( opener );
+        this.closer = Closer.flatCacheCloser( closer );
         this.choice = nonNull( children ) && children.length > 0;
         this.children = children;
     }

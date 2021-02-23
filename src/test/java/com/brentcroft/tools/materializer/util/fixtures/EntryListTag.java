@@ -1,13 +1,9 @@
 package com.brentcroft.tools.materializer.util.fixtures;
 
-import com.brentcroft.tools.materializer.core.Closer;
-import com.brentcroft.tools.materializer.core.Opener;
-import com.brentcroft.tools.materializer.core.StepTag;
-import com.brentcroft.tools.materializer.core.Tag;
+import com.brentcroft.tools.materializer.core.*;
 import com.brentcroft.tools.materializer.util.model.Attributed;
 import com.brentcroft.tools.materializer.util.model.Entry;
 import lombok.Getter;
-import org.xml.sax.Attributes;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -31,7 +27,7 @@ public enum EntryListTag implements StepTag< Attributed, List< Entry > >
     }
 
     @Override
-    public List< Entry > getItem( Attributed attributed )
+    public List< Entry > getItem( Attributed attributed, OpenEvent openEvent )
     {
         return attributed.getAttributes();
     }
@@ -42,24 +38,24 @@ enum EntryTag implements StepTag< List< Entry >, Entry >
 {
     ENTRY(
             "attribute",
-            ( entry, attributes ) -> entry.setKey( attributes.getValue( "key" ) ),
+            ( entry, event ) -> entry.setKey( event.getAttributesMap().getAttribute( "key" ) ),
             Entry::setValue );
 
     private final String tag;
     private final StepTag< List< Entry >, Entry > self = this;
-    private final Opener< Entry, Attributes, ? > opener;
-    private final Closer< Entry, String, ? > closer;
+    private final StepOpener< List< Entry >, Entry, OpenEvent > opener;
+    private final StepCloser< List< Entry >, Entry, String > closer;
     private final boolean multiple = true;
 
-    EntryTag( String tag, BiConsumer< Entry, Attributes > opener, BiConsumer< Entry, String > closer )
+    EntryTag( String tag, BiConsumer< Entry, OpenEvent > opener, BiConsumer< Entry, String > closer )
     {
         this.tag = tag;
-        this.opener = Opener.noCacheOpener( opener );
-        this.closer = Closer.noCacheCloser( closer );
+        this.opener = Opener.stepOpener( opener );
+        this.closer = Closer.stepCloser( closer );
     }
 
     @Override
-    public Entry getItem( List< Entry > entries )
+    public Entry getItem( List< Entry > entries, OpenEvent openEvent )
     {
         Entry entry = new Entry();
         entries.add( entry );

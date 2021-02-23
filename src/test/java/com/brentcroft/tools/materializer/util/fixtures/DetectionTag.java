@@ -26,7 +26,7 @@ public enum DetectionTag implements FlatTag< Detection >
             ( detection, s ) -> detection.setWeight( Double.parseDouble( s ) ) ),
     BOX(
             "bndbox",
-            ( detection, attributes ) -> detection.setBox( new Box() ),
+            ( detection, event ) -> detection.setBox( new Box() ),
             null,
             BoxTag.XMIN,
             BoxTag.YMIN,
@@ -35,16 +35,16 @@ public enum DetectionTag implements FlatTag< Detection >
 
     private final String tag;
     private final FlatTag< Detection > self = this;
-    private final Opener< Detection, Attributes, ? > opener;
-    private final Closer< Detection, String, ? > closer;
+    private final FlatOpener< Detection, OpenEvent > opener;
+    private final FlatCloser< Detection, String > closer;
     private final Tag< ? super Detection, ? >[] children;
 
     @SafeVarargs
-    DetectionTag( String tag, BiConsumer< Detection, Attributes > opener, BiConsumer< Detection, String > closer, Tag< ? super Detection, ? >... children )
+    DetectionTag( String tag, BiConsumer< Detection, OpenEvent > opener, BiConsumer< Detection, String > closer, Tag< ? super Detection, ? >... children )
     {
         this.tag = tag;
-        this.opener = Opener.noCacheOpener( opener );
-        this.closer = Closer.noCacheCloser( closer );
+        this.opener = Opener.flatOpener( opener );
+        this.closer = Closer.flatCloser( closer );
         this.children = children;
     }
 }
@@ -59,16 +59,16 @@ enum BoxTag implements StepTag< Boxed, Box >
 
     private final String tag;
     private final StepTag< Boxed, Box > self = this;
-    private final Closer< Box, String, ? > closer;
+    private final StepCloser<  Boxed, Box, String > closer;
 
     BoxTag( String tag, BiConsumer< Box, String > closer )
     {
         this.tag = tag;
-        this.closer = Closer.noCacheCloser( closer );
+        this.closer = Closer.stepCloser( closer );
     }
 
     @Override
-    public Box getItem( Boxed boxed )
+    public Box getItem( Boxed boxed, OpenEvent openEvent )
     {
         return boxed.getBox();
     }

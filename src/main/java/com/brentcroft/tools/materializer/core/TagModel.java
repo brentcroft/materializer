@@ -4,7 +4,11 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.xml.sax.Attributes;
 
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import static java.lang.String.format;
+import static java.util.Objects.isNull;
 
 @Getter
 @RequiredArgsConstructor
@@ -28,7 +32,18 @@ public class TagModel< R >
                 }
             }
 
-            throw new ValidationException( parent, format( "Unexpected tag: no choice of '%s' matches localName '%s'", parent.getTag(), localName ) );
+            throw new ValidationException(
+                    parent,
+                    format(
+                            "Unexpected tag '%s': no choice of %s['%s'] matches any child: %s.",
+                            combinedTag( localName, qName ),
+                            parent.name(),
+                            parent.getTag(),
+                            Stream
+                                    .of( children )
+                                    .map( c -> format( "%s['%s']", c.name(), c.getTag() ) )
+                                    .collect( Collectors.joining( ", " ) )
+                    ) );
         }
         else if ( - 1 < index && index < children.length )
         {
@@ -55,13 +70,35 @@ public class TagModel< R >
             {
                 throw new ValidationException(
                         parent,
-                        format( "Unexpected tag: mandatory tag <%s> does not match localName <%s>", tag.getTag(), localName ) );
+                        format(
+                                "Unexpected tag '%s': mandatory tag %s['%s'] does not match.",
+                                combinedTag( localName, qName ),
+                                tag.name(),
+                                tag.getTag()
+                        ) );
             }
 
             index++;
         }
 
-        throw new ValidationException( parent, format( "Unexpected tag: no child matches localName <%s>", localName ) );
+        throw new ValidationException(
+                parent,
+                format(
+                        "Unexpected tag '%s': no child matches: %s.",
+                        combinedTag( localName, qName ),
+                        Stream
+                                .of( children )
+                                .map( c -> format( "%s['%s']", c.name(), c.getTag() ) )
+                                .collect( Collectors.joining( ", " ) )));
 
+    }
+
+    private String combinedTag( String localName, String qName )
+    {
+        return isNull( localName ) || localName.isEmpty()
+               ? qName
+               : isNull( qName ) || qName.isEmpty() || localName.equals( qName )
+                 ? localName
+                 : format( "%s | %s", localName, qName );
     }
 }

@@ -6,20 +6,20 @@ import static java.util.Optional.ofNullable;
 
 public interface StepTag< T, R > extends Tag< T, R >
 {
-
-    default R step( Object o )
+    default R step( Object o, OpenEvent openEvent )
     {
-        return getItem( ( T ) o );
+        return getItem( ( T ) o, openEvent );
     }
 
-    default Object open( Object o, Attributes attributes )
+    default Object open( Object c, Object o, OpenEvent event )
     {
+        T t = ( T ) c;
         R r = ( R ) o;
 
         try
         {
             return ofNullable( getOpener() )
-                    .map( opener -> opener.open( r, attributes ) )
+                    .map( opener -> opener.open( t, r, event ) )
                     .orElse( null );
         }
         catch ( Exception e )
@@ -29,12 +29,13 @@ public interface StepTag< T, R > extends Tag< T, R >
 
     }
 
-    default void close( Object o, String text, Object cached )
+    default void close( Object c, Object o, String text, Object cached )
     {
+        T t = ( T ) c;
         R r = ( R ) o;
 
         ofNullable( getCloser() )
-                .ifPresent( closer -> closer.close( r, text, cached ) );
+                .ifPresent( closer -> closer.close( t, r, text, cached ) );
 
         ofNullable( getValidator() )
                 .ifPresent( validator -> validator.accept( getSelf(), r ) );

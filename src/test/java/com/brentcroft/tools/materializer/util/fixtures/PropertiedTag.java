@@ -3,9 +3,8 @@ package com.brentcroft.tools.materializer.util.fixtures;
 import com.brentcroft.tools.materializer.core.*;
 import com.brentcroft.tools.materializer.util.model.Propertied;
 import lombok.Getter;
-import org.xml.sax.Attributes;
+import lombok.RequiredArgsConstructor;
 
-import java.util.Map;
 import java.util.Properties;
 
 @Getter
@@ -29,41 +28,22 @@ public enum PropertiedTag implements FlatTag< Propertied >
 }
 
 @Getter
+@RequiredArgsConstructor
 enum AttributePropertiesTag implements StepTag< Propertied, Properties >
 {
-    ATTRIBUTE( "attribute", Map.class,
-
-            // open: cache attributes.key
-            ( properties, attributes ) -> Tag.getAttributesMap( attributes ),
-
-            // close: de-cache attributes.key
-            ( properties, text, cache ) -> {
-                if ( ! cache.containsKey( "key" ) )
-                {
-                    throw new IllegalArgumentException( "missing attribute: key" );
-                }
-                properties.setProperty( cache.get( "key" ).toString(), text );
-            } );
+    ATTRIBUTE(
+            "attribute",
+            ( propertied, properties, event ) -> event.getAttributesMap(),
+            ( propertied, properties, text, attributesMap ) -> properties.setProperty( attributesMap.getAttribute( "key" ), text ) );
 
     private final String tag;
     private final StepTag< Propertied, Properties > self = this;
     private final boolean multiple = true;
-    private final Opener< Properties, Attributes, ? > opener;
-    private final Closer< Properties, String, ? > closer;
-
-    < T > AttributePropertiesTag(
-            String tag,
-            Class< T > cacheClass,
-            Opener< Properties, Attributes, T > opener,
-            Closer< Properties, String, T > closer )
-    {
-        this.tag = tag;
-        this.opener = opener;
-        this.closer = closer;
-    }
+    private final Opener< Propertied, Properties, OpenEvent, AttributesMap > opener;
+    private final Closer< Propertied, Properties, String, AttributesMap > closer;
 
     @Override
-    public Properties getItem( Propertied propertied )
+    public Properties getItem( Propertied propertied, OpenEvent openEvent )
     {
         return propertied.getAttributes();
     }

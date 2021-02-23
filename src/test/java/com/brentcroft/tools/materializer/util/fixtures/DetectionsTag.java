@@ -23,7 +23,7 @@ public enum DetectionsTag implements FlatTag< Detections >
 
     SIZE(
             "size",
-            ( detections, attributes ) -> {
+            ( detections, event ) -> {
                 detections.setSize( new Size() );
             },
             null,
@@ -33,7 +33,7 @@ public enum DetectionsTag implements FlatTag< Detections >
 
     DETECTIONS(
             "annotation",
-            ( detections, attributes ) -> {
+            ( detections, event ) -> {
                 detections.setDetections( new LinkedList<>() );
                 detections.setAttributes( new Properties() );
             },
@@ -44,23 +44,24 @@ public enum DetectionsTag implements FlatTag< Detections >
             FILENAME,
             PATH,
             SIZE,
-            DetectionListTag.DETECTION ),
+            DetectionListTag.DETECTION,
+            PropertiedTag.ATTRIBUTES ),
 
     ROOT( "", null, null, DETECTIONS );
 
     private final String tag;
     private final FlatTag< Detections > self = this;
-    private final Opener< Detections, Attributes, ? > opener;
-    private final Closer< Detections, String, ? > closer;
+    private final FlatOpener< Detections, OpenEvent > opener;
+    private final FlatCloser< Detections, String > closer;
     private final Tag< ? super Detections, ? >[] children;
 
 
     @SafeVarargs
-    DetectionsTag( String tag, BiConsumer< Detections, Attributes > opener, BiConsumer< Detections, String > closer, Tag< ? super Detections, ? >... children )
+    DetectionsTag( String tag, BiConsumer< Detections, OpenEvent > opener, BiConsumer< Detections, String > closer, Tag< ? super Detections, ? >... children )
     {
         this.tag = tag;
-        this.opener = Opener.noCacheOpener( opener );
-        this.closer = Closer.noCacheCloser( closer );
+        this.opener = Opener.flatOpener( opener );
+        this.closer = Closer.flatCloser( closer );
         this.children = children;
     }
 }
@@ -82,16 +83,16 @@ enum SizeTag implements StepTag< Detections, Size >
 
     private final String tag;
     private final StepTag< Detections, Size > self = this;
-    private final Closer< Size, String, ? > closer;
+    private final StepCloser< Detections, Size, String > closer;
 
     SizeTag( String tag, BiConsumer< Size, String > closer )
     {
         this.tag = tag;
-        this.closer = Closer.noCacheCloser( closer );
+        this.closer = Closer.stepCloser( closer );
     }
 
     @Override
-    public Size getItem( Detections detections )
+    public Size getItem( Detections detections, OpenEvent openEvent )
     {
         return detections.getSize();
     }
@@ -102,7 +103,7 @@ enum DetectionListTag implements StepTag< Detections, Detection >
 {
     DETECTION(
             "object",
-            ( detection, attributes ) -> detection.setAttributes( new Properties() ),
+            ( detection, event ) -> detection.setAttributes( new Properties() ),
             DetectionTag.NAME,
             DetectionTag.SCORE,
             DetectionTag.WEIGHT,
@@ -112,22 +113,22 @@ enum DetectionListTag implements StepTag< Detections, Detection >
     private final boolean multiple = true;
     private final StepTag< Detections, Detection > self = this;
     private final String tag;
-    private final Opener< Detection, Attributes, ? > opener;
+    private final StepOpener< Detections, Detection, OpenEvent > opener;
     private final Tag< ? super Detection, ? >[] children;
 
     @SafeVarargs
     DetectionListTag(
             String tag,
-            BiConsumer< Detection, Attributes > opener,
+            BiConsumer< Detection, OpenEvent > opener,
             Tag< ? super Detection, ? >... children )
     {
         this.tag = tag;
-        this.opener = Opener.noCacheOpener( opener );
+        this.opener = Opener.stepOpener( opener );
         this.children = children;
     }
 
     @Override
-    public Detection getItem( Detections detections )
+    public Detection getItem( Detections detections, OpenEvent openEvent )
     {
         Detection detection = new Detection();
         detections.getDetections().add( detection );

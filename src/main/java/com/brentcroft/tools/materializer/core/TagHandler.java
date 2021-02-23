@@ -2,7 +2,9 @@ package com.brentcroft.tools.materializer.core;
 
 import com.brentcroft.tools.materializer.TagHandlerException;
 import lombok.Getter;
+import lombok.Setter;
 import org.xml.sax.Attributes;
+import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -17,6 +19,9 @@ import static java.util.Objects.nonNull;
 @Getter
 public class TagHandler< R > extends DefaultHandler
 {
+    @Setter
+    private Locator documentLocator;
+
     private final Stack< Object > itemStack = new Stack<>();
     private final Stack< Object > cacheStack = new Stack<>();
 
@@ -42,6 +47,8 @@ public class TagHandler< R > extends DefaultHandler
 
     public void startElement( String uri, String localName, String qName, Attributes attributes )
     {
+        OpenEvent openEvent = new OpenEvent( uri, localName, qName, attributes );
+
         characters.setLength( 0 );
 
         if ( tagModelStack.isEmpty() )
@@ -53,20 +60,52 @@ public class TagHandler< R > extends DefaultHandler
             throw new TagHandlerException( this, format( "Model on stack is null for localName: '%s'", localName ) );
         }
 
+        Tag< ?, ? > tag;
 
-        Tag< ?, ? > tag = tagModelStack.peek().getTag( uri, localName, qName, attributes );
+        Object contextItem = itemStack.peek();
 
+        try
+        {
+            tag = tagModelStack.peek().getTag( uri, localName, qName, attributes );
 
-        Object item = itemStack.peek();
+            while ( tag instanceof JumpTag )
+            {
+                Object jumpItem = ( ( JumpTag< ?, ? > ) tag ).step( contextItem, openEvent );
+
+                itemStack.push( jumpItem );
+                tagStack.push( tag );
+                tagModelStack.push( tag.getTagModel() );
+                cacheStack.push( tag.open( contextItem, jumpItem, openEvent ) );
+
+                Tag< ?, ? > jumpTag = tag.getTagModel().getTag( uri, localName, qName, attributes );
+
+                System.out.printf( "jump: %s -> %s%n", tag, jumpTag );
+
+                contextItem = jumpItem;
+                tag = jumpTag;
+            }
+        }
+        catch ( ValidationException e )
+        {
+            throw new TagHandlerException( this, e );
+        }
+
+        openEvent.setTag( tag );
+
+        Object item;
 
         //System.out.printf( "key=%s, tag=%s, item=%s %n", localName, tag, item.getClass().getSimpleName() );
 
         if ( tag instanceof StepTag )
         {
             // risk of ClassCastException
-            item = ( ( StepTag< ?, ? > ) tag ).step( item );
+            item = ( ( StepTag< ?, ? > ) tag ).step( contextItem, openEvent );
 
             itemStack.push( item );
+        }
+        else
+        {
+            item = contextItem;
         }
 
         if ( isNull( item ) )
@@ -76,30 +115,55 @@ public class TagHandler< R > extends DefaultHandler
 
         tagStack.push( tag );
         tagModelStack.push( tag.getTagModel() );
-        cacheStack.push( tag.open( item, attributes ) );
+        cacheStack.push( tag.open( contextItem, item, openEvent ) );
     }
 
     public void endElement( String uri, String localName, String qName )
     {
-        Object cachedObject = cacheStack.pop();
-        Tag< ?, ? > tag = tagStack.pop();
+        Object cachedObject = cacheStack.peek();
+        Tag< ?, ? > tag = tagStack.peek();
 
         if ( nonNull( tag ) )
         {
-            Object item = itemStack.peek();
-
-            // stacks identify state if exception thrown
-            tag.close( item, characters.toString().trim(), cachedObject );
+            Object item;
 
             if ( tag instanceof StepTag )
             {
-                itemStack.pop();
+                item = itemStack.pop();
             }
+            else
+            {
+                item = itemStack.peek();
+            }
+
+            Object contextItem = itemStack.peek();
+
+            // stacks identify state if exception thrown
+            tag.close( contextItem, item, characters.toString(), cachedObject );
         }
 
         // pop the stacks
+        cacheStack.pop();
         tagModelStack.pop();
+        tagStack.pop();
         characters.setLength( 0 );
+
+        Tag< ?, ? > jumpTag = tagStack.isEmpty() ? null : tagStack.peek();
+
+        while ( jumpTag instanceof JumpTag )
+        {
+            tagModelStack.pop();
+            Object item = itemStack.pop();
+            Object contextItem = itemStack.peek();
+
+            jumpTag.close( contextItem, item, "", null );
+
+            tag = tagStack.pop();
+
+            jumpTag = tagStack.isEmpty() ? null : tagStack.peek();
+
+            System.out.printf( "return: %s <- %s%n", tag, jumpTag );
+        }
     }
 
     public void characters( char[] ch, int start, int length )

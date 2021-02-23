@@ -7,6 +7,7 @@ import com.brentcroft.tools.materializer.core.ValidationException;
 import lombok.Getter;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
@@ -122,12 +123,23 @@ public class Materializer< R > implements Function< InputSource, R >
         }
     }
 
+    /**
+     * Caller's responsibility to capture the rootItem.
+     *
+     * @return a TagHandler on a root tag and root item
+     */
+    public TagHandler<R> getDefaultHandler()
+    {
+        return new TagHandler<>( rootTagSupplier.get(), rootItemSupplier.get() );
+    }
+
+
     @Override
     public R apply( InputSource inputSource )
     {
         R rootItem = rootItemSupplier.get();
 
-        TagHandler< R > tagHandler = new TagHandler<>( rootTagSupplier.get(), rootItem );
+        TagHandler< R > tagHandler =  new TagHandler<>( rootTagSupplier.get(), rootItem );
 
         SAXParser parser = null;
 

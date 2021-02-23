@@ -204,7 +204,7 @@ public class Mutator
                         .collect( Collectors.toList() ) )
                 .orElse( emptyList() );
 
-        // remove super shadow duplicates
+        // remove super shadow duplicates, given sorted by name
         for ( int i = mutators.size() - 1; i > 0; i-- )
         {
             Mutator m1 = mutators.get( i );

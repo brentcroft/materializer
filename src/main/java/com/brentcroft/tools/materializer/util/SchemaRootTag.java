@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
@@ -30,15 +31,14 @@ public enum SchemaRootTag implements FlatTag< SchemaObject >
 
     IMPORT(
             "import",
-            Map.class,
-            ( schemaObject, attributes ) -> Tag.getAttributesMap( attributes )
-    )
+            AttributesMap.class,
+            ( schemaObject, event ) -> event.getAttributesMap() )
             {
                 @Override
-                public Closer< SchemaObject, String, Map< ?, ? > > getCloser()
+                public Closer< SchemaObject, SchemaObject, String, Map< ?, ? > > getCloser()
                 {
 
-                    return ( schemaObject, text, cache ) -> {
+                    return ( context, schemaObject, text, cache ) -> {
 
                         File currentLocus = new File( schemaObject.getSystemId() );
 
@@ -79,11 +79,11 @@ public enum SchemaRootTag implements FlatTag< SchemaObject >
 
     SCHEMA(
             "schema",
-            ( schemaObject, attributes ) -> {
+            ( schemaObject, event ) -> {
 
-                Map< String, String > cacheMap = Tag.getAttributesMap( attributes );
+                AttributesMap attrs = event.getAttributesMap();
 
-                cacheMap
+                attrs
                         .forEach( ( k, v ) -> {
                             if ( k.startsWith( "xmlns:" ) )
                             {
@@ -100,7 +100,7 @@ public enum SchemaRootTag implements FlatTag< SchemaObject >
                             }
                         } );
 
-                ofNullable( cacheMap.get( "targetNamespace" ) )
+                ofNullable( attrs.getAttribute( "targetNamespace", false ) )
                         .flatMap( targetNamespace -> schemaObject
                                 .getNamespacePrefixes()
                                 .entrySet()
@@ -122,7 +122,7 @@ public enum SchemaRootTag implements FlatTag< SchemaObject >
     private final boolean multiple = true;
     private final boolean choice = true;
     private final FlatTag< SchemaObject > self = this;
-    private final Opener< SchemaObject, Attributes, ? > opener;
+    private final Opener< SchemaObject, SchemaObject, OpenEvent, ? > opener;
     private final Tag< ? super SchemaObject, ? >[] children;
 
     @SafeVarargs
@@ -139,12 +139,12 @@ public enum SchemaRootTag implements FlatTag< SchemaObject >
     @SafeVarargs
     SchemaRootTag(
             String tag,
-            BiConsumer< SchemaObject, Attributes > opener,
+            BiConsumer< SchemaObject, OpenEvent > opener,
             Tag< ? super SchemaObject, ? >... children
     )
     {
         this.tag = tag;
-        this.opener = Opener.noCacheOpener( opener );
+        this.opener = Opener.flatOpener( opener );
         this.children = children;
     }
 
@@ -152,11 +152,11 @@ public enum SchemaRootTag implements FlatTag< SchemaObject >
             String tag,
             @SuppressWarnings( value = "unused" )
                     Class< T > cacheClass,
-            Opener< SchemaObject, Attributes, T > opener
+            BiFunction< SchemaObject, OpenEvent, T > opener
     )
     {
         this.tag = tag;
-        this.opener = opener;
+        this.opener = Opener.flatCacheOpener( opener );
         this.children = Tag.tags();
     }
 }
@@ -166,13 +166,13 @@ enum SchemaReferenceTag implements StepTag< SchemaObject, SchemaItem >
 {
     ELEMENT(
             "element",
-            ( item, attributes ) -> item.setAttributes( Tag.getAttributesMap( attributes ) ),
+            ( schema, item, event ) -> item.setAttributes(event.getAttributesMap().asMap() ),
             SchemaLeafTag.COMPLEX_TYPE,
             SchemaLeafTag.SIMPLE_TYPE,
             SchemaLeafTag.ANNOTATION )
             {
                 @Override
-                public ElementObject getItem( SchemaObject schemaObject )
+                public ElementObject getItem( SchemaObject schemaObject, OpenEvent openEvent )
                 {
                     ElementObject item = new ElementObject( null );
                     schemaObject.getRootObjects().add( item );
@@ -182,7 +182,7 @@ enum SchemaReferenceTag implements StepTag< SchemaObject, SchemaItem >
 
     COMPLEX_TYPE(
             "complexType",
-            ( item, attributes ) -> item.setAttributes( Tag.getAttributesMap( attributes ) ),
+            ( schema, item, event ) -> item.setAttributes(event.getAttributesMap().asMap() ),
             SchemaLeafTag.CHOICE,
             SchemaLeafTag.SEQUENCE,
             SchemaLeafTag.SIMPLE_CONTENT,
@@ -190,7 +190,7 @@ enum SchemaReferenceTag implements StepTag< SchemaObject, SchemaItem >
             SchemaLeafTag.ANYATTRIBUTE )
             {
                 @Override
-                public ComplexTypeObject getItem( SchemaObject schemaObject )
+                public ComplexTypeObject getItem( SchemaObject schemaObject, OpenEvent openEvent )
                 {
                     ComplexTypeObject item = new ComplexTypeObject( null );
                     schemaObject.getComplexTypes().add( item );
@@ -200,13 +200,13 @@ enum SchemaReferenceTag implements StepTag< SchemaObject, SchemaItem >
 
     SIMPLE_TYPE(
             "simpleType",
-            ( item, attributes ) -> item.setAttributes( Tag.getAttributesMap( attributes ) ),
+            ( schema, item, event ) -> item.setAttributes(event.getAttributesMap().asMap() ),
             SchemaLeafTag.RESTRICTION,
             SchemaLeafTag.ANNOTATION,
             SchemaLeafTag.LIST )
             {
                 @Override
-                public SimpleTypeObject getItem( SchemaObject schemaObject )
+                public SimpleTypeObject getItem( SchemaObject schemaObject, OpenEvent openEvent )
                 {
                     SimpleTypeObject item = new SimpleTypeObject( null );
                     schemaObject.getSimpleTypes().add( item );
@@ -218,19 +218,19 @@ enum SchemaReferenceTag implements StepTag< SchemaObject, SchemaItem >
     private final String tag;
     private final StepTag< SchemaObject, SchemaItem > self = this;
     private final boolean choice = true;
-    private final Opener< SchemaItem, Attributes, ? > opener;
+    private final StepOpener< SchemaObject, SchemaItem, OpenEvent > opener;
     private final boolean multiple = true;
     private final Tag< ? super SchemaItem, ? >[] children;
 
     @SafeVarargs
     SchemaReferenceTag(
             String tag,
-            BiConsumer< SchemaItem, Attributes > opener,
+            TriConsumer< SchemaObject, SchemaItem, OpenEvent > opener,
             Tag< ? super SchemaItem, ? >... children
     )
     {
         this.tag = tag;
-        this.opener = Opener.noCacheOpener( opener );
+        this.opener = Opener.stepOpener( opener );
         this.children = children;
     }
 }
@@ -241,13 +241,13 @@ enum SchemaElementTag implements StepTag< SchemaItem, SchemaItem >
 {
     ELEMENT(
             "element",
-            ( item, attributes ) -> item.setAttributes( Tag.getAttributesMap( attributes ) ),
+            ( item, event ) -> item.setAttributes( event.getAttributesMap().asMap() ),
             SchemaLeafTag.COMPLEX_TYPE,
             SchemaLeafTag.SIMPLE_TYPE,
             SchemaLeafTag.ANNOTATION )
             {
                 @Override
-                public ElementObject getItem( SchemaItem schemaItem )
+                public ElementObject getItem( SchemaItem schemaItem, OpenEvent openEvent )
                 {
                     ElementObject item = new ElementObject( schemaItem );
                     schemaItem.addElement( item );
@@ -259,19 +259,19 @@ enum SchemaElementTag implements StepTag< SchemaItem, SchemaItem >
     private final String tag;
     private final StepTag< SchemaItem, SchemaItem > self = this;
     private final boolean choice = true;
-    private final Opener< SchemaItem, Attributes, ? > opener;
+    private final FlatOpener< SchemaItem, OpenEvent > opener;
     private final boolean multiple = true;
     private final Tag< ? super SchemaItem, ? >[] children;
 
     @SafeVarargs
     SchemaElementTag(
             String tag,
-            BiConsumer< SchemaItem, Attributes > opener,
+            BiConsumer< SchemaItem, OpenEvent > opener,
             Tag< ? super SchemaItem, ? >... children
     )
     {
         this.tag = tag;
-        this.opener = Opener.noCacheOpener( opener );
+        this.opener = Opener.flatOpener( opener );
         this.children = children;
     }
 }
@@ -357,8 +357,8 @@ enum SchemaLeafTag implements FlatTag< SchemaItem >
     private final FlatTag< SchemaItem > self = this;
     private final boolean multiple = true;
     private final boolean choice = true;
-    private final Opener< SchemaItem, Attributes, ? > opener;
-    private final Closer< SchemaItem, String, ? > closer;
+    private final FlatCacheOpener< SchemaItem, OpenEvent, ? > opener;
+    private final FlatCacheCloser< SchemaItem, String, ? > closer;
     private final Tag< ? super SchemaItem, ? >[] children;
 
 
@@ -373,14 +373,14 @@ enum SchemaLeafTag implements FlatTag< SchemaItem >
             String tag,
             @SuppressWarnings( value = "unused" )
                     Class< C > c,
-            Opener< SchemaItem, Attributes, C > opener,
-            Closer< SchemaItem, String, C > closer,
+            BiFunction< SchemaItem, OpenEvent, C > opener,
+            TriConsumer< SchemaItem, String, C > closer,
             Tag< ? super SchemaItem, ? >... children
     )
     {
         this.tag = tag;
-        this.opener = opener;
-        this.closer = closer;
+        this.opener = Opener.flatCacheOpener( opener );
+        this.closer = Closer.flatCacheCloser( closer );
         this.children = children;
     }
 }
