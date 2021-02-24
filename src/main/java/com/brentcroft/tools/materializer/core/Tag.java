@@ -1,10 +1,11 @@
 package com.brentcroft.tools.materializer.core;
 
-import org.xml.sax.Attributes;
+import com.brentcroft.tools.materializer.model.Closer;
+import com.brentcroft.tools.materializer.model.Opener;
 
 import java.util.function.BiConsumer;
 
-import static com.brentcroft.tools.materializer.core.ElementMatcher.getDefaultMatcher;
+import static com.brentcroft.tools.materializer.core.EventMatcher.getDefaultMatcher;
 import static java.util.Objects.isNull;
 
 /**
@@ -30,19 +31,7 @@ public interface Tag< T, R >
         return tags;
     }
 
-    /**
-     * Utility method to capture Attributes to an AttributesMap.
-     * <p>
-     * Delegates to <code>AttributesMap.getAttributesMap( attributes )</code>
-     *
-     * @param attributes XML attributes
-     * @return an AttributesMap
-     */
-    static AttributesMap getAttributesMap( Attributes attributes )
-    {
-        return AttributesMap.getAttributesMap( attributes );
-    }
-
+    // TODO: a set of tags
     String getTag();
 
     String name();
@@ -52,7 +41,7 @@ public interface Tag< T, R >
      * <p>
      * NB: A FlatTag provides itself as the member.
      *
-     * @param t a context object
+     * @param t         a context object
      * @param openEvent details of the event
      * @return a member of the context object
      */
@@ -68,9 +57,9 @@ public interface Tag< T, R >
     /**
      * Called by TagHandler.startElement to consume attributes.
      *
-     * @param c          the context object
-     * @param r          the object in context
-     * @param event  details of the event
+     * @param c     the context object
+     * @param r     the object in context
+     * @param event details of the event
      * @return an object to cache and pas to the closer
      */
     Object open( Object c, Object r, OpenEvent event );
@@ -113,15 +102,12 @@ public interface Tag< T, R >
      * <p>
      * Delegates to the assigned ElementMatcher.
      *
-     * @param uri        a namespace uri
-     * @param localName  a local tag name
-     * @param qName      a qualified tag name
-     * @param attributes SAX attributes
-     * @return true if this Tag matches the supplied open element arguments
+     * @param openEvent an OpenEvent
+     * @return true if this Tag matches the supplied OpenEvent
      */
-    default boolean matches( String uri, String localName, String qName, Attributes attributes )
+    default boolean matches( OpenEvent openEvent )
     {
-        return getElementMatcher().matches( uri, localName, qName, attributes );
+        return getElementMatcher().matches( openEvent );
     }
 
     /**
@@ -159,11 +145,10 @@ public interface Tag< T, R >
      *
      * @return the default ElementMatcher
      */
-    default ElementMatcher getElementMatcher()
+    default EventMatcher getElementMatcher()
     {
         return getDefaultMatcher( getTag() );
     }
-
 
 
     /**

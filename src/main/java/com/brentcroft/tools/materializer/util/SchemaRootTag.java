@@ -1,9 +1,11 @@
 package com.brentcroft.tools.materializer.util;
 
 import com.brentcroft.tools.materializer.Materializer;
-import com.brentcroft.tools.materializer.core.*;
+import com.brentcroft.tools.materializer.core.OpenEvent;
+import com.brentcroft.tools.materializer.core.Tag;
+import com.brentcroft.tools.materializer.core.TriConsumer;
+import com.brentcroft.tools.materializer.model.*;
 import lombok.Getter;
-import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 
 import java.io.File;
@@ -31,18 +33,17 @@ public enum SchemaRootTag implements FlatTag< SchemaObject >
 
     IMPORT(
             "import",
-            AttributesMap.class,
-            ( schemaObject, event ) -> event.getAttributesMap() )
+            ( schemaObject, event ) -> event )
             {
                 @Override
-                public Closer< SchemaObject, SchemaObject, String, Map< ?, ? > > getCloser()
+                public Closer< SchemaObject, SchemaObject, String, OpenEvent > getCloser()
                 {
 
-                    return ( context, schemaObject, text, cache ) -> {
+                    return ( context, schemaObject, text, event ) -> {
 
                         File currentLocus = new File( schemaObject.getSystemId() );
 
-                        String systemId = format( "%s/%s", currentLocus.getParent(), cache.get( "schemaLocation" ) );
+                        String systemId = format( "%s/%s", currentLocus.getParent(), event.getAttribute( "schemaLocation" ) );
 
                         Materializer< SchemaObject > materializer = new Materializer<>(
                                 () -> SchemaRootTag.ROOT,
@@ -81,17 +82,15 @@ public enum SchemaRootTag implements FlatTag< SchemaObject >
             "schema",
             ( schemaObject, event ) -> {
 
-                AttributesMap attrs = event.getAttributesMap();
-
-                attrs
+                event
                         .forEach( ( k, v ) -> {
-                            if ( k.startsWith( "xmlns:" ) )
+                            if ( k.toString().startsWith( "xmlns:" ) )
                             {
-                                String prefix = k.substring( 6 );
+                                String prefix = k.toString().substring( 6 );
 
                                 schemaObject
                                         .getNamespacePrefixes()
-                                        .put( prefix, v );
+                                        .put( prefix, v.toString() );
 
                                 if ( "http://www.w3.org/2001/XMLSchema".equals( v ) )
                                 {
@@ -100,7 +99,7 @@ public enum SchemaRootTag implements FlatTag< SchemaObject >
                             }
                         } );
 
-                ofNullable( attrs.getAttribute( "targetNamespace", false ) )
+                ofNullable( event.getAttribute( "targetNamespace", false ) )
                         .flatMap( targetNamespace -> schemaObject
                                 .getNamespacePrefixes()
                                 .entrySet()
@@ -150,8 +149,6 @@ public enum SchemaRootTag implements FlatTag< SchemaObject >
 
     < T > SchemaRootTag(
             String tag,
-            @SuppressWarnings( value = "unused" )
-                    Class< T > cacheClass,
             BiFunction< SchemaObject, OpenEvent, T > opener
     )
     {
@@ -166,13 +163,13 @@ enum SchemaReferenceTag implements StepTag< SchemaObject, SchemaItem >
 {
     ELEMENT(
             "element",
-            ( schema, item, event ) -> item.setAttributes(event.getAttributesMap().asMap() ),
+            ( schema, item, event ) -> item.setAttributes( event.asMap() ),
             SchemaLeafTag.COMPLEX_TYPE,
             SchemaLeafTag.SIMPLE_TYPE,
             SchemaLeafTag.ANNOTATION )
             {
                 @Override
-                public ElementObject getItem( SchemaObject schemaObject, OpenEvent openEvent )
+                public ElementObject getItem( SchemaObject schemaObject, OpenEvent event )
                 {
                     ElementObject item = new ElementObject( null );
                     schemaObject.getRootObjects().add( item );
@@ -182,7 +179,7 @@ enum SchemaReferenceTag implements StepTag< SchemaObject, SchemaItem >
 
     COMPLEX_TYPE(
             "complexType",
-            ( schema, item, event ) -> item.setAttributes(event.getAttributesMap().asMap() ),
+            ( schema, item, event ) -> item.setAttributes( event.asMap() ),
             SchemaLeafTag.CHOICE,
             SchemaLeafTag.SEQUENCE,
             SchemaLeafTag.SIMPLE_CONTENT,
@@ -190,7 +187,7 @@ enum SchemaReferenceTag implements StepTag< SchemaObject, SchemaItem >
             SchemaLeafTag.ANYATTRIBUTE )
             {
                 @Override
-                public ComplexTypeObject getItem( SchemaObject schemaObject, OpenEvent openEvent )
+                public ComplexTypeObject getItem( SchemaObject schemaObject, OpenEvent event )
                 {
                     ComplexTypeObject item = new ComplexTypeObject( null );
                     schemaObject.getComplexTypes().add( item );
@@ -200,13 +197,13 @@ enum SchemaReferenceTag implements StepTag< SchemaObject, SchemaItem >
 
     SIMPLE_TYPE(
             "simpleType",
-            ( schema, item, event ) -> item.setAttributes(event.getAttributesMap().asMap() ),
+            ( schema, item, event ) -> item.setAttributes( event.asMap() ),
             SchemaLeafTag.RESTRICTION,
             SchemaLeafTag.ANNOTATION,
             SchemaLeafTag.LIST )
             {
                 @Override
-                public SimpleTypeObject getItem( SchemaObject schemaObject, OpenEvent openEvent )
+                public SimpleTypeObject getItem( SchemaObject schemaObject, OpenEvent event )
                 {
                     SimpleTypeObject item = new SimpleTypeObject( null );
                     schemaObject.getSimpleTypes().add( item );
@@ -241,13 +238,13 @@ enum SchemaElementTag implements StepTag< SchemaItem, SchemaItem >
 {
     ELEMENT(
             "element",
-            ( item, event ) -> item.setAttributes( event.getAttributesMap().asMap() ),
+            ( item, event ) -> item.setAttributes( event.asMap() ),
             SchemaLeafTag.COMPLEX_TYPE,
             SchemaLeafTag.SIMPLE_TYPE,
             SchemaLeafTag.ANNOTATION )
             {
                 @Override
-                public ElementObject getItem( SchemaItem schemaItem, OpenEvent openEvent )
+                public ElementObject getItem( SchemaItem schemaItem, OpenEvent event )
                 {
                     ElementObject item = new ElementObject( schemaItem );
                     schemaItem.addElement( item );
@@ -365,14 +362,12 @@ enum SchemaLeafTag implements FlatTag< SchemaItem >
     @SafeVarargs
     SchemaLeafTag( String tag, Tag< ? super SchemaItem, ? >... children )
     {
-        this( tag, Object.class, null, null, children );
+        this( tag, null, null, children );
     }
 
     @SafeVarargs
     < C > SchemaLeafTag(
             String tag,
-            @SuppressWarnings( value = "unused" )
-                    Class< C > c,
             BiFunction< SchemaItem, OpenEvent, C > opener,
             TriConsumer< SchemaItem, String, C > closer,
             Tag< ? super SchemaItem, ? >... children

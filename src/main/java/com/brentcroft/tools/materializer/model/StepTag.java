@@ -1,6 +1,8 @@
-package com.brentcroft.tools.materializer.core;
+package com.brentcroft.tools.materializer.model;
 
-import org.xml.sax.Attributes;
+import com.brentcroft.tools.materializer.core.OpenEvent;
+import com.brentcroft.tools.materializer.core.Tag;
+import com.brentcroft.tools.materializer.ValidationException;
 
 import static java.util.Optional.ofNullable;
 
@@ -24,7 +26,7 @@ public interface StepTag< T, R > extends Tag< T, R >
         }
         catch ( Exception e )
         {
-            throw new ValidationException( this, e.getMessage() );
+            throw new ValidationException( this, e );
         }
 
     }

@@ -8,7 +8,6 @@ import org.xml.sax.Attributes;
 @RequiredArgsConstructor
 public class CloseEvent
 {
-    private final String uri;
-    private final String localName;
-    private final String qName;
+    private final OpenEvent openEvent;
+
 }

@@ -1,6 +1,10 @@
 package com.brentcroft.tools.materializer.util.fixtures;
 
 import com.brentcroft.tools.materializer.core.*;
+import com.brentcroft.tools.materializer.model.Closer;
+import com.brentcroft.tools.materializer.model.FlatTag;
+import com.brentcroft.tools.materializer.model.Opener;
+import com.brentcroft.tools.materializer.model.StepTag;
 import com.brentcroft.tools.materializer.util.model.Propertied;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -33,8 +37,8 @@ enum AttributePropertiesTag implements StepTag< Propertied, Properties >
 {
     ATTRIBUTE(
             "attribute",
-            ( propertied, properties, event ) -> event.getAttributesMap(),
-            ( propertied, properties, text, attributesMap ) -> properties.setProperty( attributesMap.getAttribute( "key" ), text ) );
+            ( propertied, properties, event ) -> event,
+            ( propertied, properties, text, event ) -> properties.setProperty( event.getAttribute( "key" ), text ) );
 
     private final String tag;
     private final StepTag< Propertied, Properties > self = this;

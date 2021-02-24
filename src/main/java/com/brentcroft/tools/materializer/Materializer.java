@@ -1,13 +1,12 @@
 package com.brentcroft.tools.materializer;
 
 
-import com.brentcroft.tools.materializer.core.FlatTag;
+import com.brentcroft.tools.materializer.model.FlatTag;
 import com.brentcroft.tools.materializer.core.TagHandler;
-import com.brentcroft.tools.materializer.core.ValidationException;
 import lombok.Getter;
+import lombok.Setter;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
@@ -43,6 +42,9 @@ public class Materializer< R > implements Function< InputSource, R >
     private final List< SAXParser > parsers = new LinkedList<>();
     private final Supplier< FlatTag< ? super R > > rootTagSupplier;
     private final Supplier< R > rootItemSupplier;
+
+    @Setter
+    private ContextValue contextValue;
 
     public Materializer( Supplier< FlatTag< ? super R > > rootTagSupplier, Supplier< R > rootItemSupplier )
     {
@@ -130,7 +132,11 @@ public class Materializer< R > implements Function< InputSource, R >
      */
     public TagHandler<R> getDefaultHandler()
     {
-        return new TagHandler<>( rootTagSupplier.get(), rootItemSupplier.get() );
+        TagHandler< R > tagHandler =   new TagHandler<>( rootTagSupplier.get(), rootItemSupplier.get() );
+
+        tagHandler.setContextValue( contextValue );
+
+        return tagHandler;
     }
 
 
@@ -140,6 +146,8 @@ public class Materializer< R > implements Function< InputSource, R >
         R rootItem = rootItemSupplier.get();
 
         TagHandler< R > tagHandler =  new TagHandler<>( rootTagSupplier.get(), rootItem );
+
+        tagHandler.setContextValue( contextValue );
 
         SAXParser parser = null;
 

@@ -1,10 +1,9 @@
 package com.brentcroft.tools.materializer.util;
 
 import com.brentcroft.tools.materializer.core.*;
+import com.brentcroft.tools.materializer.model.*;
 import lombok.Getter;
-import org.xml.sax.Attributes;
 
-import java.util.Optional;
 import java.util.Properties;
 import java.util.function.BiFunction;
 
@@ -16,13 +15,7 @@ public enum PropertiesRootTag implements FlatTag< Properties >
 {
     ENTRY(
             "entry",
-
-            String.class,
-
-            ( properties, event ) -> event
-                    .getAttributesMap()
-                    .getAttribute( "key" ),
-
+            ( properties, event ) -> event.getAttribute( "key" ),
             ( properties, text, cache ) -> properties.setProperty( cache, text ) ),
 
     COMMENT( "comment" ),
@@ -40,13 +33,12 @@ public enum PropertiesRootTag implements FlatTag< Properties >
     @SafeVarargs
     PropertiesRootTag( String tag, Tag< ? super Properties, ? >... children )
     {
-        this( tag, Object.class, null, null, children );
+        this( tag,null, null, children );
     }
 
     @SafeVarargs
     < C > PropertiesRootTag(
             String tag,
-            Class< C > c,
             BiFunction< Properties, OpenEvent, C > opener,
             TriConsumer< Properties, String, C > closer,
             Tag< ? super Properties, ? >... children

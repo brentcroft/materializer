@@ -1,11 +1,11 @@
 package com.brentcroft.tools.materializer.util.fixtures;
 
 import com.brentcroft.tools.materializer.core.*;
+import com.brentcroft.tools.materializer.model.*;
 import com.brentcroft.tools.materializer.util.model.Box;
 import com.brentcroft.tools.materializer.util.model.Boxed;
 import com.brentcroft.tools.materializer.util.model.Detection;
 import lombok.Getter;
-import org.xml.sax.Attributes;
 
 import java.util.function.BiConsumer;
 

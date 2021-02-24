@@ -1,11 +1,11 @@
 package com.brentcroft.tools.materializer.util.fixtures;
 
 import com.brentcroft.tools.materializer.core.*;
+import com.brentcroft.tools.materializer.model.*;
 import com.brentcroft.tools.materializer.util.model.Detection;
 import com.brentcroft.tools.materializer.util.model.Detections;
 import com.brentcroft.tools.materializer.util.model.Size;
 import lombok.Getter;
-import org.xml.sax.Attributes;
 
 import java.util.LinkedList;
 import java.util.Properties;

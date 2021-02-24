@@ -1,6 +1,11 @@
 package com.brentcroft.tools.materializer.core;
 
+import com.brentcroft.tools.materializer.ContextValue;
 import com.brentcroft.tools.materializer.TagHandlerException;
+import com.brentcroft.tools.materializer.ValidationException;
+import com.brentcroft.tools.materializer.model.FlatTag;
+import com.brentcroft.tools.materializer.model.JumpTag;
+import com.brentcroft.tools.materializer.model.StepTag;
 import lombok.Getter;
 import lombok.Setter;
 import org.xml.sax.Attributes;
@@ -15,6 +20,7 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static java.util.Optional.ofNullable;
 
 @Getter
 public class TagHandler< R > extends DefaultHandler
@@ -22,6 +28,10 @@ public class TagHandler< R > extends DefaultHandler
     @Setter
     private Locator documentLocator;
 
+    @Setter
+    private ContextValue contextValue;
+
+    private final Stack< OpenEvent > eventStack = new Stack<>();
     private final Stack< Object > itemStack = new Stack<>();
     private final Stack< Object > cacheStack = new Stack<>();
 
@@ -41,23 +51,36 @@ public class TagHandler< R > extends DefaultHandler
     {
         return tagStack
                 .stream()
+                .filter( t -> ! ( t instanceof JumpTag ) )
                 .map( Tag::getTag )
                 .collect( Collectors.joining( "/" ) );
     }
 
+    public void startDocument()
+    {
+        eventStack.push( new OpenEvent( null, null, null, null, contextValue ) );
+    }
+
     public void startElement( String uri, String localName, String qName, Attributes attributes )
     {
-        OpenEvent openEvent = new OpenEvent( uri, localName, qName, attributes );
+        OpenEvent openEvent = new OpenEvent(
+                uri,
+                localName,
+                qName,
+                attributes,
+                eventStack
+                        .peek()
+                        .inContext() );
 
         characters.setLength( 0 );
 
         if ( tagModelStack.isEmpty() )
         {
-            throw new TagHandlerException( this, format( "Empty stack for localName: '%s'", localName ) );
+            throw new TagHandlerException( this, format( "Empty stack for localName: '%s'", openEvent.combinedTag() ) );
         }
         else if ( isNull( tagModelStack.peek() ) )
         {
-            throw new TagHandlerException( this, format( "Model on stack is null for localName: '%s'", localName ) );
+            throw new TagHandlerException( this, format( "Unexpected tag '%s': %s does not accept children.", openEvent.combinedTag(), tagStack.peek() ) );
         }
 
         Tag< ?, ? > tag;
@@ -66,7 +89,7 @@ public class TagHandler< R > extends DefaultHandler
 
         try
         {
-            tag = tagModelStack.peek().getTag( uri, localName, qName, attributes );
+            tag = tagModelStack.peek().getTag( openEvent );
 
             while ( tag instanceof JumpTag )
             {
@@ -77,9 +100,9 @@ public class TagHandler< R > extends DefaultHandler
                 tagModelStack.push( tag.getTagModel() );
                 cacheStack.push( tag.open( contextItem, jumpItem, openEvent ) );
 
-                Tag< ?, ? > jumpTag = tag.getTagModel().getTag( uri, localName, qName, attributes );
+                Tag< ?, ? > jumpTag = tag.getTagModel().getTag( openEvent );
 
-                System.out.printf( "jump: %s -> %s%n", tag, jumpTag );
+                //System.out.printf( "jump: %s -> %s%n", tag, jumpTag );
 
                 contextItem = jumpItem;
                 tag = jumpTag;
@@ -113,13 +136,18 @@ public class TagHandler< R > extends DefaultHandler
             throw new TagHandlerException( this, format( "No item obtained for tag: %s", tag.getTag() ) );
         }
 
-        tagStack.push( tag );
+        Object cachedObject = tag.open( contextItem, item, openEvent );
+
         tagModelStack.push( tag.getTagModel() );
-        cacheStack.push( tag.open( contextItem, item, openEvent ) );
+        tagStack.push( tag );
+        cacheStack.push( cachedObject );
+        eventStack.push( openEvent );
     }
 
     public void endElement( String uri, String localName, String qName )
     {
+        OpenEvent event = eventStack.pop();
+
         Object cachedObject = cacheStack.peek();
         Tag< ?, ? > tag = tagStack.peek();
 
@@ -138,8 +166,16 @@ public class TagHandler< R > extends DefaultHandler
 
             Object contextItem = itemStack.peek();
 
+            String text = characters.toString();
+
             // stacks identify state if exception thrown
-            tag.close( contextItem, item, characters.toString(), cachedObject );
+            tag.close(
+                    contextItem,
+                    item,
+                    ofNullable( event.getContextValue() )
+                            .map( cv -> cv.map( "text", text ) )
+                            .orElse( text ),
+                    cachedObject );
         }
 
         // pop the stacks
@@ -150,19 +186,22 @@ public class TagHandler< R > extends DefaultHandler
 
         Tag< ?, ? > jumpTag = tagStack.isEmpty() ? null : tagStack.peek();
 
+        // unwind any jumps
         while ( jumpTag instanceof JumpTag )
         {
+            cachedObject = cacheStack.pop();
             tagModelStack.pop();
+            tagStack.pop();
+
             Object item = itemStack.pop();
             Object contextItem = itemStack.peek();
 
-            jumpTag.close( contextItem, item, "", null );
-
-            tag = tagStack.pop();
+            // jump can't collect text
+            jumpTag.close( contextItem, item, null, cachedObject );
 
             jumpTag = tagStack.isEmpty() ? null : tagStack.peek();
 
-            System.out.printf( "return: %s <- %s%n", tag, jumpTag );
+            //System.out.printf( "return: %s <- %s%n", tag, jumpTag );
         }
     }
 

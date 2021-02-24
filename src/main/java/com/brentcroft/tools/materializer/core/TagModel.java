@@ -1,8 +1,8 @@
 package com.brentcroft.tools.materializer.core;
 
+import com.brentcroft.tools.materializer.ValidationException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.xml.sax.Attributes;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -20,13 +20,23 @@ public class TagModel< R >
 
     private int index = - 1;
 
-    public Tag< ? super R, ? > getTag( String uri, String localName, String qName, Attributes attributes )
+    public Tag< ? super R, ? > getTag( OpenEvent openEvent )
     {
+        if (isNull(children) || children.length == 0)
+        {
+            throw new ValidationException(
+                    parent,
+                    format(
+                            "Unexpected tag '%s': no children expected.",
+                            openEvent.combinedTag()
+                    ) );
+        }
+
         if ( choice )
         {
             for ( Tag< ? super R, ? > tag : children )
             {
-                if ( tag.matches( uri, localName, qName, attributes ) )
+                if ( tag.matches( openEvent ) )
                 {
                     return tag;
                 }
@@ -36,7 +46,7 @@ public class TagModel< R >
                     parent,
                     format(
                             "Unexpected tag '%s': no choice of %s['%s'] matches any child: %s.",
-                            combinedTag( localName, qName ),
+                            openEvent.combinedTag(),
                             parent.name(),
                             parent.getTag(),
                             Stream
@@ -49,7 +59,7 @@ public class TagModel< R >
         {
             Tag< ? super R, ? > tag = children[ index ];
 
-            if ( tag.matches( uri, localName, qName, attributes ) && tag.isMultiple() )
+            if ( tag.matches( openEvent ) && tag.isMultiple() )
             {
                 return tag;
             }
@@ -62,7 +72,7 @@ public class TagModel< R >
         {
             final Tag< ? super R, ? > tag = children[ index ];
 
-            if ( tag.matches( uri, localName, qName, attributes ) )
+            if ( tag.matches( openEvent ) )
             {
                 return tag;
             }
@@ -72,7 +82,7 @@ public class TagModel< R >
                         parent,
                         format(
                                 "Unexpected tag '%s': mandatory tag %s['%s'] does not match.",
-                                combinedTag( localName, qName ),
+                                openEvent.combinedTag(),
                                 tag.name(),
                                 tag.getTag()
                         ) );
@@ -85,20 +95,11 @@ public class TagModel< R >
                 parent,
                 format(
                         "Unexpected tag '%s': no child matches: %s.",
-                        combinedTag( localName, qName ),
+                        openEvent.combinedTag(),
                         Stream
                                 .of( children )
                                 .map( c -> format( "%s['%s']", c.name(), c.getTag() ) )
-                                .collect( Collectors.joining( ", " ) )));
+                                .collect( Collectors.joining( ", " ) ) ) );
 
-    }
-
-    private String combinedTag( String localName, String qName )
-    {
-        return isNull( localName ) || localName.isEmpty()
-               ? qName
-               : isNull( qName ) || qName.isEmpty() || localName.equals( qName )
-                 ? localName
-                 : format( "%s | %s", localName, qName );
     }
 }

@@ -1,5 +1,6 @@
-package com.brentcroft.tools.materializer.core;
+package com.brentcroft.tools.materializer;
 
+import com.brentcroft.tools.materializer.core.Tag;
 import lombok.Getter;
 
 @Getter

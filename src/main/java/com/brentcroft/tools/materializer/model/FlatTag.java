@@ -1,4 +1,8 @@
-package com.brentcroft.tools.materializer.core;
+package com.brentcroft.tools.materializer.model;
+
+import com.brentcroft.tools.materializer.ValidationException;
+import com.brentcroft.tools.materializer.core.OpenEvent;
+import com.brentcroft.tools.materializer.core.Tag;
 
 import static java.util.Optional.ofNullable;
 
@@ -23,7 +27,7 @@ public interface FlatTag< T > extends Tag< T, T >
         }
         catch ( Exception e )
         {
-            throw new ValidationException( this, e.getMessage() );
+            throw new ValidationException( this, e );
         }
     }
 

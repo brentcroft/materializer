@@ -1,7 +1,7 @@
 package com.brentcroft.tools.materializer.util;
 
 import com.brentcroft.tools.materializer.Materializer;
-import com.brentcroft.tools.materializer.core.FlatTag;
+import com.brentcroft.tools.materializer.model.FlatTag;
 import com.brentcroft.tools.materializer.core.Tag;
 import com.brentcroft.tools.materializer.util.fixtures.DetectionsTag;
 import com.brentcroft.tools.materializer.util.model.Detections;

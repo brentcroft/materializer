@@ -1,18 +1,11 @@
 package com.brentcroft.test;
 
 import com.brentcroft.tools.materializer.core.*;
-import com.brentcroft.tools.materializer.util.model.Box;
-import com.brentcroft.tools.materializer.util.model.Detection;
+import com.brentcroft.tools.materializer.model.*;
 import com.brentcroft.tools.materializer.util.model.Detections;
-import com.brentcroft.tools.materializer.util.model.Size;
 import lombok.Getter;
-import org.xml.sax.Attributes;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Properties;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;

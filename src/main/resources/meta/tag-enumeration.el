@@ -1,9 +1,9 @@
 package ${ packageName };
 
-import com.brentcroft.tools.materializer.core.Closer;
-import com.brentcroft.tools.materializer.core.FlatTag;
-import com.brentcroft.tools.materializer.core.StepTag;
-import com.brentcroft.tools.materializer.core.Opener;
+import com.brentcroft.tools.materializer.model.Closer;
+import com.brentcroft.tools.materializer.model.FlatTag;
+import com.brentcroft.tools.materializer.model.StepTag;
+import com.brentcroft.tools.materializer.model.Opener;
 import com.brentcroft.tools.materializer.core.Tag;
 import lombok.Getter;
 import org.xml.sax.Attributes;

@@ -1,4 +1,7 @@
-package com.brentcroft.tools.materializer.core;
+package com.brentcroft.tools.materializer.model;
+
+import com.brentcroft.tools.materializer.core.TriConsumer;
+import com.brentcroft.tools.materializer.core.TriFunction;
 
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;

@@ -1,6 +1,7 @@
 package com.brentcroft.tools.materializer.util.fixtures;
 
 import com.brentcroft.tools.materializer.core.*;
+import com.brentcroft.tools.materializer.model.*;
 import com.brentcroft.tools.materializer.util.model.Attributed;
 import com.brentcroft.tools.materializer.util.model.Entry;
 import lombok.Getter;
@@ -38,7 +39,7 @@ enum EntryTag implements StepTag< List< Entry >, Entry >
 {
     ENTRY(
             "attribute",
-            ( entry, event ) -> entry.setKey( event.getAttributesMap().getAttribute( "key" ) ),
+            ( entry, event ) -> entry.setKey( event.getAttribute( "key" ) ),
             Entry::setValue );
 
     private final String tag;
