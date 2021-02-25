@@ -25,7 +25,6 @@ public enum DetectionsRootTag implements FlatTag< Detections >
     ROOT( "" );
 
     private final String tag;
-    private final FlatTag< Detections > self = this;
     private final boolean multiple;
     private final boolean choice;
     private final FlatOpener< Detections, OpenEvent > opener;

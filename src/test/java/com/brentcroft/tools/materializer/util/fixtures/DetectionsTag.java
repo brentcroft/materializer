@@ -50,7 +50,6 @@ public enum DetectionsTag implements FlatTag< Detections >
     ROOT( "", null, null, DETECTIONS );
 
     private final String tag;
-    private final FlatTag< Detections > self = this;
     private final FlatOpener< Detections, OpenEvent > opener;
     private final FlatCloser< Detections, String > closer;
     private final Tag< ? super Detections, ? >[] children;
@@ -82,7 +81,6 @@ enum SizeTag implements StepTag< Detections, Size >
             ( size, value ) -> size.setDepth( Integer.parseInt( value ) ) );
 
     private final String tag;
-    private final StepTag< Detections, Size > self = this;
     private final StepCloser< Detections, Size, String > closer;
 
     SizeTag( String tag, BiConsumer< Size, String > closer )
@@ -111,7 +109,6 @@ enum DetectionListTag implements StepTag< Detections, Detection >
             PropertiedTag.ATTRIBUTES );
 
     private final boolean multiple = true;
-    private final StepTag< Detections, Detection > self = this;
     private final String tag;
     private final StepOpener< Detections, Detection, OpenEvent > opener;
     private final Tag< ? super Detection, ? >[] children;

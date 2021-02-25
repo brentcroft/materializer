@@ -1,6 +1,7 @@
 package com.brentcroft.tools.materializer.util.fixtures;
 
-import com.brentcroft.tools.materializer.core.*;
+import com.brentcroft.tools.materializer.core.OpenEvent;
+import com.brentcroft.tools.materializer.core.Tag;
 import com.brentcroft.tools.materializer.model.*;
 import com.brentcroft.tools.materializer.util.model.Attributed;
 import com.brentcroft.tools.materializer.util.model.Entry;
@@ -17,7 +18,6 @@ public enum EntryListTag implements StepTag< Attributed, List< Entry > >
             EntryTag.ENTRY );
 
     private final String tag;
-    private final StepTag< Attributed, List< Entry > > self = this;
     private final Tag< ? super List< Entry >, ? >[] children;
 
     @SafeVarargs
@@ -43,7 +43,6 @@ enum EntryTag implements StepTag< List< Entry >, Entry >
             Entry::setValue );
 
     private final String tag;
-    private final StepTag< List< Entry >, Entry > self = this;
     private final StepOpener< List< Entry >, Entry, OpenEvent > opener;
     private final StepCloser< List< Entry >, Entry, String > closer;
     private final boolean multiple = true;

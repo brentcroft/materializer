@@ -1,5 +1,6 @@
 package com.brentcroft.tools.materializer.model;
 
+import com.brentcroft.tools.materializer.TagException;
 import com.brentcroft.tools.materializer.ValidationException;
 import com.brentcroft.tools.materializer.core.OpenEvent;
 import com.brentcroft.tools.materializer.core.Tag;
@@ -25,6 +26,10 @@ public interface FlatTag< T > extends Tag< T, T >
                     .map( opener -> opener.open( t, r, event ) )
                     .orElse( null );
         }
+        catch ( TagException e )
+        {
+            throw e;
+        }
         catch ( Exception e )
         {
             throw new ValidationException( this, e );
@@ -42,12 +47,16 @@ public interface FlatTag< T > extends Tag< T, T >
             ofNullable( getCloser() )
                     .ifPresent( closer -> closer.close( t, r, text, cached ) );
         }
+        catch ( TagException e )
+        {
+            throw e;
+        }
         catch ( Exception e )
         {
             throw new ValidationException( this, e );
         }
 
         ofNullable( getValidator() )
-                .ifPresent( validator -> validator.accept( getSelf(), r ) );
+                .ifPresent( validator -> validator.accept( this, r ) );
     }
 }

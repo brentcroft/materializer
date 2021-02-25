@@ -1,6 +1,6 @@
 package com.brentcroft.tools.materializer;
 
-import com.brentcroft.tools.materializer.core.TagHandler;
+import com.brentcroft.tools.materializer.core.TagHandlerContext;
 import lombok.Getter;
 
 import static java.lang.String.format;
@@ -15,15 +15,15 @@ import static java.util.Optional.ofNullable;
 @Getter
 public class TagException extends RuntimeException
 {
-    private final TagHandler< ? > tagHandler;
+    private final TagHandlerContext tagHandler;
 
-    public TagException( TagHandler< ? > tagHandler, Throwable cause )
+    public TagException( TagHandlerContext tagHandler, Throwable cause )
     {
         super( isNull( cause ) ? "-" : cause.getMessage(), cause );
         this.tagHandler = tagHandler;
     }
 
-    public TagException( TagHandler< ? > tagHandler, String message )
+    public TagException( TagHandlerContext tagHandler, String message )
     {
         super( message );
         this.tagHandler = tagHandler;

@@ -120,7 +120,6 @@ public enum SchemaRootTag implements FlatTag< SchemaObject >
     private final String tag;
     private final boolean multiple = true;
     private final boolean choice = true;
-    private final FlatTag< SchemaObject > self = this;
     private final Opener< SchemaObject, SchemaObject, OpenEvent, ? > opener;
     private final Tag< ? super SchemaObject, ? >[] children;
 
@@ -163,7 +162,7 @@ enum SchemaReferenceTag implements StepTag< SchemaObject, SchemaItem >
 {
     ELEMENT(
             "element",
-            ( schema, item, event ) -> item.setAttributes( event.asMap() ),
+            ( schema, item, event ) -> item.setAttributes( event.asStringMap() ),
             SchemaLeafTag.COMPLEX_TYPE,
             SchemaLeafTag.SIMPLE_TYPE,
             SchemaLeafTag.ANNOTATION )
@@ -179,7 +178,7 @@ enum SchemaReferenceTag implements StepTag< SchemaObject, SchemaItem >
 
     COMPLEX_TYPE(
             "complexType",
-            ( schema, item, event ) -> item.setAttributes( event.asMap() ),
+            ( schema, item, event ) -> item.setAttributes( event.asStringMap() ),
             SchemaLeafTag.CHOICE,
             SchemaLeafTag.SEQUENCE,
             SchemaLeafTag.SIMPLE_CONTENT,
@@ -197,7 +196,7 @@ enum SchemaReferenceTag implements StepTag< SchemaObject, SchemaItem >
 
     SIMPLE_TYPE(
             "simpleType",
-            ( schema, item, event ) -> item.setAttributes( event.asMap() ),
+            ( schema, item, event ) -> item.setAttributes( event.asStringMap() ),
             SchemaLeafTag.RESTRICTION,
             SchemaLeafTag.ANNOTATION,
             SchemaLeafTag.LIST )
@@ -213,7 +212,6 @@ enum SchemaReferenceTag implements StepTag< SchemaObject, SchemaItem >
 
 
     private final String tag;
-    private final StepTag< SchemaObject, SchemaItem > self = this;
     private final boolean choice = true;
     private final StepOpener< SchemaObject, SchemaItem, OpenEvent > opener;
     private final boolean multiple = true;
@@ -238,7 +236,7 @@ enum SchemaElementTag implements StepTag< SchemaItem, SchemaItem >
 {
     ELEMENT(
             "element",
-            ( item, event ) -> item.setAttributes( event.asMap() ),
+            ( item, event ) -> item.setAttributes( event.asStringMap() ),
             SchemaLeafTag.COMPLEX_TYPE,
             SchemaLeafTag.SIMPLE_TYPE,
             SchemaLeafTag.ANNOTATION )
@@ -254,7 +252,6 @@ enum SchemaElementTag implements StepTag< SchemaItem, SchemaItem >
 
 
     private final String tag;
-    private final StepTag< SchemaItem, SchemaItem > self = this;
     private final boolean choice = true;
     private final FlatOpener< SchemaItem, OpenEvent > opener;
     private final boolean multiple = true;
@@ -351,7 +348,6 @@ enum SchemaLeafTag implements FlatTag< SchemaItem >
 
 
     private final String tag;
-    private final FlatTag< SchemaItem > self = this;
     private final boolean multiple = true;
     private final boolean choice = true;
     private final FlatCacheOpener< SchemaItem, OpenEvent, ? > opener;

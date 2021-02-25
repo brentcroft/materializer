@@ -3,7 +3,6 @@ package com.brentcroft.tools.materializer.core;
 import com.brentcroft.tools.materializer.ContextValue;
 import com.brentcroft.tools.materializer.TagHandlerException;
 import com.brentcroft.tools.materializer.ValidationException;
-import com.brentcroft.tools.materializer.model.FlatTag;
 import com.brentcroft.tools.materializer.model.JumpTag;
 import com.brentcroft.tools.materializer.model.StepTag;
 import lombok.Getter;
@@ -23,89 +22,96 @@ import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
 
 @Getter
-public class TagHandler< R > extends DefaultHandler
+public class TagHandler< R > extends DefaultHandler implements TagHandlerContext
 {
     @Setter
     private Locator documentLocator;
 
-    @Setter
-    private ContextValue contextValue;
-
-    private final Stack< OpenEvent > eventStack = new Stack<>();
     private final Stack< Object > itemStack = new Stack<>();
-    private final Stack< Object > cacheStack = new Stack<>();
+    private final Stack< TagContext > contextStack;
+    private final ContextValue contextValue;
 
-    private final Stack< Tag< ?, ? > > tagStack = new Stack<>();
-    private final Stack< TagModel< ? > > tagModelStack = new Stack<>();
 
     private final StringBuilder characters = new StringBuilder();
 
-    public TagHandler( FlatTag< ? super R > rootTag, R rootItem )
+    public TagHandler( R rootItem, TagContext rootContext, ContextValue contextValue )
     {
-        tagStack.push( rootTag );
+        contextStack = new Stack<>();
+        contextStack.push( rootContext );
         itemStack.push( rootItem );
-        tagModelStack.push( rootTag.getTagModel() );
+        this.contextValue = contextValue;
+    }
+    public TagHandler( R rootItem,  Stack< TagContext > tagContextStack, ContextValue contextValue )
+    {
+        contextStack = tagContextStack;
+        itemStack.push( rootItem );
+        this.contextValue = contextValue;
     }
 
+
+    @Override
     public String getPath()
     {
-        return tagStack
+        return contextStack
                 .stream()
-                .filter( t -> ! ( t instanceof JumpTag ) )
+                .filter( t -> ! t.getTag().isJump() )
+                .map( TagContext::getTag )
                 .map( Tag::getTag )
                 .collect( Collectors.joining( "/" ) );
     }
 
-    public void startDocument()
-    {
-        eventStack.push( new OpenEvent( null, null, null, null, contextValue ) );
-    }
 
     public void startElement( String uri, String localName, String qName, Attributes attributes )
     {
-        OpenEvent openEvent = new OpenEvent(
+        final OpenEvent openEvent = new OpenEvent(
                 uri,
                 localName,
                 qName,
                 attributes,
-                eventStack
+                this,
+                contextStack
                         .peek()
+                        .getEvent()
                         .inContext() );
 
         characters.setLength( 0 );
 
-        if ( tagModelStack.isEmpty() )
+        if ( contextStack.isEmpty() )
         {
             throw new TagHandlerException( this, format( "Empty stack for localName: '%s'", openEvent.combinedTag() ) );
         }
-        else if ( isNull( tagModelStack.peek() ) )
+
+        TagContext tagContext = contextStack.peek();
+
+        if ( isNull( tagContext.getModel() ) )
         {
-            throw new TagHandlerException( this, format( "Unexpected tag '%s': %s does not accept children.", openEvent.combinedTag(), tagStack.peek() ) );
+            throw new TagHandlerException( this, format( "Unexpected tag '%s': %s does not accept children.", openEvent.combinedTag(), contextStack.peek() ) );
         }
 
         Tag< ?, ? > tag;
+
 
         Object contextItem = itemStack.peek();
 
         try
         {
-            tag = tagModelStack.peek().getTag( openEvent );
+            tag = tagContext.getModel().getTag( openEvent );
 
             while ( tag instanceof JumpTag )
             {
                 Object jumpItem = ( ( JumpTag< ?, ? > ) tag ).step( contextItem, openEvent );
 
+                tagContext = new TagContext(
+                        openEvent,
+                        tag.open( contextItem, jumpItem, openEvent ),
+                        tag,
+                        tag.getTagModel() );
+
+                contextStack.push( tagContext );
                 itemStack.push( jumpItem );
-                tagStack.push( tag );
-                tagModelStack.push( tag.getTagModel() );
-                cacheStack.push( tag.open( contextItem, jumpItem, openEvent ) );
-
-                Tag< ?, ? > jumpTag = tag.getTagModel().getTag( openEvent );
-
-                //System.out.printf( "jump: %s -> %s%n", tag, jumpTag );
 
                 contextItem = jumpItem;
-                tag = jumpTag;
+                tag = tag.getTagModel().getTag( openEvent );
             }
         }
         catch ( ValidationException e )
@@ -116,8 +122,6 @@ public class TagHandler< R > extends DefaultHandler
         openEvent.setTag( tag );
 
         Object item;
-
-        //System.out.printf( "key=%s, tag=%s, item=%s %n", localName, tag, item.getClass().getSimpleName() );
 
         if ( tag instanceof StepTag )
         {
@@ -136,20 +140,21 @@ public class TagHandler< R > extends DefaultHandler
             throw new TagHandlerException( this, format( "No item obtained for tag: %s", tag.getTag() ) );
         }
 
-        Object cachedObject = tag.open( contextItem, item, openEvent );
-
-        tagModelStack.push( tag.getTagModel() );
-        tagStack.push( tag );
-        cacheStack.push( cachedObject );
-        eventStack.push( openEvent );
+        contextStack
+                .push( new TagContext(
+                        openEvent,
+                        tag.open( contextItem, item, openEvent ),
+                        tag,
+                        tag.getTagModel() ) );
     }
 
     public void endElement( String uri, String localName, String qName )
     {
-        OpenEvent event = eventStack.pop();
+        TagContext tagContext = contextStack.peek();
 
-        Object cachedObject = cacheStack.peek();
-        Tag< ?, ? > tag = tagStack.peek();
+        OpenEvent event = tagContext.getEvent();
+        Object cachedObject = tagContext.getCache();
+        Tag< ?, ? > tag = tagContext.getTag();
 
         if ( nonNull( tag ) )
         {
@@ -179,29 +184,23 @@ public class TagHandler< R > extends DefaultHandler
         }
 
         // pop the stacks
-        cacheStack.pop();
-        tagModelStack.pop();
-        tagStack.pop();
+        contextStack.pop();
         characters.setLength( 0 );
 
-        Tag< ?, ? > jumpTag = tagStack.isEmpty() ? null : tagStack.peek();
+        Tag< ?, ? > jumpTag = contextStack.isEmpty() ? null : contextStack.peek().getTag();
 
         // unwind any jumps
         while ( jumpTag instanceof JumpTag )
         {
-            cachedObject = cacheStack.pop();
-            tagModelStack.pop();
-            tagStack.pop();
+            tagContext = contextStack.pop();
 
             Object item = itemStack.pop();
             Object contextItem = itemStack.peek();
 
             // jump can't collect text
-            jumpTag.close( contextItem, item, null, cachedObject );
+            jumpTag.close( contextItem, item, null, tagContext.getCache() );
 
-            jumpTag = tagStack.isEmpty() ? null : tagStack.peek();
-
-            //System.out.printf( "return: %s <- %s%n", tag, jumpTag );
+            jumpTag = contextStack.isEmpty() ? null : contextStack.peek().getTag();
         }
     }
 

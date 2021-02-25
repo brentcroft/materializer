@@ -48,13 +48,6 @@ public interface Tag< T, R >
     R getItem( T t, OpenEvent openEvent );
 
     /**
-     * Enforce implementation of a self member.
-     *
-     * @return the instantiation of this Tag.
-     */
-    Tag< T, R > getSelf();
-
-    /**
      * Called by TagHandler.startElement to consume attributes.
      *
      * @param c     the context object
@@ -94,7 +87,7 @@ public interface Tag< T, R >
     {
         return isNull( getChildren() ) || getChildren().length == 0
                ? null
-               : new TagModel<>( getSelf(), isChoice(), getChildren() );
+               : new TagModel<>( this, isChoice(), getChildren() );
     }
 
     /**
@@ -136,6 +129,28 @@ public interface Tag< T, R >
      * @return true if this Tag can be repeated.
      */
     default boolean isMultiple()
+    {
+        return false;
+    }
+
+
+    /**
+     * True if this Tag steps to another Tag (as implemented by getItem(context, event)).
+     *
+     * @return true if this Tag is a step.
+     */
+    default boolean isStep()
+    {
+        return false;
+    }
+
+
+    /**
+     * True if this Tag aliases another Tag.
+     *
+     * @return true if this Tag is a jump.
+     */
+    default boolean isJump()
     {
         return false;
     }

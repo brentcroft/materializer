@@ -23,7 +23,6 @@ public enum PropertiesRootTag implements FlatTag< Properties >
     ROOT( "", PROPERTIES );
 
     private final String tag;
-    private final FlatTag< Properties > self = this;
     private final boolean multiple;
     private final boolean choice;
     private final FlatCacheOpener< Properties, OpenEvent, ? > opener;

@@ -1,6 +1,7 @@
 package com.brentcroft.tools.materializer.util.fixtures;
 
-import com.brentcroft.tools.materializer.core.*;
+import com.brentcroft.tools.materializer.core.OpenEvent;
+import com.brentcroft.tools.materializer.core.Tag;
 import com.brentcroft.tools.materializer.model.*;
 import com.brentcroft.tools.materializer.util.model.Box;
 import com.brentcroft.tools.materializer.util.model.Boxed;
@@ -34,7 +35,6 @@ public enum DetectionTag implements FlatTag< Detection >
             BoxTag.YMAX );
 
     private final String tag;
-    private final FlatTag< Detection > self = this;
     private final FlatOpener< Detection, OpenEvent > opener;
     private final FlatCloser< Detection, String > closer;
     private final Tag< ? super Detection, ? >[] children;
@@ -58,8 +58,7 @@ enum BoxTag implements StepTag< Boxed, Box >
     YMAX( "ymax", ( box, value ) -> box.setYmax( Integer.parseInt( value ) ) );
 
     private final String tag;
-    private final StepTag< Boxed, Box > self = this;
-    private final StepCloser<  Boxed, Box, String > closer;
+    private final StepCloser< Boxed, Box, String > closer;
 
     BoxTag( String tag, BiConsumer< Box, String > closer )
     {

@@ -1,8 +1,10 @@
 package com.brentcroft.tools.materializer;
 
 
-import com.brentcroft.tools.materializer.model.FlatTag;
+import com.brentcroft.tools.materializer.core.OpenEvent;
+import com.brentcroft.tools.materializer.core.TagContext;
 import com.brentcroft.tools.materializer.core.TagHandler;
+import com.brentcroft.tools.materializer.model.FlatTag;
 import lombok.Getter;
 import lombok.Setter;
 import org.xml.sax.InputSource;
@@ -20,6 +22,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Stack;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -43,26 +46,61 @@ public class Materializer< R > implements Function< InputSource, R >
     private final Supplier< FlatTag< ? super R > > rootTagSupplier;
     private final Supplier< R > rootItemSupplier;
 
+    private Stack< TagContext > contextStack;
+
     @Setter
     private ContextValue contextValue;
 
     public Materializer( Supplier< FlatTag< ? super R > > rootTagSupplier, Supplier< R > rootItemSupplier )
     {
-        this( null, 0, rootTagSupplier, rootItemSupplier );
+        this( rootTagSupplier, rootItemSupplier, null );
+    }
+
+    public Materializer( Supplier< FlatTag< ? super R > > rootTagSupplier, Supplier< R > rootItemSupplier, Stack< TagContext > contextStack )
+    {
+        this( null, 0, rootTagSupplier, rootItemSupplier, contextStack );
     }
 
     public Materializer( int initialPoolSize, Supplier< FlatTag< ? super R > > rootTagSupplier, Supplier< R > rootItemSupplier )
     {
-        this( null, initialPoolSize, rootTagSupplier, rootItemSupplier );
+        this( null, initialPoolSize, rootTagSupplier, rootItemSupplier, null );
     }
 
-
     public Materializer( Schema schema, int initialPoolSize, Supplier< FlatTag< ? super R > > rootTagSupplier, Supplier< R > rootItemSupplier )
+    {
+        this( schema, initialPoolSize, rootTagSupplier, rootItemSupplier, null );
+    }
+
+    public static < R > Stack< TagContext > newStackInContext( FlatTag< ? super R > rootTag, ContextValue contextValue )
+    {
+        OpenEvent event = new OpenEvent(
+                null,
+                null,
+                null,
+                null,
+                null,
+                contextValue );
+
+        event.setTag( rootTag );
+
+        Stack< TagContext > stack = new Stack<>();
+        stack
+                .push(
+                        new TagContext(
+                                event,
+                                null,
+                                rootTag,
+                                rootTag.getTagModel() ) );
+        return stack;
+    }
+
+    public Materializer( Schema schema, int initialPoolSize, Supplier< FlatTag< ? super R > > rootTagSupplier, Supplier< R > rootItemSupplier, Stack< TagContext > contextStack )
     {
         this.schema = schema;
         this.saxParserFactory = SAXParserFactory.newInstance();
         this.rootTagSupplier = rootTagSupplier;
         this.rootItemSupplier = rootItemSupplier;
+        this.contextStack = contextStack;
 
         saxParserFactory.setNamespaceAware( true );
 
@@ -130,13 +168,11 @@ public class Materializer< R > implements Function< InputSource, R >
      *
      * @return a TagHandler on a root tag and root item
      */
-    public TagHandler<R> getDefaultHandler()
+    public TagHandler< R > getDefaultHandler()
     {
-        TagHandler< R > tagHandler =   new TagHandler<>( rootTagSupplier.get(), rootItemSupplier.get() );
+        R rootItem = rootItemSupplier.get();
 
-        tagHandler.setContextValue( contextValue );
-
-        return tagHandler;
+        return new TagHandler<>( rootItem, contextStack, contextValue );
     }
 
 
@@ -145,9 +181,11 @@ public class Materializer< R > implements Function< InputSource, R >
     {
         R rootItem = rootItemSupplier.get();
 
-        TagHandler< R > tagHandler =  new TagHandler<>( rootTagSupplier.get(), rootItem );
+        Stack< TagContext > stack = nonNull( contextStack )
+                                    ? contextStack
+                                    : newStackInContext( rootTagSupplier.get(), contextValue );
 
-        tagHandler.setContextValue( contextValue );
+        TagHandler< R > tagHandler = new TagHandler<>( rootItem, stack, contextValue );
 
         SAXParser parser = null;
 
@@ -184,6 +222,8 @@ public class Materializer< R > implements Function< InputSource, R >
         finally
         {
             releaseParser( parser );
+
+            stack.pop();
         }
 
         return rootItem;

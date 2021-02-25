@@ -1,10 +1,14 @@
 package com.brentcroft.tools.materializer.core;
 
+import com.brentcroft.tools.materializer.TagException;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -22,7 +26,14 @@ public class AttributesMap extends Properties
         super( defaults );
     }
 
-    public Map< String, String > asMap()
+    public Map< String, Object > asMap()
+    {
+        Map< String, Object > map = new HashMap<>();
+        forEach( ( k, v ) -> map.put( k.toString(), v ) );
+        return map;
+    }
+
+    public Map< String, String > asStringMap()
     {
         Map< String, String > map = new HashMap<>();
         forEach( ( k, v ) -> map.put( k.toString(), v.toString() ) );
@@ -39,6 +50,36 @@ public class AttributesMap extends Properties
         }
 
         return t;
+    }
+
+
+    public < V > V onHasAttribute( String key, Callable< V > caller )
+    {
+        try
+        {
+            return hasAttribute( key ) ? caller.call() : null;
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( e );
+        }
+    }
+
+
+    public < V > V onHasAttributeAnd( String key, Supplier< Boolean > and, Callable< V > caller )
+    {
+        try
+        {
+            return hasAttribute( key ) && and.get() ? caller.call() : null;
+        }
+        catch ( TagException e )
+        {
+            throw e;
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( e );
+        }
     }
 
     public boolean hasAttribute( String key )

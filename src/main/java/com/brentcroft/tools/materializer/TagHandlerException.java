@@ -1,6 +1,6 @@
 package com.brentcroft.tools.materializer;
 
-import com.brentcroft.tools.materializer.core.TagHandler;
+import com.brentcroft.tools.materializer.core.TagHandlerContext;
 
 /**
  * A TagHandlerException is raised by TagHandler
@@ -8,12 +8,12 @@ import com.brentcroft.tools.materializer.core.TagHandler;
  */
 public class TagHandlerException extends TagException
 {
-    public TagHandlerException( TagHandler< ? > tagHandler, String message )
+    public TagHandlerException( TagHandlerContext tagHandler, String message )
     {
         super( tagHandler, message );
     }
 
-    public TagHandlerException( TagHandler< ? > tagHandler, Throwable throwable )
+    public TagHandlerException( TagHandlerContext tagHandler, Throwable throwable )
     {
         super( tagHandler, throwable );
     }

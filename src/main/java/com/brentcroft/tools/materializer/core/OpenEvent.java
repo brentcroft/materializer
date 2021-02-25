@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.xml.sax.Attributes;
 
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -18,22 +19,41 @@ public class OpenEvent extends AttributesMap
     private final String uri;
     private final String localName;
     private final String qName;
-    private final ContextValue contextValue;
+    @Setter
+    private ContextValue contextValue;
+    private final TagHandlerContext tagHandler;
 
     @Setter
     private Tag< ?, ? > tag;
 
-    public OpenEvent( String uri, String localName, String qName, Attributes attributes, ContextValue contextValue )
+    public OpenEvent( String uri, String localName, String qName, Attributes attributes, TagHandlerContext tagHandler, ContextValue contextValue )
     {
         this.uri = uri;
         this.localName = localName;
         this.qName = qName;
+        this.tagHandler = tagHandler;
         this.contextValue = contextValue;
 
         if ( nonNull( attributes ) )
         {
             harvestAttributes( attributes );
         }
+    }
+
+    private OpenEvent( OpenEvent parent )
+    {
+        this.tag = parent.tag;
+        this.uri = parent.uri;
+        this.localName = parent.localName;
+        this.qName = parent.qName;
+        this.tagHandler = parent.tagHandler;
+        this.contextValue = parent.inContext();
+        this.putAll( parent );
+    }
+
+    public String toString()
+    {
+        return format( "tag: %s (%s)", combinedTag(), tag );
     }
 
     private void harvestAttributes( Attributes attributes )
@@ -93,5 +113,35 @@ public class OpenEvent extends AttributesMap
         return nonNull( contextValue )
                ? contextValue.inContext()
                : null;
+    }
+
+    public TagContext inContext( Tag< ?, ? > tag )
+    {
+        return new TagContext(
+                new OpenEvent( this ),
+                null,
+                tag,
+                tag.getTagModel() );
+    }
+
+    public boolean notOnStack( Tag< ?, ? > tag )
+    {
+        return getTagHandler()
+                .notOnStack( tag, this );
+    }
+
+
+    public Stack< TagContext > stackInContext( Tag< ?, ? > tag )
+    {
+        Stack< TagContext > stack = getTagHandler()
+                .getContextStack();
+
+        stack.push( new TagContext(
+                new OpenEvent( this ),
+                null,
+                tag,
+                tag.getTagModel() )
+        );
+        return stack;
     }
 }

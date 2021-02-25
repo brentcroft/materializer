@@ -15,7 +15,7 @@ import java.io.IOException;
 
 import static java.lang.String.format;
 
-public class ExtPascalVocReader
+public class ExtPascalVocReaderTest
 {
     String detectionsXsdUri = "src/test/resources/detections/detections.xsd";
 

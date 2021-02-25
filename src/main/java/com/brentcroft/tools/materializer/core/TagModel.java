@@ -36,6 +36,18 @@ public class TagModel< R >
         {
             for ( Tag< ? super R, ? > tag : children )
             {
+                if (isNull(tag))
+                {
+                    throw new ValidationException(
+                            parent,
+                            format(
+                                    "TagModel has empty child item: index=%s, parent=%s %s",
+                                    index,
+                                    parent.name(),
+                                    parent.getTag()
+                            ) );
+                }
+
                 if ( tag.matches( openEvent ) )
                 {
                     return tag;
@@ -71,6 +83,18 @@ public class TagModel< R >
         while ( index < children.length )
         {
             final Tag< ? super R, ? > tag = children[ index ];
+
+            if (isNull(tag))
+            {
+                throw new ValidationException(
+                        parent,
+                        format(
+                                "TagModel has empty child item: index=%s, parent=%s %s",
+                                index,
+                                parent.name(),
+                                parent.getTag()
+                        ) );
+            }
 
             if ( tag.matches( openEvent ) )
             {

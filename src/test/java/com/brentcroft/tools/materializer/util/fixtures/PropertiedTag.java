@@ -1,6 +1,8 @@
 package com.brentcroft.tools.materializer.util.fixtures;
 
-import com.brentcroft.tools.materializer.core.*;
+import com.brentcroft.tools.materializer.core.AttributesMap;
+import com.brentcroft.tools.materializer.core.OpenEvent;
+import com.brentcroft.tools.materializer.core.Tag;
 import com.brentcroft.tools.materializer.model.Closer;
 import com.brentcroft.tools.materializer.model.FlatTag;
 import com.brentcroft.tools.materializer.model.Opener;
@@ -18,7 +20,6 @@ public enum PropertiedTag implements FlatTag< Propertied >
     ROOT( "", ATTRIBUTES );
 
     private final String tag;
-    private final FlatTag< Propertied > self = this;
     private final Tag< ? super Propertied, ? >[] children;
 
     @SafeVarargs
@@ -41,7 +42,6 @@ enum AttributePropertiesTag implements StepTag< Propertied, Properties >
             ( propertied, properties, text, event ) -> properties.setProperty( event.getAttribute( "key" ), text ) );
 
     private final String tag;
-    private final StepTag< Propertied, Properties > self = this;
     private final boolean multiple = true;
     private final Opener< Propertied, Properties, OpenEvent, AttributesMap > opener;
     private final Closer< Propertied, Properties, String, AttributesMap > closer;

@@ -15,7 +15,7 @@ import java.io.IOException;
 import static java.lang.String.format;
 
 @Ignore
-public class SyntheticVocReader
+public class SyntheticVocReaderTest
 {
     private static final String detectionsXsdUri = "src/test/resources/detections/detections.xsd";
 
