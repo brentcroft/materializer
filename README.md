@@ -18,6 +18,7 @@ A Materializer provides a functional interface (internally orchestrating a TagHa
 
 1. Implement FlatTag enums for cases that build and validate the current item.
 2. Implement StepTag enums for cases that build and validate a child of the current item.
+3. Implement JumpTag enums for cases that delegate to another tag.
 
 Schema validation is only applied if a non-null schema object is assigned to the Materializer.
 Additional validation can be declared on enums as required. 
@@ -32,52 +33,44 @@ Following is the complete code for the usage shown above:
     @Getter
     public enum PropertiesRootTag implements FlatTag< Properties >
     {
-        ENTRY( "entry", String.class,
-    
-                // open: cache attribute @key
-                ( properties, attributes ) -> Optional
-                        .ofNullable( Tag.getAttributesMap( attributes ).get( "key" ) )
-                        .map( Object::toString )
-                        .orElseThrow( () -> new IllegalArgumentException( "missing attribute: key" ) ),
-    
-                // close: de-cache
+        ENTRY(
+                "entry",
+                ( properties, event ) -> event.getAttribute( "key" ),
                 ( properties, text, cache ) -> properties.setProperty( cache, text ) ),
-    
         COMMENT( "comment" ),
         PROPERTIES( "*", ENTRY, COMMENT ),
         ROOT( "", PROPERTIES );
     
         private final String tag;
-        private final FlatTag< Properties > self = this;
         private final boolean multiple;
         private final boolean choice;
-        private final Opener< Properties, Attributes, ? > opener;
-        private final Closer< Properties, String, ? > closer;
+        private final FlatCacheOpener< Properties, OpenEvent, ? > opener;
+        private final FlatCacheCloser< Properties, String, ? > closer;
         private final Tag< ? super Properties, ? >[] children;
     
         @SafeVarargs
         PropertiesRootTag( String tag, Tag< ? super Properties, ? >... children )
         {
-            this( tag, Object.class, null, null, children );
+            this( tag,null, null, children );
         }
     
         @SafeVarargs
         < C > PropertiesRootTag(
                 String tag,
-                Class< C > c,
-                Opener< Properties, Attributes, C > opener,
-                Closer< Properties, String, C > closer,
+                BiFunction< Properties, OpenEvent, C > opener,
+                TriConsumer< Properties, String, C > closer,
                 Tag< ? super Properties, ? >... children
         )
         {
             this.tag = tag;
             this.multiple = isNull( children ) || children.length == 0;
-            this.opener = opener;
-            this.closer = closer;
+            this.opener = Opener.flatCacheOpener( opener );
+            this.closer = Closer.flatCacheCloser( closer );
             this.choice = nonNull( children ) && children.length > 0;
             this.children = children;
         }
     }
+
 
 ## Tag Generation
 A simple SchemaRootTag is provided that models XSD schemas. 

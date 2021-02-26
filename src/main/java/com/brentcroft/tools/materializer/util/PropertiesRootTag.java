@@ -17,7 +17,6 @@ public enum PropertiesRootTag implements FlatTag< Properties >
             "entry",
             ( properties, event ) -> event.getAttribute( "key" ),
             ( properties, text, cache ) -> properties.setProperty( cache, text ) ),
-
     COMMENT( "comment" ),
     PROPERTIES( "*", ENTRY, COMMENT ),
     ROOT( "", PROPERTIES );
