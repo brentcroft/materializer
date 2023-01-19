@@ -22,7 +22,7 @@ public class TagModel< R >
 
     public Tag< ? super R, ? > getTag( OpenEvent openEvent )
     {
-        if (isNull(children) || children.length == 0)
+        if ( isNull( children ) || children.length == 0 )
         {
             throw new ValidationException(
                     parent,
@@ -36,7 +36,7 @@ public class TagModel< R >
         {
             for ( Tag< ? super R, ? > tag : children )
             {
-                if (isNull(tag))
+                if ( isNull( tag ) )
                 {
                     throw new ValidationException(
                             parent,
@@ -69,12 +69,13 @@ public class TagModel< R >
         }
         else if ( - 1 < index && index < children.length )
         {
-            Tag< ? super R, ? > tag = children[ index ];
+            final Tag< ? super R, ? > tag = children[ index ];
 
-            if ( tag.matches( openEvent ) && tag.isMultiple() )
+            if ( tag.isMultiple() && tag.matches( openEvent ) )
             {
                 return tag;
             }
+            // fall through
         }
 
         // sequence advance
@@ -84,7 +85,7 @@ public class TagModel< R >
         {
             final Tag< ? super R, ? > tag = children[ index ];
 
-            if (isNull(tag))
+            if ( isNull( tag ) )
             {
                 throw new ValidationException(
                         parent,
@@ -118,12 +119,12 @@ public class TagModel< R >
         throw new ValidationException(
                 parent,
                 format(
-                        "Unexpected tag '%s': no child matches: %s.",
+                        "Unexpected tag '%s': no child of '%s' matches: %s.",
                         openEvent.combinedTag(),
+                        parent.getTag(),
                         Stream
                                 .of( children )
                                 .map( c -> format( "%s['%s']", c.name(), c.getTag() ) )
                                 .collect( Collectors.joining( ", " ) ) ) );
-
     }
 }

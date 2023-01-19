@@ -13,7 +13,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import java.util.Stack;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -27,8 +28,8 @@ public class TagHandler< R > extends DefaultHandler implements TagHandlerContext
     @Setter
     private Locator documentLocator;
 
-    private final Stack< Object > itemStack = new Stack<>();
-    private final Stack< TagContext > contextStack;
+    private final Deque< Object > itemStack = new ArrayDeque<>();
+    private final Deque< TagContext > contextStack;
     private final ContextValue contextValue;
 
 
@@ -36,12 +37,13 @@ public class TagHandler< R > extends DefaultHandler implements TagHandlerContext
 
     public TagHandler( R rootItem, TagContext rootContext, ContextValue contextValue )
     {
-        contextStack = new Stack<>();
+        contextStack = new ArrayDeque<>();
         contextStack.push( rootContext );
         itemStack.push( rootItem );
         this.contextValue = contextValue;
     }
-    public TagHandler( R rootItem,  Stack< TagContext > tagContextStack, ContextValue contextValue )
+
+    public TagHandler( R rootItem, Deque< TagContext > tagContextStack, ContextValue contextValue )
     {
         contextStack = tagContextStack;
         itemStack.push( rootItem );
@@ -63,29 +65,38 @@ public class TagHandler< R > extends DefaultHandler implements TagHandlerContext
 
     public void startElement( String uri, String localName, String qName, Attributes attributes )
     {
+        if ( contextStack.isEmpty() )
+        {
+            throw new TagHandlerException(
+                    this,
+                    format( "Empty context stack for open event: %s", new OpenEvent(
+                            uri,
+                            localName,
+                            qName,
+                            attributes,
+                            this,
+                            null ) ) );
+        }
+
+
+        TagContext tagContext = contextStack.peek();
+
         final OpenEvent openEvent = new OpenEvent(
                 uri,
                 localName,
                 qName,
                 attributes,
                 this,
-                contextStack
-                        .peek()
+                tagContext
                         .getEvent()
                         .inContext() );
 
         characters.setLength( 0 );
 
-        if ( contextStack.isEmpty() )
-        {
-            throw new TagHandlerException( this, format( "Empty stack for localName: '%s'", openEvent.combinedTag() ) );
-        }
-
-        TagContext tagContext = contextStack.peek();
 
         if ( isNull( tagContext.getModel() ) )
         {
-            throw new TagHandlerException( this, format( "Unexpected tag '%s': %s does not accept children.", openEvent.combinedTag(), contextStack.peek() ) );
+            throw new TagHandlerException( this, format( "Unexpected tag '%s': '%s' does not accept children.", openEvent.combinedTag(), contextStack.peek() ) );
         }
 
         Tag< ?, ? > tag;

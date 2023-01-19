@@ -1,4 +1,4 @@
-package com.brentcroft.test;
+package com.brentcroft.tools.materializer.generated;
 
 import com.brentcroft.tools.materializer.core.*;
 import com.brentcroft.tools.materializer.model.*;

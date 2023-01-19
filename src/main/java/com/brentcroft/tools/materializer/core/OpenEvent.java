@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.xml.sax.Attributes;
 
+import java.util.Deque;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
@@ -14,7 +15,7 @@ import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
 
 @Getter
-public class OpenEvent extends AttributesMap
+public class OpenEvent extends Attribution
 {
     private final String uri;
     private final String localName;
@@ -53,7 +54,12 @@ public class OpenEvent extends AttributesMap
 
     public String toString()
     {
-        return format( "tag: %s (%s)", combinedTag(), tag );
+        return format(
+                "tag: %s%s%s",
+                combinedTag(),
+                ofNullable( tag ).map( t -> format(" (%s)", t) ).orElse( "" ),
+                super.toString()
+        );
     }
 
     private void harvestAttributes( Attributes attributes )
@@ -130,10 +136,16 @@ public class OpenEvent extends AttributesMap
                 .notOnStack( tag, this );
     }
 
-
-    public Stack< TagContext > stackInContext( Tag< ?, ? > tag )
+    public <T> T lastOnStack( Tag< ?, ? > tag, T defaultValue )
     {
-        Stack< TagContext > stack = getTagHandler()
+        return getTagHandler()
+                .lastCacheInScope( tag, defaultValue );
+    }
+
+
+    public Deque< TagContext > stackInContext( Tag< ?, ? > tag )
+    {
+        Deque< TagContext > stack = getTagHandler()
                 .getContextStack();
 
         stack.push( new TagContext(

@@ -1,4 +1,4 @@
-<properties src="src/test/resources/properties/child-properties.xml">
+<properties>
     <comment key="color">the color of the item</comment>
     <entry key="color">red</entry>
     <entry key="height">1.23</entry>

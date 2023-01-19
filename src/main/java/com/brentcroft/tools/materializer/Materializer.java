@@ -19,10 +19,7 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -46,7 +43,7 @@ public class Materializer< R > implements Function< InputSource, R >
     private final Supplier< FlatTag< ? super R > > rootTagSupplier;
     private final Supplier< R > rootItemSupplier;
 
-    private Stack< TagContext > contextStack;
+    private final Deque< TagContext > contextStack;
 
     @Setter
     private ContextValue contextValue;
@@ -56,7 +53,7 @@ public class Materializer< R > implements Function< InputSource, R >
         this( rootTagSupplier, rootItemSupplier, null );
     }
 
-    public Materializer( Supplier< FlatTag< ? super R > > rootTagSupplier, Supplier< R > rootItemSupplier, Stack< TagContext > contextStack )
+    public Materializer( Supplier< FlatTag< ? super R > > rootTagSupplier, Supplier< R > rootItemSupplier, Deque< TagContext > contextStack )
     {
         this( null, 0, rootTagSupplier, rootItemSupplier, contextStack );
     }
@@ -71,7 +68,7 @@ public class Materializer< R > implements Function< InputSource, R >
         this( schema, initialPoolSize, rootTagSupplier, rootItemSupplier, null );
     }
 
-    public static < R > Stack< TagContext > newStackInContext( FlatTag< ? super R > rootTag, ContextValue contextValue )
+    public static < R > Deque< TagContext > newStackInContext( FlatTag< ? super R > rootTag, ContextValue contextValue )
     {
         OpenEvent event = new OpenEvent(
                 null,
@@ -83,7 +80,7 @@ public class Materializer< R > implements Function< InputSource, R >
 
         event.setTag( rootTag );
 
-        Stack< TagContext > stack = new Stack<>();
+        Deque< TagContext > stack = new ArrayDeque<>();
         stack
                 .push(
                         new TagContext(
@@ -94,7 +91,7 @@ public class Materializer< R > implements Function< InputSource, R >
         return stack;
     }
 
-    public Materializer( Schema schema, int initialPoolSize, Supplier< FlatTag< ? super R > > rootTagSupplier, Supplier< R > rootItemSupplier, Stack< TagContext > contextStack )
+    public Materializer( Schema schema, int initialPoolSize, Supplier< FlatTag< ? super R > > rootTagSupplier, Supplier< R > rootItemSupplier, Deque< TagContext > contextStack )
     {
         this.schema = schema;
         this.saxParserFactory = SAXParserFactory.newInstance();
@@ -181,7 +178,7 @@ public class Materializer< R > implements Function< InputSource, R >
     {
         R rootItem = rootItemSupplier.get();
 
-        Stack< TagContext > stack = nonNull( contextStack )
+        Deque< TagContext > stack = nonNull( contextStack )
                                     ? contextStack
                                     : newStackInContext( rootTagSupplier.get(), contextValue );
 

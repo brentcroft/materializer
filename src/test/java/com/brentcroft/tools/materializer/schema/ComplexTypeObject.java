@@ -1,4 +1,4 @@
-package com.brentcroft.tools.materializer.util;
+package com.brentcroft.tools.materializer.schema;
 
 import lombok.Getter;
 

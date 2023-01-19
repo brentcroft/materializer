@@ -1,7 +1,9 @@
 package com.brentcroft.tools.materializer.util;
 
 import com.brentcroft.tools.materializer.Materializer;
+import com.brentcroft.tools.materializer.TagHandlerException;
 import com.brentcroft.tools.materializer.TagValidationException;
+import com.brentcroft.tools.materializer.util.fixtures.PropertiesRootTag;
 import org.junit.Test;
 import org.xml.sax.InputSource;
 
@@ -13,6 +15,7 @@ import java.nio.file.Paths;
 import java.util.Properties;
 
 import static java.lang.String.format;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class PropertiesRootTagTest
@@ -59,6 +62,33 @@ public class PropertiesRootTagTest
         catch ( TagValidationException e )
         {
             System.out.printf( "%s[%s] %s", e.toString(), e.getTagHandler().getPath(), e.getMessage() );
+        }
+    }
+
+
+    @Test()
+    public void circularity()
+    {
+        try
+        {
+            String xml = String.join( "\n", Files
+                    .readAllLines( Paths.get( rootDir, "circularity.xml" ) ) );
+
+            materializer
+                    .apply(
+                            new InputSource(
+                                    new StringReader( xml ) ) );
+
+            fail( "expected TagValidationException" );
+        }
+        catch ( TagHandlerException e )
+        {
+            System.out.printf( "%s", e );
+            assertTrue( e.getMessage().contains( "Detected circularity" ) );
+        }
+        catch ( Exception e )
+        {
+            fail( "expected TagValidationException, actual: " + e );
         }
     }
 }

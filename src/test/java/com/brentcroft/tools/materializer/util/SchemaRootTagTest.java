@@ -1,6 +1,9 @@
 package com.brentcroft.tools.materializer.util;
 
 import com.brentcroft.tools.materializer.Materializer;
+import com.brentcroft.tools.materializer.schema.Mutator;
+import com.brentcroft.tools.materializer.schema.SchemaObject;
+import com.brentcroft.tools.materializer.schema.SchemaRootTag;
 import com.brentcroft.tools.materializer.util.model.Detections;
 import org.junit.Before;
 import org.junit.Ignore;

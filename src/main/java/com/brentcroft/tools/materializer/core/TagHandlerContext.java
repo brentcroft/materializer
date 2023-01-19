@@ -3,9 +3,7 @@ package com.brentcroft.tools.materializer.core;
 import com.brentcroft.tools.materializer.TagHandlerException;
 import org.xml.sax.Locator;
 
-import java.util.List;
-import java.util.Stack;
-import java.util.stream.Collectors;
+import java.util.Deque;
 
 import static java.util.Objects.nonNull;
 
@@ -15,9 +13,9 @@ public interface TagHandlerContext
 
     Locator getDocumentLocator();
 
-    Stack< Object > getItemStack();
+    Deque< Object > getItemStack();
 
-    Stack< TagContext > getContextStack();
+    Deque< TagContext > getContextStack();
 
     default boolean notOnStack( Tag< ?, ? > tag, OpenEvent openEvent )
     {
@@ -37,5 +35,15 @@ public interface TagHandlerContext
         }
 
         return true;
+    }
+
+    default <T> T lastCacheInScope( Tag< ?, ? > tag, T defaultValue )
+    {
+        return getContextStack()
+                .stream()
+                .filter( tagContext -> tagContext.getTag().equals( tag ) )
+                .findFirst()
+                .map( tagContext -> (T)tagContext.getCache() )
+                .orElse( defaultValue );
     }
 }

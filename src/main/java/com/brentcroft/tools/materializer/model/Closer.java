@@ -33,7 +33,6 @@ public interface Closer< A, B, C, D > extends QuadConsumer< A, B, C, D >
                 .ifPresent( closer -> closer.accept( b, c ) );
     }
 
-
     static < A, B > JumpCloser< A, B > jumpCloser( BiConsumer< A, B > simpleCloser )
     {
         return ( a, b, c, d ) -> ofNullable( simpleCloser )

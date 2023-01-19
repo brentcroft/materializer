@@ -1,0 +1,113 @@
+<midi xmlns:c="jstl">
+    <c:script>
+        filename1 = 'detections-05'
+        filename2 = 'detections-02'
+
+        scenesCsvFilePath1    = 'src/test/resources/' + filename1 + '.csv'
+        scenesCsvFilePath2    = 'src/test/resources/' + filename2 + '.csv'
+        outputMidiFile       = 'src/test/resources/' + filename1 + '.midi'
+
+        RESOLUTION = 8
+        PERCUSSION_CHANNEL = 9
+
+        // see: https://en.wikipedia.org/wiki/General_MIDI#Piano
+        drums = {
+            Acoustic_Base_Drum: 35,
+            Rimshot: 37,
+            Acoustic_Snare: 38,
+            Hand_Clap: 39,
+            Low_Floor_Tom: 41,
+            Closed_Hi_Hat: 42,
+            High_Floor_Tom: 43,
+            Open_Hi_Hat: 46,
+            Ride_Cymbal_1: 51,
+            Cowbell: 56,
+            Tambourine: 54,
+            Maracas: 70,
+            Long_Whistle: 72,
+            Mute_Triangle: 80
+        }
+
+
+        note_offset = 1;
+    </c:script>
+
+
+    <sequence division-type="PPQ" resolution="${ RESOLUTION }" tracks="3">
+
+        <tempo bpm="240"/>
+
+        <c:foreach items="${ c:camera_scenes_from_csv( scenesCsvFilePath1 ) }" var="scene">
+
+            <tick at="${ $index * RESOLUTION }">
+
+                <!-- percussion - channel 10 (9) -->
+                <c:foreach items="${ scene.detections }" var="detection">
+                    <track track="0" channel="${ PERCUSSION_CHANNEL }">
+                        <c:catch>
+                            <instrument note="${ categories[ detection.category ] }">
+                                <note vol="${ c:format( '%.0f', 50 + ( 60 * detection.score ) ) }" tick="${ $tick + ( 4 * $index ) }"/>
+                            </instrument>
+                        </c:catch>
+                        <c:if test="${ not empty caughtException }">
+                            <c:log>Category: ${ detection.category }; ${ caughtException }</c:log>
+                        </c:if>
+                    </track>
+                </c:foreach>
+            </tick>
+        </c:foreach>
+
+        <track track="1" channel="1">
+            <c:foreach items="${ c:camera_scenes_from_csv( scenesCsvFilePath2 ) }" var="scene">
+                <tick at="${ $index * RESOLUTION }">
+                    <c:choose>
+                        <c:when test="${ $index mod RESOLUTION == 0 }">
+                            <instrument program="77">
+                                <c:foreach items="${ scene.detections }" var="detection">
+                                    <note vol="${ c:format( '%.0f', 40 + ( 60 * detection.score ) ) }" tick="${ $tick + 4  }" ticks="16" note="${ categories[ detection.category ] + note_offset }"/>
+                                </c:foreach>
+                            </instrument>
+                        </c:when>
+                        <c:when test="${ scene.detections.size() > 1 }">
+                            <instrument program="60">
+                                <c:foreach items="${ scene.detections }" var="detection">
+                                    <note vol="${ c:format( '%.0f', 10 + ( 60 * detection.score ) ) }" tick="${ $tick + 4  }" ticks="8" note="${ categories[ detection.category ] + note_offset }"/>
+                                </c:foreach>
+                            </instrument>
+                        </c:when>
+                    </c:choose>
+                </tick>
+            </c:foreach>
+        </track>
+
+        <track track="2" channel="2">
+            <instrument program="17">
+                <c:foreach items="${ c:camera_scenes_from_csv( scenesCsvFilePath2 ) }" var="scene">
+                    <tick at="${ $index * RESOLUTION }">
+                        <c:foreach items="${ scene.detections }" var="detection">
+                            <c:script>
+                                volume = 30 + ( 40 * detection.score )
+                                note1 =  100 * ( detection.box.xmin / scene.size.width )
+                                note2 =  100 * ( detection.box.ymin / scene.size.height )
+                            </c:script>
+                            <note vol="${ c:format( '%.0f', volume ) }" tick="${ $tick + 2  }" ticks="6" note="${ c:format( '%.0f', note1 ) }"/>
+                            <note vol="${ c:format( '%.0f', volume ) }" tick="${ $tick + 2  }" ticks="6" note="${ c:format( '%.0f', note2 ) }"/>
+                        </c:foreach>
+                    </tick>
+                </c:foreach>
+            </instrument>
+        </track>
+
+    </sequence>
+    <!--
+
+    -->
+    <export file="${ outputMidiFile }"/>
+    <!--
+
+    -->
+    <sequencer loop-count="0">
+        <track track="1" mute="false"/>
+        <start/>
+    </sequencer>
+</midi>

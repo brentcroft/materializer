@@ -1,14 +1,13 @@
 package com.brentcroft.tools.materializer.util;
 
 
-import com.brentcroft.test.DetectionsRootTag;
+import com.brentcroft.tools.materializer.generated.DetectionsRootTag;
 import com.brentcroft.tools.materializer.Materializer;
 import com.brentcroft.tools.materializer.util.model.Detections;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.InputSource;
 
-import javax.xml.validation.Schema;
 import java.io.FileInputStream;
 import java.io.IOException;
 

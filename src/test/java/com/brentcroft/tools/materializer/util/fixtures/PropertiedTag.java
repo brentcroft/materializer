@@ -1,6 +1,6 @@
 package com.brentcroft.tools.materializer.util.fixtures;
 
-import com.brentcroft.tools.materializer.core.AttributesMap;
+import com.brentcroft.tools.materializer.core.Attribution;
 import com.brentcroft.tools.materializer.core.OpenEvent;
 import com.brentcroft.tools.materializer.core.Tag;
 import com.brentcroft.tools.materializer.model.Closer;
@@ -43,8 +43,8 @@ enum AttributePropertiesTag implements StepTag< Propertied, Properties >
 
     private final String tag;
     private final boolean multiple = true;
-    private final Opener< Propertied, Properties, OpenEvent, AttributesMap > opener;
-    private final Closer< Propertied, Properties, String, AttributesMap > closer;
+    private final Opener< Propertied, Properties, OpenEvent, Attribution > opener;
+    private final Closer< Propertied, Properties, String, Attribution > closer;
 
     @Override
     public Properties getItem( Propertied propertied, OpenEvent openEvent )

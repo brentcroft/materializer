@@ -3,7 +3,7 @@ package com.brentcroft.tools.materializer;
 /**
  * A ContextValueMapper allows property values to be mapped to new values with respect to a context.
  * <p>
- * For example, a value may be an EL expression be evaluated, or a key whose value must be hidden.
+ * For example, a value may be an EL expression to be evaluated, or a key whose value must be hidden.
  */
 public interface ContextValue
 {

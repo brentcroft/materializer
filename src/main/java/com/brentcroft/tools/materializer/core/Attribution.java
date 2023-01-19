@@ -14,14 +14,14 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
 
-public class AttributesMap extends Properties
+public class Attribution extends Properties
 {
-    public AttributesMap()
+    public Attribution()
     {
         this( null );
     }
 
-    public AttributesMap( Properties defaults )
+    public Attribution( Properties defaults )
     {
         super( defaults );
     }
@@ -53,6 +53,15 @@ public class AttributesMap extends Properties
     }
 
 
+    /**
+     * If the attribute <code>key</code> is available then call and return the supplied Caller,
+     * otherwise return null.
+     *
+     * @param key    the attribute that must be available
+     * @param caller a Caller to call if the attribute is available.
+     * @param <V>    The return type of a call to the Caller
+     * @return The value returned from the Caller or null
+     */
     public < V > V onHasAttribute( String key, Callable< V > caller )
     {
         try
@@ -65,7 +74,18 @@ public class AttributesMap extends Properties
         }
     }
 
-
+    /**
+     * If the attribute <code>key</code> is available,
+     * and the Supplier returns <code>true</code>,
+     * then call and return the supplied Caller,
+     * otherwise return null.
+     *
+     * @param key    the attribute that must be available
+     * @param and    a boolean Supplier that must return true
+     * @param caller a Caller to call if the attribute is available and the Supplier returns true
+     * @param <V>    The return type of a call to the Caller
+     * @return The value returned from the Caller or null
+     */
     public < V > V onHasAttributeAnd( String key, Supplier< Boolean > and, Callable< V > caller )
     {
         try
@@ -85,8 +105,8 @@ public class AttributesMap extends Properties
     public boolean hasAttribute( String key )
     {
         return containsKey( key ) || ofNullable( defaults )
-                .map( d -> ( d instanceof AttributesMap )
-                           ? ( ( AttributesMap ) d ).hasAttribute( key )
+                .map( d -> ( d instanceof Attribution )
+                           ? ( ( Attribution ) d ).hasAttribute( key )
                            : d.containsKey( key ) )
                 .orElse( false );
     }
@@ -98,7 +118,7 @@ public class AttributesMap extends Properties
         {
             if ( mandatory )
             {
-                throw new IllegalArgumentException( "Mandatory attribute is missing: " + key );
+                throw new RuntimeException( "Mandatory attribute is missing: " + key );
             }
 
             return defaultValue;

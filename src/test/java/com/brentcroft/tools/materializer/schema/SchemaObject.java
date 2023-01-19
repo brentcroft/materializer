@@ -1,4 +1,4 @@
-package com.brentcroft.tools.materializer.util;
+package com.brentcroft.tools.materializer.schema;
 
 import com.brentcroft.tools.jstl.JstlTemplateManager;
 import com.brentcroft.tools.jstl.MapBindings;
